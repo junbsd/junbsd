@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<title>나이 스캐너</title>
+<title>Máy Quét Tuổi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -108,7 +108,7 @@
     position: absolute;
     inset: 0;
     width: 100%; height: 100%;
-    transform: scaleX(-1);
+    /* scaleX(-1) 제거 — JS에서 좌표를 직접 미러링하여 텍스트 반전 방지 */
     pointer-events: none;
   }
 
@@ -153,6 +153,51 @@
       linear-gradient(90deg, rgba(0,255,229,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
   }
+
+  /* ── 저장 버튼 ── */
+  #save-btn {
+    position: absolute;
+    bottom: calc(20px + var(--safe-bottom));
+    right: 16px;
+    z-index: 25;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: rgba(6,6,8,0.85);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--glow);
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s, background 0.15s;
+  }
+  #save-btn:active {
+    transform: scale(0.9);
+    background: rgba(0,255,229,0.15);
+  }
+  #save-btn svg { width: 22px; height: 22px; }
+
+  /* 저장 토스트 */
+  #save-toast {
+    position: absolute;
+    bottom: calc(82px + var(--safe-bottom));
+    left: 50%; transform: translateX(-50%);
+    z-index: 60;
+    background: rgba(0,255,229,0.12);
+    border: 1px solid rgba(0,255,229,0.35);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    padding: 7px 18px;
+    border-radius: 100px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #save-toast.show { opacity: 1; }
 
   /* ── 하단 패널 ── */
   #panel {
@@ -466,26 +511,26 @@
         <path d="M1 10V4h6M35 10V4h-6M1 26v6h6M35 26v6h-6" stroke-linecap="round"/>
       </svg>
     </div>
-    <div id="start-title">AGE SCANNER</div>
+    <div id="start-title">MÁY QUÉT TUỔI</div>
     <div id="start-desc">
-      카메라로 얼굴을 비추면<br>
-      AI가 나이를 실시간으로 분석합니다.<br><br>
-      <span style="color:rgba(0,255,229,0.5)">face-api.js · 완전 로컬 처리</span>
+      Hướng camera vào khuôn mặt<br>
+      AI sẽ phân tích tuổi theo thời gian thực.<br><br>
+      <span style="color:rgba(0,255,229,0.5)">face-api.js · Xử lý hoàn toàn cục bộ</span>
     </div>
-    <button id="start-btn" onclick="startApp()">스캔 시작</button>
-    <div id="start-note">카메라 권한이 필요합니다 · 데이터 외부 전송 없음</div>
+    <button id="start-btn" onclick="startApp()">BẮT ĐẦU QUÉT</button>
+    <div id="start-note">Cần quyền truy cập camera · Không gửi dữ liệu ra ngoài</div>
   </div>
 
   <!-- 로딩 화면 -->
   <div id="loading-screen">
     <div id="loading-ring"></div>
-    <div id="loading-text">AI 모델 로드 중</div>
-    <div id="loading-sub">최초 실행 시 30~60초 소요</div>
+    <div id="loading-text">Đang tải mô hình AI</div>
+    <div id="loading-sub">Lần đầu chạy mất 30~60 giây</div>
   </div>
 
   <!-- 헤더 -->
   <div id="header">
-    <div id="logo">AGE SCANNER</div>
+    <div id="logo">MÁY QUÉT TUỔI</div>
     <div style="display:flex;align-items:center;gap:8px">
       <span id="fps-label">-- fps</span>
       <div id="status-dot"></div>
@@ -498,7 +543,16 @@
     <canvas id="canvas"></canvas>
     <div id="grid-overlay"></div>
     <div id="scanline"></div>
-    <div id="no-face">얼굴을 화면 중앙에 맞춰주세요</div>
+    <div id="no-face">Hãy đưa khuôn mặt vào giữa màn hình</div>
+
+    <!-- 저장 버튼 -->
+    <button id="save-btn" onclick="saveSnapshot()" title="Lưu ảnh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3.5"/>
+        <path d="M20.5 7H17l-2-3H9L7 7H3.5A1.5 1.5 0 0 0 2 8.5v11A1.5 1.5 0 0 0 3.5 21h17a1.5 1.5 0 0 0 1.5-1.5v-11A1.5 1.5 0 0 0 20.5 7z"/>
+      </svg>
+    </button>
+    <div id="save-toast">📸 Đã lưu vào thư viện ảnh</div>
   </div>
 
   <!-- 하단 패널 -->
@@ -522,13 +576,13 @@
       </div>
 
       <div id="age-number-wrap">
-        <div id="age-label-small">ESTIMATED AGE</div>
+        <div id="age-label-small">TUỔI ƯỚC TÍNH</div>
         <div>
-          <span id="age-number">--</span><span id="age-unit">세</span>
+          <span id="age-number">--</span><span id="age-unit">tuổi</span>
         </div>
-        <div id="age-category">대기 중...</div>
+        <div id="age-category">Đang chờ...</div>
         <div id="confidence-row">
-          <div id="confidence-label">STABILITY</div>
+          <div id="confidence-label">ĐỘ ỔN ĐỊNH</div>
           <div id="confidence-track">
             <div id="confidence-fill"></div>
           </div>
@@ -539,7 +593,7 @@
 
     <!-- 히스토리 -->
     <div id="history-section">
-      <div id="history-label">최근 추정 기록</div>
+      <div id="history-label">Lịch sử phân tích gần đây</div>
       <div id="history-bars"></div>
     </div>
 
@@ -572,14 +626,14 @@ const DETECT_EVERY = 4; // 매 N프레임마다 분석
 
 // ── 나이대 색상 ────────────────────────────────────────────────────
 const AGE_TIERS = [
-  { max:12,  label:'어린이',   color:'#00ffe5' },
-  { max:17,  label:'청소년',   color:'#4dd9ff' },
-  { max:25,  label:'청년',     color:'#4a9eff' },
-  { max:35,  label:'30대',     color:'#6c7fff' },
-  { max:45,  label:'40대',     color:'#9b6bff' },
-  { max:55,  label:'50대',     color:'#cc5eff' },
-  { max:65,  label:'60대',     color:'#e04ebb' },
-  { max:120, label:'노년',     color:'#e0607a' },
+  { max:12,  label:'Trẻ em',      color:'#00ffe5' },
+  { max:17,  label:'Thiếu niên',  color:'#4dd9ff' },
+  { max:25,  label:'Thanh niên',  color:'#4a9eff' },
+  { max:35,  label:'30 tuổi',     color:'#6c7fff' },
+  { max:45,  label:'40 tuổi',     color:'#9b6bff' },
+  { max:55,  label:'50 tuổi',     color:'#cc5eff' },
+  { max:65,  label:'60 tuổi',     color:'#e04ebb' },
+  { max:120, label:'Cao tuổi',    color:'#e0607a' },
 ];
 
 function ageTier(age) {
@@ -615,16 +669,16 @@ async function startApp() {
   } catch (e) {
     loading.innerHTML = `
       <div style="color:#ff6b35;font-size:13px;text-align:center;padding:20px">
-        카메라 권한이 거부되었습니다.<br>
+        Quyền truy cập camera bị từ chối.<br>
         <small style="color:#4a4a5a;margin-top:8px;display:block">
-          Safari 설정 → 카메라 허용 후 새로고침
+          Cài đặt Safari → Cho phép Camera → Tải lại trang
         </small>
       </div>`;
     return;
   }
 
   // 모델 로드
-  document.getElementById('loading-text').textContent = 'AI 모델 로드 중';
+  document.getElementById('loading-text').textContent = 'Đang tải mô hình AI';
   try {
     await loadModels();
   } catch(e) {
@@ -637,8 +691,8 @@ async function startApp() {
     } catch(e2) {
       loading.innerHTML = `
         <div style="color:#ff6b35;font-size:13px;text-align:center;padding:20px;line-height:1.8">
-          모델 로드 실패<br>
-          <small style="color:#4a4a5a">인터넷 연결을 확인하고 새로고침해주세요</small>
+          Tải mô hình thất bại<br>
+          <small style="color:#4a4a5a">Vui lòng kiểm tra kết nối internet và tải lại trang</small>
         </div>`;
       return;
     }
@@ -707,6 +761,9 @@ async function detect() {
   noFace.style.display = 'none';
 
   // 비디오 → 캔버스 좌표 변환
+  // video는 CSS scaleX(-1)로 미러됨 → canvas는 미러 없음
+  // face-api는 원본(비미러) 비디오 기준 좌표를 반환
+  // → canvas 너비에서 x를 반전시켜 video 미러와 맞춤
   const scaleX = canvas.width  / video.videoWidth;
   const scaleY = canvas.height / video.videoHeight;
 
@@ -737,12 +794,15 @@ async function detect() {
   // 패널 업데이트
   updatePanel(smoothed, stability, sorted);
 
-  // 캔버스에 얼굴 박스 그리기
+  // 캔버스에 얼굴 박스 그리기 (X좌표 미러링 적용)
   sorted.forEach((det, i) => {
     const box = det.detection.box;
-    const x = box.x * scaleX;
+    // 원본 x → 미러 x: canvas.width - (x + w)*scaleX
+    const rawX = box.x * scaleX;
+    const rawW = box.width  * scaleX;
+    const x = canvas.width - rawX - rawW;  // ← 핵심: X 반전
     const y = box.y * scaleY;
-    const w = box.width  * scaleX;
+    const w = rawW;
     const h = box.height * scaleY;
     const age = Math.round(det.age);
     const tier = ageTier(i === 0 ? smoothed : age);
@@ -788,7 +848,7 @@ function drawFaceBox(ctx, x, y, w, h, age, tier, isMain) {
 
   // 나이 태그
   if (isMain) {
-    const tag = `${age}세  ${tier.label}`;
+    const tag = `${age} tuổi  ${tier.label}`;
     ctx.font = 'bold 14px Orbitron, monospace';
     const tw = ctx.measureText(tag).width;
     const tagX = x;
@@ -811,9 +871,9 @@ function drawFaceBox(ctx, x, y, w, h, age, tier, isMain) {
     // 작은 나이 레이블
     ctx.font = '11px DM Mono, monospace';
     ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(x, y - 18, 48, 16);
+    ctx.fillRect(x, y - 18, 52, 16);
     ctx.fillStyle = c;
-    ctx.fillText(`${age}세`, x + 4, y - 6);
+    ctx.fillText(`${age} tuổi`, x + 4, y - 6);
   }
 }
 
@@ -865,7 +925,7 @@ function updatePanel(age, stability, allFaces) {
           <div class="face-chip-age" style="color:${t.color}">${a}</div>
           <div class="face-chip-info">
             <div class="face-chip-cat">${t.label}</div>
-            <div class="face-chip-label">얼굴 ${i+1}</div>
+            <div class="face-chip-label">Khuôn mặt ${i+1}</div>
           </div>
         </div>`;
     }).join('');
@@ -876,7 +936,7 @@ function updatePanel(age, stability, allFaces) {
 
 function updatePanelNoFace() {
   document.getElementById('age-number').textContent = '--';
-  document.getElementById('age-category').textContent = '얼굴 없음';
+  document.getElementById('age-category').textContent = 'Không có khuôn mặt';
   document.getElementById('age-category').style.color = 'var(--muted)';
   document.getElementById('confidence-fill').style.width = '0%';
   document.getElementById('confidence-pct').textContent = '--%';
@@ -935,6 +995,106 @@ function animateNumber(elId, from, to, duration) {
     if (t < 1) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
+}
+
+// ── 스냅샷 저장 (사진첩) ─────────────────────────────────────────
+async function saveSnapshot() {
+  const video  = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const panel  = document.getElementById('panel');
+
+  // 1) 전체 화면 합성 캔버스 생성
+  const appEl  = document.getElementById('app');
+  const W = appEl.clientWidth;
+  const H = appEl.clientHeight;
+
+  const snap = document.createElement('canvas');
+  snap.width  = W * window.devicePixelRatio;
+  snap.height = H * window.devicePixelRatio;
+  const sCtx = snap.getContext('2d');
+  sCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+  // 배경
+  sCtx.fillStyle = '#060608';
+  sCtx.fillRect(0, 0, W, H);
+
+  // 카메라 영역 크기 계산
+  const camWrap = document.getElementById('camera-wrap');
+  const camH = camWrap.clientHeight;
+
+  // 2) 비디오 프레임 (미러 적용)
+  sCtx.save();
+  sCtx.translate(W, 0);
+  sCtx.scale(-1, 1);
+  sCtx.drawImage(video, 0, 0,
+    video.videoWidth, video.videoHeight,
+    0, 0, W, camH
+  );
+  sCtx.restore();
+
+  // 3) 분석 오버레이 캔버스 (박스 + 태그) — 이미 올바른 방향
+  sCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, W, camH);
+
+  // 4) 헤더 텍스트
+  sCtx.fillStyle = 'rgba(6,6,8,0.75)';
+  sCtx.fillRect(0, 0, W, 44);
+  sCtx.font = 'bold 13px Orbitron, monospace';
+  sCtx.fillStyle = '#00ffe5';
+  sCtx.fillText('MÁY QUÉT TUỔI', 20, 28);
+
+  // 5) 하단 패널 (HTML → canvas via 색상 블록으로 재현)
+  const panelY = camH;
+  const panelH = H - camH;
+  sCtx.fillStyle = '#0d0d12';
+  sCtx.fillRect(0, panelY, W, panelH);
+  sCtx.strokeStyle = 'rgba(0,255,229,0.15)';
+  sCtx.lineWidth = 1;
+  sCtx.beginPath();
+  sCtx.moveTo(0, panelY);
+  sCtx.lineTo(W, panelY);
+  sCtx.stroke();
+
+  // 나이 숫자
+  const ageEl = document.getElementById('age-number');
+  const ageTxt = ageEl.textContent;
+  const ageColor = ageEl.style.color || '#00ffe5';
+  sCtx.font = 'bold 64px Orbitron, monospace';
+  sCtx.fillStyle = ageColor;
+  sCtx.shadowColor = ageColor;
+  sCtx.shadowBlur = 16;
+  sCtx.fillText(ageTxt, 104, panelY + 72);
+  sCtx.shadowBlur = 0;
+
+  sCtx.font = '16px DM Mono, monospace';
+  sCtx.fillStyle = '#4a4a5a';
+  sCtx.fillText(' tuổi', 104 + sCtx.measureText(ageTxt).width, panelY + 72);
+
+  const catEl = document.getElementById('age-category');
+  sCtx.font = 'bold 13px Orbitron, monospace';
+  sCtx.fillStyle = catEl.style.color || '#00ffe5';
+  sCtx.fillText(catEl.textContent, 104, panelY + 94);
+
+  // 타임스탬프
+  const now = new Date();
+  const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  sCtx.font = '10px DM Mono, monospace';
+  sCtx.fillStyle = '#4a4a5a';
+  sCtx.fillText(`face-api.js  ·  ${ts}`, 20, H - 14);
+
+  // 6) 다운로드 / 사진첩 저장
+  snap.toBlob(blob => {
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href     = url;
+    link.download = `age-scan-${Date.now()}.jpg`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    // 토스트 표시
+    const toast = document.getElementById('save-toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  }, 'image/jpeg', 0.93);
 }
 
 // ── FPS 계산 ──────────────────────────────────────────────────────
