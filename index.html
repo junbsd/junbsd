@@ -1,637 +1,714 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#000000">
-<title>Phân Tích Khuôn Mặt</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#060608;--surface:#0c0c10;--accent:#00ffe5;--muted:#3a3a4a;
-  --text:#e0e0ee;--border:rgba(0,255,229,.12);--glow:0 0 18px rgba(0,255,229,.28);
-  --fd:'Orbitron',monospace;--fm:'DM Mono',monospace;
-  --sbot:env(safe-area-inset-bottom,0px);--stop:env(safe-area-inset-top,0px);
-}
-html,body{width:100%;height:100%;background:var(--bg);color:var(--text);
-  font-family:var(--fm);overflow:hidden;-webkit-tap-highlight-color:transparent;user-select:none}
-#app{display:flex;flex-direction:column;height:100dvh;position:relative}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Index</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --accent: #00ff88;
+      --accent2: #7c3aed;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --folder: #f59e0b;
+      --file-html: #38bdf8;
+      --file-css: #a78bfa;
+      --file-js: #fbbf24;
+      --file-img: #fb7185;
+      --file-other: #94a3b8;
+    }
 
-/* Header */
-#hdr{position:absolute;top:var(--stop);left:0;right:0;z-index:30;
-  display:flex;align-items:center;justify-content:space-between;padding:10px 18px;
-  background:linear-gradient(to bottom,rgba(6,6,8,.92),transparent)}
-#logo{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.18em;
-  color:var(--accent);text-shadow:var(--glow)}
-#hdr-r{display:flex;align-items:center;gap:10px}
-#fps-lbl{font-size:10px;color:var(--muted);letter-spacing:.08em}
-#dot{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:.3s}
-#dot.live{background:#ff3b3b;box-shadow:0 0 8px #ff3b3b;animation:blink 1.2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Camera */
-#cam{position:relative;flex:1;overflow:hidden;background:#000}
-#video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
-#canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#grid{position:absolute;inset:0;pointer-events:none;z-index:3;
-  background-image:linear-gradient(rgba(0,255,229,.022) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(0,255,229,.022) 1px,transparent 1px);
-  background-size:44px 44px}
-#scanline{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:4}
-#scanline::before{content:'';position:absolute;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,rgba(0,255,229,.7) 40%,#00ffe5 50%,rgba(0,255,229,.7) 60%,transparent);
-  animation:scan 3.2s linear infinite;box-shadow:0 0 10px rgba(0,255,229,.7)}
-@keyframes scan{0%{top:-2px;opacity:0}4%{opacity:1}96%{opacity:1}100%{top:100%;opacity:0}}
-#no-face{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:10;
-  font-size:10px;letter-spacing:.16em;color:rgba(74,74,90,.85);background:rgba(6,6,8,.65);
-  padding:5px 14px;border-radius:100px;border:1px solid rgba(74,74,90,.2);
-  display:none;white-space:nowrap}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-/* Camera lost overlay */
-#cam-lost{position:absolute;inset:0;z-index:20;background:rgba(6,6,8,.88);
-  display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px}
-#cam-lost.show{display:flex}
-#cam-lost p{font-size:11px;letter-spacing:.1em;color:var(--muted);text-align:center;line-height:1.9}
-#recover-btn{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.14em;
-  background:transparent;border:1px solid var(--accent);color:var(--accent);
-  padding:10px 22px;border-radius:100px;cursor:pointer;box-shadow:var(--glow)}
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-/* Tabs */
-#tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.tab{flex:1;padding:9px 0;text-align:center;font-family:var(--fd);font-size:8.5px;
-  font-weight:700;letter-spacing:.1em;color:var(--muted);cursor:pointer;
-  border-bottom:2px solid transparent;transition:.2s}
-.tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+    .glow-orb {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+      top: -200px;
+      right: -200px;
+      pointer-events: none;
+      z-index: 0;
+      animation: orbFloat 8s ease-in-out infinite;
+    }
 
-/* Multi chips */
-#chips{display:flex;gap:6px;padding:7px 16px 0;overflow-x:auto;
-  -webkit-overflow-scrolling:touch;flex-shrink:0}
-.chip{flex-shrink:0;background:rgba(255,255,255,.04);border:1px solid var(--border);
-  border-radius:8px;padding:4px 9px;display:flex;align-items:center;gap:6px}
-.chip-age{font-family:var(--fd);font-size:17px;font-weight:700}
-.chip-cat{font-size:9px;font-weight:500}
-.chip-sub{font-size:8px;color:var(--muted)}
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-40px, 40px); }
+    }
 
-/* Panel */
-#panel{position:relative;z-index:20;background:var(--surface);border-top:1px solid var(--border);
-  display:flex;flex-direction:column;flex-shrink:0;padding-bottom:calc(8px + var(--sbot))}
-.page{display:none;padding:11px 16px}
-.page.on{display:block}
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
 
-/* AGE page */
-#age-row{display:flex;align-items:center;gap:13px;margin-bottom:8px}
-#age-num{font-family:var(--fd);font-size:56px;font-weight:900;line-height:1;
-  color:var(--accent);text-shadow:var(--glow);transition:color .4s;letter-spacing:-.02em}
-#age-unit{font-size:13px;color:var(--muted);margin-left:2px}
-#age-cat{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;
-  margin-top:3px;transition:color .4s}
-#age-lbl{font-size:8.5px;letter-spacing:.16em;color:var(--muted);margin-bottom:1px}
-.cr{display:flex;align-items:center;gap:6px;margin-top:4px}
-.cl{font-size:7.5px;color:var(--muted);width:44px;letter-spacing:.05em}
-.ct{flex:1;height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
-.cf{height:100%;border-radius:2px;width:0%;transition:width .5s,background .4s}
-.cp{font-size:7.5px;color:var(--muted);width:24px;text-align:right}
-#hl{font-size:8px;letter-spacing:.13em;color:var(--muted);margin:7px 0 4px}
-#hb{display:flex;align-items:flex-end;gap:2px;height:30px}
-.hbar{flex:1;border-radius:2px 2px 0 0;opacity:.22;transition:height .3s,opacity .3s;min-height:2px}
-.hbar.latest{opacity:.95}.hbar.recent{opacity:.55}
+    /* Header */
+    header {
+      margin-bottom: 40px;
+      animation: fadeSlideIn 0.6s ease both;
+    }
 
-/* EMOTION page */
-#dom-emo{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.13em;
-  text-align:center;padding:7px;border-radius:7px;background:rgba(255,255,255,.03);
-  border:1px solid var(--border);margin-bottom:8px}
-#emo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ec{background:rgba(255,255,255,.03);border:1px solid var(--border);
-  border-radius:7px;padding:6px 8px;display:flex;align-items:center;gap:7px}
-.ei{font-size:18px;line-height:1}
-.en{font-size:9.5px;font-weight:500;margin-bottom:2px}
-.et{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
-.ef{height:100%;border-radius:2px;transition:width .4s}
-.ep{font-size:7.5px;color:var(--muted);margin-top:2px}
+    .header-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
 
-/* GENDER page */
-#g-main{display:flex;align-items:center;gap:14px;margin-bottom:12px}
-#g-icon{font-size:42px;line-height:1}
-#g-val{font-family:var(--fd);font-size:20px;font-weight:900;letter-spacing:.1em}
-#g-sub{font-size:8.5px;color:var(--muted);letter-spacing:.1em;margin-top:2px}
-.gr{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.gl{font-size:9px;color:var(--muted);width:26px}
-.gt{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
-.gf{height:100%;border-radius:3px;transition:width .5s}
-.gp{font-size:8.5px;width:28px;text-align:right;color:var(--muted)}
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
 
-/* Start screen */
-#start{position:absolute;inset:0;z-index:50;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:18px;padding:36px;text-align:center}
-#s-icon{width:68px;height:68px;border:2px solid var(--accent);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  animation:breathe 2.5s ease-in-out infinite}
-@keyframes breathe{
-  0%,100%{box-shadow:var(--glow),inset 0 0 14px rgba(0,255,229,.04)}
-  50%    {box-shadow:0 0 34px rgba(0,255,229,.42),inset 0 0 22px rgba(0,255,229,.08)}}
-#s-title{font-family:var(--fd);font-size:16px;font-weight:900;letter-spacing:.16em;
-  color:var(--accent);text-shadow:var(--glow)}
-#s-desc{font-size:11.5px;color:var(--muted);line-height:1.85;max-width:260px}
-#s-btn{background:var(--accent);color:#000;border:none;border-radius:100px;
-  padding:12px 32px;font-family:var(--fd);font-size:11px;font-weight:700;
-  letter-spacing:.15em;cursor:pointer;box-shadow:var(--glow);transition:transform .12s}
-#s-btn:active{transform:scale(.95)}
-#s-note{font-size:8.5px;color:var(--muted);opacity:.55}
+    .repo-url {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
 
-/* Loading */
-#load{position:absolute;inset:0;z-index:40;background:var(--bg);
-  display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-#l-ring{width:50px;height:50px;border:2px solid rgba(0,255,229,.1);
-  border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#l-txt{font-size:11px;letter-spacing:.16em;color:var(--muted)}
-#l-sub{font-size:8.5px;color:rgba(74,74,90,.5);letter-spacing:.1em}
-</style>
+    /* Breadcrumb */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      margin-bottom: 24px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      flex-wrap: wrap;
+      animation: fadeSlideIn 0.6s 0.1s ease both;
+    }
+
+    .breadcrumb-item {
+      color: var(--accent);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .breadcrumb-item:hover { opacity: 0.7; text-decoration: underline; }
+
+    .breadcrumb-sep { color: var(--muted); }
+
+    .breadcrumb-current { color: var(--text); }
+
+    /* Stats bar */
+    .stats {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 24px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      animation: fadeSlideIn 0.6s 0.15s ease both;
+    }
+
+    .stat { display: flex; align-items: center; gap: 6px; }
+    .stat-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 20px;
+      animation: fadeSlideIn 0.6s 0.2s ease both;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    #searchInput {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px 12px 40px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #searchInput:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.1);
+    }
+
+    #searchInput::placeholder { color: var(--muted); }
+
+    /* File list */
+    .file-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      animation: fadeSlideIn 0.6s 0.25s ease both;
+    }
+
+    .file-list-header {
+      display: grid;
+      grid-template-columns: 1fr 100px 140px;
+      padding: 10px 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .file-item {
+      display: grid;
+      grid-template-columns: 1fr 100px 140px;
+      align-items: center;
+      padding: 13px 20px;
+      border-bottom: 1px solid rgba(30,30,46,0.5);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform 0.15s;
+    }
+
+    .file-item:hover {
+      background: rgba(0,255,136,0.04);
+    }
+
+    .file-item:hover::before { transform: scaleY(1); }
+
+    .file-item:last-child { border-bottom: none; }
+
+    .file-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .file-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .file-ext {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 4px;
+      font-weight: 400;
+    }
+
+    .type-folder { color: var(--folder); }
+    .type-html { color: var(--file-html); }
+    .type-css { color: var(--file-css); }
+    .type-js { color: var(--file-js); }
+    .type-img { color: var(--file-img); }
+    .type-other { color: var(--file-other); }
+
+    .badge-folder { background: rgba(245,158,11,0.1); color: var(--folder); }
+    .badge-html { background: rgba(56,189,248,0.1); color: var(--file-html); }
+    .badge-css { background: rgba(167,139,250,0.1); color: var(--file-css); }
+    .badge-js { background: rgba(251,191,36,0.1); color: var(--file-js); }
+    .badge-img { background: rgba(251,113,133,0.1); color: var(--file-img); }
+    .badge-other { background: rgba(148,163,184,0.1); color: var(--file-other); }
+
+    .file-type {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .file-modified {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 13px;
+    }
+
+    .empty-state .empty-icon { font-size: 32px; margin-bottom: 12px; }
+
+    /* Config panel */
+    .config-panel {
+      margin-top: 32px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      animation: fadeSlideIn 0.6s 0.35s ease both;
+    }
+
+    .config-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 16px;
+    }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .config-grid { grid-template-columns: 1fr; }
+      .file-list-header { display: none; }
+      .file-item { grid-template-columns: 1fr auto; }
+      .file-modified { display: none; }
+    }
+
+    .config-field label {
+      display: block;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .config-field input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .config-field input:focus { border-color: var(--accent); }
+
+    .btn {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .notice {
+      margin-top: 12px;
+      padding: 12px 16px;
+      background: rgba(0,255,136,0.05);
+      border: 1px solid rgba(0,255,136,0.15);
+      border-radius: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .notice strong { color: var(--accent); }
+
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      animation: fadeSlideIn 0.6s 0.4s ease both;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stagger-item {
+      animation: fadeSlideIn 0.3s ease both;
+    }
+  </style>
 </head>
 <body>
-<div id="app">
+  <div class="glow-orb"></div>
+  <div class="container">
 
-<!-- Start -->
-<div id="start">
-  <div id="s-icon">
-    <svg width="30" height="30" viewBox="0 0 36 36" fill="none" stroke="#00ffe5" stroke-width="1.5">
-      <circle cx="18" cy="13" r="6"/>
-      <path d="M6 30c0-6.627 5.373-10 12-10s12 3.373 12 10"/>
-      <path d="M1 9V3h6M35 9V3h-6M1 27v6h6M35 27v6h-6" stroke-linecap="round"/>
-    </svg>
-  </div>
-  <div id="s-title">PHÂN TÍCH KHUÔN MẶT</div>
-  <div id="s-desc">AI phân tích <b style="color:var(--accent)">tuổi · cảm xúc · giới tính</b>
-    theo thời gian thực.<br><br>
-    <span style="color:rgba(0,255,229,.4)">face-api.js · Xử lý cục bộ hoàn toàn</span></div>
-  <button id="s-btn" onclick="startApp()">BẮT ĐẦU</button>
-  <div id="s-note">Cần quyền camera · Không gửi dữ liệu ra ngoài</div>
-</div>
+    <header>
+      <div class="header-tag">// project index</div>
+      <h1 id="projectTitle">Project Index</h1>
+      <div class="repo-url" id="repoDisplay"></div>
+    </header>
 
-<!-- Loading -->
-<div id="load">
-  <div id="l-ring"></div>
-  <div id="l-txt">Đang tải mô hình AI</div>
-  <div id="l-sub">Lần đầu mất 30–60 giây</div>
-</div>
+    <div class="breadcrumb" id="breadcrumb">
+      <span class="breadcrumb-item" onclick="navigateTo('')">🏠 root</span>
+    </div>
 
-<!-- Header -->
-<div id="hdr">
-  <div id="logo">PHÂN TÍCH KHUÔN MẶT</div>
-  <div id="hdr-r"><span id="fps-lbl">-- fps</span><div id="dot"></div></div>
-</div>
-
-<!-- Camera -->
-<div id="cam">
-  <video id="video" autoplay playsinline muted></video>
-  <canvas id="canvas"></canvas>
-  <div id="grid"></div>
-  <div id="scanline"></div>
-  <div id="no-face">Hướng khuôn mặt vào giữa màn hình</div>
-  <div id="cam-lost">
-    <p>Camera bị ngắt kết nối<br>
-      <span style="font-size:9.5px;opacity:.6">Thường xảy ra khi chụp ảnh hệ thống</span></p>
-    <button id="recover-btn" onclick="recoverCam()">KHỞI ĐỘNG LẠI CAMERA</button>
-  </div>
-</div>
-
-<!-- Tabs -->
-<div id="tabs">
-  <div class="tab on"  id="t-age"    onclick="tab('age')">TUỔI</div>
-  <div class="tab"     id="t-emo"    onclick="tab('emo')">CẢM XÚC</div>
-  <div class="tab"     id="t-gender" onclick="tab('gender')">GIỚI TÍNH</div>
-</div>
-
-<!-- Multi chips -->
-<div id="chips" style="display:none"></div>
-
-<!-- Panel -->
-<div id="panel">
-
-  <!-- AGE -->
-  <div class="page on" id="p-age">
-    <div id="age-row">
-      <div>
-        <svg width="66" height="66" viewBox="0 0 66 66">
-          <circle cx="33" cy="33" r="27" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="4"/>
-          <circle id="arc" cx="33" cy="33" r="27" fill="none" stroke="#00ffe5" stroke-width="4"
-            stroke-linecap="round" stroke-dasharray="0 169.6" transform="rotate(-90 33 33)"
-            style="transition:stroke-dasharray .6s ease,stroke .4s;filter:drop-shadow(0 0 4px #00ffe5)"/>
-        </svg>
+    <div class="stats" id="stats">
+      <div class="stat">
+        <div class="stat-dot" style="background:var(--folder)"></div>
+        <span id="statFolders">0 folders</span>
       </div>
-      <div style="flex:1">
-        <div id="age-lbl">TUỔI ƯỚC TÍNH</div>
-        <div><span id="age-num">--</span><span id="age-unit"> tuổi</span></div>
-        <div id="age-cat">Đang chờ...</div>
-        <div class="cr">
-          <div class="cl">ĐỘ ỔN ĐỊNH</div>
-          <div class="ct"><div class="cf" id="sf"></div></div>
-          <div class="cp" id="sp">--%</div>
+      <div class="stat">
+        <div class="stat-dot" style="background:var(--file-html)"></div>
+        <span id="statFiles">0 files</span>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="searchInput" placeholder="Search files and folders..." oninput="filterItems()" />
+    </div>
+
+    <div class="file-list">
+      <div class="file-list-header">
+        <span>Name</span>
+        <span>Type</span>
+        <span style="text-align:right">Path</span>
+      </div>
+      <div id="fileListBody">
+        <div class="empty-state">
+          <div class="empty-icon">📂</div>
+          <div>Enter your GitHub repo info below to load the file index</div>
         </div>
       </div>
     </div>
-    <div id="hl">LỊCH SỬ PHÂN TÍCH</div>
-    <div id="hb"></div>
-  </div>
 
-  <!-- EMOTION -->
-  <div class="page" id="p-emo">
-    <div id="dom-emo">-- Đang phân tích --</div>
-    <div id="emo-grid"></div>
-  </div>
-
-  <!-- GENDER -->
-  <div class="page" id="p-gender">
-    <div id="g-main">
-      <div id="g-icon">👤</div>
-      <div>
-        <div id="g-val" style="color:var(--accent)">--</div>
-        <div id="g-sub">GIỚI TÍNH ƯỚC TÍNH</div>
+    <!-- Config Panel -->
+    <div class="config-panel">
+      <div class="config-title">// repository settings</div>
+      <div class="config-grid">
+        <div class="config-field">
+          <label>GitHub Username</label>
+          <input type="text" id="inputOwner" placeholder="e.g. octocat" />
+        </div>
+        <div class="config-field">
+          <label>Repository Name</label>
+          <input type="text" id="inputRepo" placeholder="e.g. my-website" />
+        </div>
+        <div class="config-field">
+          <label>Branch</label>
+          <input type="text" id="inputBranch" placeholder="main" value="main" />
+        </div>
+        <div class="config-field">
+          <label>GitHub Pages Base URL (optional)</label>
+          <input type="text" id="inputBaseUrl" placeholder="https://username.github.io/repo" />
+        </div>
+      </div>
+      <button class="btn" onclick="loadRepo()">Load Repository →</button>
+      <div class="notice">
+        <strong>Note:</strong> This uses the GitHub Contents API (public repos only, no token needed).
+        For private repos, add a <strong>Personal Access Token</strong> in the code below.
+        Links open your <strong>GitHub Pages</strong> URL if provided, otherwise the GitHub raw/blob URL.
       </div>
     </div>
-    <div class="gr"><div class="gl">Nam</div>
-      <div class="gt"><div class="gf" id="gm" style="background:#4a9eff"></div></div>
-      <div class="gp" id="gpm">--%</div></div>
-    <div class="gr"><div class="gl">Nữ</div>
-      <div class="gt"><div class="gf" id="gf" style="background:#ff6bca"></div></div>
-      <div class="gp" id="gpf">--%</div></div>
+
+    <footer>
+      Generated by Project Index · Powered by GitHub Contents API
+    </footer>
   </div>
 
-</div>
-</div><!-- /app -->
+  <script>
+    // ── State ────────────────────────────────────────────────────
+    let currentPath = '';
+    let currentItems = [];
+    let owner = '', repo = '', branch = 'main', baseUrl = '';
 
-<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-<script>
-// ── Constants ─────────────────────────────────────────────────────────
-const EVERY   = 4;
-const SMOOTH  = 8;
-const MAXHIST = 40;
-const MURL    = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.14/model';
-const MURL2   = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights';
+    // ── Pre-fill from URL params (useful when hosted on gh-pages) ──
+    (function autoDetect() {
+      const params = new URLSearchParams(location.search);
+      if (params.get('owner')) document.getElementById('inputOwner').value = params.get('owner');
+      if (params.get('repo'))  document.getElementById('inputRepo').value  = params.get('repo');
+      if (params.get('branch')) document.getElementById('inputBranch').value = params.get('branch');
+      if (params.get('base'))  document.getElementById('inputBaseUrl').value = params.get('base');
 
-const TIERS = [
-  {max:12, label:'Trẻ em',     color:'#00ffe5'},
-  {max:17, label:'Thiếu niên', color:'#4dd9ff'},
-  {max:25, label:'Thanh niên', color:'#4a9eff'},
-  {max:35, label:'30 tuổi',    color:'#6c7fff'},
-  {max:45, label:'40 tuổi',    color:'#9b6bff'},
-  {max:55, label:'50 tuổi',    color:'#cc5eff'},
-  {max:65, label:'60 tuổi',    color:'#e04ebb'},
-  {max:120,label:'Cao tuổi',   color:'#e0607a'},
-];
-const getTier = a => TIERS.find(t=>a<=t.max)||TIERS.at(-1);
+      // Auto-detect from GitHub Pages URL: username.github.io/reponame
+      const host = location.hostname;
+      const pathParts = location.pathname.split('/').filter(Boolean);
+      if (host.endsWith('.github.io')) {
+        const autoOwner = host.replace('.github.io', '');
+        const autoRepo  = pathParts[0] || '';
+        if (!params.get('owner') && autoOwner) document.getElementById('inputOwner').value = autoOwner;
+        if (!params.get('repo')  && autoRepo)  document.getElementById('inputRepo').value  = autoRepo;
+        if (!params.get('base')  && autoRepo) {
+          document.getElementById('inputBaseUrl').value = `https://${autoOwner}.github.io/${autoRepo}`;
+        }
+      }
 
-const EMO = {
-  happy:    {vi:'Vui vẻ',     e:'😊', c:'#FFD93D'},
-  sad:      {vi:'Buồn bã',    e:'😢', c:'#4dd9ff'},
-  angry:    {vi:'Tức giận',   e:'😠', c:'#FF6B6B'},
-  fearful:  {vi:'Sợ hãi',     e:'😨', c:'#9b6bff'},
-  disgusted:{vi:'Ghê tởm',    e:'🤢', c:'#6bcb77'},
-  surprised:{vi:'Ngạc nhiên', e:'😲', c:'#ff9f43'},
-  neutral:  {vi:'Bình thản',  e:'😐', c:'#aaaaaa'},
-};
+      // Auto-load if all required fields are present
+      if (document.getElementById('inputOwner').value && document.getElementById('inputRepo').value) {
+        loadRepo();
+      }
+    })();
 
-// ── State ─────────────────────────────────────────────────────────────
-const S = {
-  on:false, frame:0, buf:[], hist:[], animAge:null,
-  fN:0, fT:performance.now(), stream:null,
-};
+    // ── Load repo root ────────────────────────────────────────────
+    function loadRepo() {
+      owner   = document.getElementById('inputOwner').value.trim();
+      repo    = document.getElementById('inputRepo').value.trim();
+      branch  = document.getElementById('inputBranch').value.trim() || 'main';
+      baseUrl = document.getElementById('inputBaseUrl').value.trim().replace(/\/$/, '');
 
-// ── Tab ───────────────────────────────────────────────────────────────
-function tab(name) {
-  ['age','emo','gender'].forEach(n=>{
-    document.getElementById('t-'+n).classList.toggle('on', n===name);
-    document.getElementById('p-'+n).classList.toggle('on', n===name);
-  });
-}
+      if (!owner || !repo) { alert('Please enter both username and repository name.'); return; }
 
-// ── Models ────────────────────────────────────────────────────────────
-async function loadModels() {
-  const load = url => Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri(url),
-    faceapi.nets.ageGenderNet.loadFromUri(url),
-    faceapi.nets.faceExpressionNet.loadFromUri(url),
-    faceapi.nets.faceLandmark68TinyNet.loadFromUri(url),
-  ]);
-  try { await load(MURL); } catch { await load(MURL2); }
-}
+      document.getElementById('projectTitle').textContent = repo;
+      document.getElementById('repoDisplay').textContent  = `github.com/${owner}/${repo}`;
 
-// ── Camera ────────────────────────────────────────────────────────────
-async function startCam() {
-  const v = document.getElementById('video');
-  const stream = await navigator.mediaDevices.getUserMedia(
-    {video:{facingMode:'user', width:{ideal:1280}, height:{ideal:720}}});
-  S.stream = stream;
-  v.srcObject = stream;
-  await new Promise(r => v.onloadedmetadata = r);
-  v.play();
-  // 카메라 끊김 감지
-  stream.getVideoTracks()[0].onended = camLost;
-}
+      currentPath = '';
+      fetchDirectory('');
+    }
 
-function camLost() {
-  S.on = false;
-  document.getElementById('cam-lost').classList.add('show');
-  document.getElementById('dot').classList.remove('live');
-}
+    // ── Fetch a directory via GitHub Contents API ─────────────────
+    async function fetchDirectory(path) {
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+      const body   = document.getElementById('fileListBody');
+      body.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><div>Loading...</div></div>`;
 
-async function recoverCam() {
-  document.getElementById('cam-lost').classList.remove('show');
-  try {
-    await startCam();
-    S.on = true;
-    document.getElementById('dot').classList.add('live');
-    requestAnimationFrame(loop);
-  } catch { document.getElementById('cam-lost').classList.add('show'); }
-}
+      try {
+        const res  = await fetch(apiUrl, { headers: { 'Accept': 'application/vnd.github.v3+json' } });
+        if (!res.ok) throw new Error(`GitHub API ${res.status}: ${await res.text()}`);
+        const data = await res.json();
 
-// 백그라운드 복귀 감지
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && S.stream) {
-    const t = S.stream.getVideoTracks()[0];
-    if (t && t.readyState === 'ended') camLost();
-  }
-});
+        currentPath  = path;
+        currentItems = sortItems(data);
+        renderBreadcrumb(path);
+        renderItems(currentItems);
+        updateStats(currentItems);
+      } catch (err) {
+        body.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div>${err.message}</div></div>`;
+      }
+    }
 
-// ── App start ─────────────────────────────────────────────────────────
-async function startApp() {
-  document.getElementById('start').style.display = 'none';
-  const ld = document.getElementById('load');
-  ld.style.display = 'flex';
+    // ── Sort: folders first, then alphabetically ──────────────────
+    function sortItems(items) {
+      return [...items].sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === 'dir' ? -1 : 1;
+      });
+    }
 
-  try { await startCam(); }
-  catch {
-    ld.innerHTML = `<div style="color:#ff6b35;font-size:11px;text-align:center;line-height:2;padding:24px">
-      Quyền camera bị từ chối.<br>
-      <small style="color:var(--muted)">Safari → Cài đặt → Camera → Cho phép → Tải lại</small></div>`;
-    return;
-  }
-  document.getElementById('l-txt').textContent = 'Đang tải mô hình AI';
-  try { await loadModels(); }
-  catch {
-    ld.innerHTML = `<div style="color:#ff6b35;font-size:11px;text-align:center;line-height:2;padding:24px">
-      Tải mô hình thất bại.<br><small style="color:var(--muted)">Kiểm tra mạng và tải lại.</small></div>`;
-    return;
-  }
-  ld.style.display = 'none';
-  S.on = true;
-  document.getElementById('dot').classList.add('live');
-  resizeCvs();
-  requestAnimationFrame(loop);
-}
+    // ── Render breadcrumb ─────────────────────────────────────────
+    function renderBreadcrumb(path) {
+      const bc    = document.getElementById('breadcrumb');
+      const parts = path ? path.split('/') : [];
+      let html    = `<span class="breadcrumb-item" onclick="navigateTo('')">🏠 root</span>`;
 
-// ── Canvas ────────────────────────────────────────────────────────────
-function resizeCvs() {
-  const w = document.getElementById('cam');
-  const c = document.getElementById('canvas');
-  c.width = w.clientWidth; c.height = w.clientHeight;
-}
-window.addEventListener('resize', resizeCvs);
+      parts.forEach((part, i) => {
+        const subPath = parts.slice(0, i + 1).join('/');
+        html += `<span class="breadcrumb-sep">/</span>`;
+        if (i === parts.length - 1) {
+          html += `<span class="breadcrumb-current">${part}</span>`;
+        } else {
+          html += `<span class="breadcrumb-item" onclick="navigateTo('${subPath}')">${part}</span>`;
+        }
+      });
 
-// ── Loop ──────────────────────────────────────────────────────────────
-async function loop() {
-  if (!S.on) return;
-  S.frame++;
-  updateFps();
-  if (S.frame % EVERY === 0) await detect();
-  requestAnimationFrame(loop);
-}
+      bc.innerHTML = html;
+    }
 
-// ── Detect ────────────────────────────────────────────────────────────
-async function detect() {
-  const v = document.getElementById('video');
-  const c = document.getElementById('canvas');
-  const ctx = c.getContext('2d');
-  if (v.readyState < 2) return;
+    // ── Render file list ──────────────────────────────────────────
+    function renderItems(items) {
+      const body = document.getElementById('fileListBody');
+      if (!items.length) {
+        body.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div>No matching files</div></div>`;
+        return;
+      }
 
-  const opts = new faceapi.TinyFaceDetectorOptions({inputSize:320, scoreThreshold:0.4});
-  let dets;
-  try {
-    dets = await faceapi.detectAllFaces(v, opts)
-      .withFaceLandmarks(true).withFaceExpressions().withAgeAndGender();
-  } catch { return; }
+      // Back button for sub-directories
+      let html = '';
+      if (currentPath) {
+        const parentPath = currentPath.split('/').slice(0, -1).join('/');
+        html += `
+          <div class="file-item" onclick="navigateTo('${parentPath}')">
+            <div class="file-name">
+              <span class="file-icon">↩</span>
+              <span>.. (parent directory)</span>
+            </div>
+            <div class="file-type" style="color:var(--muted)">—</div>
+            <div class="file-modified"></div>
+          </div>`;
+      }
 
-  ctx.clearRect(0, 0, c.width, c.height);
+      items.forEach((item, idx) => {
+        const { icon, typeClass, badgeClass, label } = getFileMeta(item);
+        const href = getHref(item);
+        const shortPath = item.path.length > 30 ? '…' + item.path.slice(-27) : item.path;
 
-  if (!dets?.length) {
-    document.getElementById('no-face').style.display = 'block';
-    resetPanel(); return;
-  }
-  document.getElementById('no-face').style.display = 'none';
+        html += `
+          <div class="file-item stagger-item" style="animation-delay:${idx * 30}ms"
+               onclick="handleClick(event, '${item.type}', '${item.path}', '${href}')">
+            <div class="file-name ${typeClass}">
+              <span class="file-icon">${icon}</span>
+              <span>${escHtml(item.name)}</span>
+              <span class="file-ext ${badgeClass}">${label}</span>
+            </div>
+            <div class="file-type">${item.type === 'dir' ? 'folder' : getExt(item.name) || 'file'}</div>
+            <div class="file-modified" title="${item.path}">${escHtml(shortPath)}</div>
+          </div>`;
+      });
 
-  const sx = c.width / v.videoWidth;
-  const sy = c.height / v.videoHeight;
+      body.innerHTML = html;
+    }
 
-  const sorted = [...dets].sort((a,b)=>
-    b.detection.box.width*b.detection.box.height - a.detection.box.width*a.detection.box.height);
+    // ── Handle click: folder → navigate, file → open ─────────────
+    function handleClick(event, type, path, href) {
+      if (type === 'dir') {
+        navigateTo(path);
+      } else {
+        window.open(href, '_blank');
+      }
+    }
 
-  const main    = sorted[0];
-  const rawAge  = Math.round(main.age);
-  S.buf.push(rawAge);
-  if (S.buf.length > SMOOTH) S.buf.shift();
-  const smoothed = Math.round(S.buf.reduce((a,b)=>a+b,0)/S.buf.length);
-  S.hist.push(smoothed);
-  if (S.hist.length > MAXHIST) S.hist.shift();
+    function navigateTo(path) {
+      fetchDirectory(path);
+    }
 
-  updatePanel(smoothed, main.expressions, main.gender, main.genderProbability, sorted);
+    // ── Determine link href ───────────────────────────────────────
+    function getHref(item) {
+      if (item.type === 'dir') return '#';
+      const ext = getExt(item.name);
 
-  sorted.forEach((d,i) => {
-    const b  = d.detection.box;
-    const rw = b.width * sx;
-    const x  = c.width - b.x*sx - rw;  // mirror X
-    const y  = b.y * sy;
-    drawBox(ctx, x, y, rw, b.height*sy, i===0 ? smoothed : Math.round(d.age), i===0);
-    if (i===0) drawLandmarks(ctx, d.landmarks, sx, sy, c.width);
-  });
-}
+      // Prefer GitHub Pages URL for web assets
+      if (baseUrl && ['html','htm','css','js','json','txt','md','png','jpg','jpeg','gif','svg','webp'].includes(ext)) {
+        return `${baseUrl}/${item.path}`;
+      }
 
-// ── Draw box ──────────────────────────────────────────────────────────
-function drawBox(ctx, x, y, w, h, age, isMain) {
-  const t   = getTier(age);
-  const c   = t.color;
-  const arm = Math.min(w,h) * 0.17;
+      // GitHub blob viewer for code
+      if (['html','htm','css','js','ts','json','md','txt','xml','yaml','yml','py','rb','php','java','go','rs'].includes(ext)) {
+        return `https://github.com/${owner}/${repo}/blob/${branch}/${item.path}`;
+      }
 
-  // faint rect
-  ctx.strokeStyle=c; ctx.lineWidth=isMain?1.5:1;
-  ctx.globalAlpha=isMain?.45:.22; ctx.strokeRect(x,y,w,h); ctx.globalAlpha=1;
+      // Raw for images / fonts / etc
+      return item.download_url || `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${item.path}`;
+    }
 
-  // corners
-  ctx.strokeStyle=c; ctx.lineWidth=isMain?2.5:1.5;
-  ctx.shadowColor=c; ctx.shadowBlur=isMain?10:5; ctx.lineCap='round';
-  [[[x,y+arm],[x,y],[x+arm,y]],[[x+w-arm,y],[x+w,y],[x+w,y+arm]],
-   [[x,y+h-arm],[x,y+h],[x+arm,y+h]],[[x+w-arm,y+h],[x+w,y+h],[x+w,y+h-arm]]]
-  .forEach(([a,b,cc])=>{ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.lineTo(...cc);ctx.stroke()});
-  ctx.shadowBlur=0;
+    // ── File metadata (icon, color class, badge) ──────────────────
+    function getFileMeta(item) {
+      if (item.type === 'dir') {
+        return { icon: '📁', typeClass: 'type-folder', badgeClass: 'badge-folder', label: 'DIR' };
+      }
+      const ext = getExt(item.name);
+      const map = {
+        html: { icon: '🌐', typeClass: 'type-html', badgeClass: 'badge-html', label: 'HTML' },
+        htm:  { icon: '🌐', typeClass: 'type-html', badgeClass: 'badge-html', label: 'HTML' },
+        css:  { icon: '🎨', typeClass: 'type-css',  badgeClass: 'badge-css',  label: 'CSS'  },
+        js:   { icon: '⚡', typeClass: 'type-js',   badgeClass: 'badge-js',   label: 'JS'   },
+        ts:   { icon: '⚡', typeClass: 'type-js',   badgeClass: 'badge-js',   label: 'TS'   },
+        json: { icon: '📋', typeClass: 'type-js',   badgeClass: 'badge-js',   label: 'JSON' },
+        md:   { icon: '📝', typeClass: 'type-other', badgeClass: 'badge-other', label: 'MD'  },
+        png:  { icon: '🖼',  typeClass: 'type-img',  badgeClass: 'badge-img',  label: 'IMG'  },
+        jpg:  { icon: '🖼',  typeClass: 'type-img',  badgeClass: 'badge-img',  label: 'IMG'  },
+        jpeg: { icon: '🖼',  typeClass: 'type-img',  badgeClass: 'badge-img',  label: 'IMG'  },
+        gif:  { icon: '🖼',  typeClass: 'type-img',  badgeClass: 'badge-img',  label: 'GIF'  },
+        svg:  { icon: '🖼',  typeClass: 'type-img',  badgeClass: 'badge-img',  label: 'SVG'  },
+        webp: { icon: '🖼',  typeClass: 'type-img',  badgeClass: 'badge-img',  label: 'IMG'  },
+        pdf:  { icon: '📄', typeClass: 'type-other', badgeClass: 'badge-other', label: 'PDF' },
+      };
+      return map[ext] || { icon: '📄', typeClass: 'type-other', badgeClass: 'badge-other', label: ext.toUpperCase() || 'FILE' };
+    }
 
-  // tag
-  if (isMain) {
-    const tag=`${age} tuổi  ${t.label}`;
-    ctx.font='bold 13px Orbitron,monospace';
-    const tw=ctx.measureText(tag).width, pad=6, tx=x, ty=y-10;
-    ctx.fillStyle='rgba(0,0,0,.78)';
-    ctx.beginPath(); ctx.roundRect(tx-pad,ty-18,tw+pad*2+16,26,4); ctx.fill();
-    ctx.fillStyle=c; ctx.fillRect(tx-pad,ty-18,3,26);
-    ctx.fillStyle='#fff'; ctx.fillText(tag,tx+4,ty);
-  } else {
-    ctx.font='10px DM Mono,monospace';
-    ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(x,y-16,56,14);
-    ctx.fillStyle=c; ctx.fillText(`${age} tuổi`,x+3,y-5);
-  }
-}
+    // ── Search / filter ───────────────────────────────────────────
+    function filterItems() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = currentItems.filter(i => i.name.toLowerCase().includes(q));
+      renderItems(filtered);
+    }
 
-// ── Draw landmarks ────────────────────────────────────────────────────
-function drawLandmarks(ctx, lm, sx, sy, cw) {
-  if (!lm) return;
-  ctx.fillStyle='rgba(0,255,229,.5)';
-  ctx.shadowColor='rgba(0,255,229,.35)'; ctx.shadowBlur=3;
-  lm.positions.forEach(p=>{
-    ctx.beginPath(); ctx.arc(cw-p.x*sx, p.y*sy, 1.2, 0, Math.PI*2); ctx.fill();
-  });
-  ctx.shadowBlur=0;
-}
+    // ── Update stats ──────────────────────────────────────────────
+    function updateStats(items) {
+      const folders = items.filter(i => i.type === 'dir').length;
+      const files   = items.filter(i => i.type !== 'dir').length;
+      document.getElementById('statFolders').textContent = `${folders} folder${folders !== 1 ? 's' : ''}`;
+      document.getElementById('statFiles').textContent   = `${files} file${files !== 1 ? 's' : ''}`;
+    }
 
-// ── Update panel ──────────────────────────────────────────────────────
-function updatePanel(age, expr, gender, gProb, all) {
-  const t = getTier(age);
+    // ── Helpers ───────────────────────────────────────────────────
+    function getExt(name) {
+      return (name.split('.').pop() || '').toLowerCase();
+    }
 
-  // AGE
-  anim('age-num', S.animAge??age, age, 370); S.animAge=age;
-  const an=document.getElementById('age-num');
-  an.style.color=t.color; an.style.textShadow=`0 0 16px ${t.color}55`;
-  const ac=document.getElementById('age-cat');
-  ac.textContent=t.label; ac.style.color=t.color;
-  // arc r=27 → circ=169.6
-  const arc=document.getElementById('arc');
-  arc.setAttribute('stroke-dasharray',`${(169.6*Math.min(age/100,1)).toFixed(1)} 169.6`);
-  arc.style.stroke=t.color; arc.style.filter=`drop-shadow(0 0 4px ${t.color})`;
-  // stability
-  const stab=calcStab(), ps=`${Math.round(stab*100)}%`;
-  const sf=document.getElementById('sf');
-  sf.style.width=ps; sf.style.background=t.color; sf.style.boxShadow=`0 0 5px ${t.color}`;
-  document.getElementById('sp').textContent=ps;
-  // history
-  histRender(t.color);
-
-  // EMOTION
-  if (expr) emoRender(expr);
-
-  // GENDER
-  if (gender!=null) genderRender(gender, gProb);
-
-  // chips
-  const chips=document.getElementById('chips');
-  if (all.length>1) {
-    chips.style.display='flex';
-    chips.innerHTML=all.map((d,i)=>{
-      const a=i===0?age:Math.round(d.age), tt=getTier(a);
-      return `<div class="chip" style="border-color:${tt.color}2a">
-        <div class="chip-age" style="color:${tt.color}">${a}</div>
-        <div><div class="chip-cat" style="color:${tt.color}">${tt.label}</div>
-        <div class="chip-sub">Khuôn mặt ${i+1}</div></div></div>`;
-    }).join('');
-  } else chips.style.display='none';
-}
-
-// ── Emotion ───────────────────────────────────────────────────────────
-function emoRender(expr) {
-  const sorted=Object.entries(expr).sort((a,b)=>b[1]-a[1]);
-  const [dk, dv]=sorted[0];
-  const di=EMO[dk]||{vi:dk,e:'🤔',c:'#aaa'};
-  const dom=document.getElementById('dom-emo');
-  dom.innerHTML=`<span style="font-size:20px">${di.e}</span>
-    &nbsp;<span style="color:${di.c}">${di.vi.toUpperCase()}</span>
-    &nbsp;<span style="font-size:8px;color:var(--muted)">${(dv*100).toFixed(0)}%</span>`;
-  dom.style.borderColor=di.c+'44';
-
-  document.getElementById('emo-grid').innerHTML=sorted.map(([k,v])=>{
-    const info=EMO[k]||{vi:k,e:'?',c:'#aaa'}, p=(v*100).toFixed(0);
-    return `<div class="ec" style="border-color:${info.c}${v>.15?'40':'18'}">
-      <div class="ei">${info.e}</div>
-      <div style="flex:1">
-        <div class="en" style="color:${info.c}">${info.vi}</div>
-        <div class="et"><div class="ef" style="width:${p}%;background:${info.c}"></div></div>
-        <div class="ep">${p}%</div>
-      </div></div>`;
-  }).join('');
-}
-
-// ── Gender ────────────────────────────────────────────────────────────
-function genderRender(gender, prob) {
-  const male=gender==='male';
-  const mp=male?prob:1-prob, fp=1-mp;
-  document.getElementById('g-icon').textContent=male?'👨':'👩';
-  const gv=document.getElementById('g-val');
-  gv.textContent=male?'NAM':'NỮ'; gv.style.color=male?'#4a9eff':'#ff6bca';
-  document.getElementById('gm').style.width=`${(mp*100).toFixed(0)}%`;
-  document.getElementById('gf').style.width=`${(fp*100).toFixed(0)}%`;
-  document.getElementById('gpm').textContent=`${(mp*100).toFixed(0)}%`;
-  document.getElementById('gpf').textContent=`${(fp*100).toFixed(0)}%`;
-}
-
-// ── Reset ─────────────────────────────────────────────────────────────
-function resetPanel() {
-  document.getElementById('age-num').textContent='--';
-  document.getElementById('age-cat').textContent='Không có khuôn mặt';
-  document.getElementById('age-cat').style.color='var(--muted)';
-  document.getElementById('sf').style.width='0%';
-  document.getElementById('sp').textContent='--%';
-  document.getElementById('arc').setAttribute('stroke-dasharray','0 169.6');
-  document.getElementById('dom-emo').textContent='-- Đang phân tích --';
-  document.getElementById('dom-emo').style.borderColor='var(--border)';
-  document.getElementById('emo-grid').innerHTML='';
-  document.getElementById('g-val').textContent='--';
-  document.getElementById('g-icon').textContent='👤';
-  S.buf=[]; S.animAge=null;
-}
-
-// ── History bars ──────────────────────────────────────────────────────
-function histRender(color) {
-  const el=document.getElementById('hb'), N=30, max=80;
-  const h=S.hist.slice(-N);
-  if (el.children.length!==N)
-    el.innerHTML=Array(N).fill(`<div class="hbar" style="background:${color}"></div>`).join('');
-  el.querySelectorAll('.hbar').forEach((b,i)=>{
-    const di=i-(N-h.length);
-    if (di<0){b.style.height='2px';b.className='hbar';return}
-    b.style.height=`${Math.min(h[di]/max*100,100)}%`;
-    b.style.background=color;
-    const last=di===h.length-1, rec=di>=h.length-4;
-    b.className='hbar'+(last?' latest':rec?' recent':'');
-  });
-}
-
-// ── Stability ─────────────────────────────────────────────────────────
-function calcStab() {
-  if (S.buf.length<2) return .5;
-  const m=S.buf.reduce((a,b)=>a+b,0)/S.buf.length;
-  const v=S.buf.reduce((s,x)=>s+(x-m)**2,0)/S.buf.length;
-  return Math.max(0,1-Math.sqrt(v)/8);
-}
-
-// ── Animate number ────────────────────────────────────────────────────
-function anim(id, from, to, ms) {
-  const el=document.getElementById(id), t0=performance.now();
-  const step=now=>{
-    const t=Math.min((now-t0)/ms,1), e=1-Math.pow(1-t,3);
-    el.textContent=Math.round(from+(to-from)*e);
-    if(t<1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
-}
-
-// ── FPS ───────────────────────────────────────────────────────────────
-function updateFps() {
-  S.fN++;
-  const now=performance.now(), dt=now-S.fT;
-  if(dt>=1000){
-    document.getElementById('fps-lbl').textContent=`${(S.fN/dt*1000).toFixed(0)} fps`;
-    S.fN=0; S.fT=now;
-  }
-}
-</script>
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
 </body>
 </html>
