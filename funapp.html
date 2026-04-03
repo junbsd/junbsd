@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VibeCheck ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #13131a;
+    --card2: #1a1a24;
+    --accent1: #ff3cac;
+    --accent2: #784ba0;
+    --accent3: #2b86c5;
+    --accent4: #ffda44;
+    --accent5: #00f5a0;
+    --text: #f0f0f0;
+    --text2: #aaaacc;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;}
+
+  /* NOISE OVERLAY */
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.5;}
+
+  /* SCREENS */
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;transition:transform .4s cubic-bezier(.77,0,.18,1),opacity .4s;transform:translateX(100%);opacity:0;}
+  .screen.active{transform:translateX(0);opacity:1;}
+  .screen.exit{transform:translateX(-100%);opacity:0;}
+
+  /* HOME SCREEN */
+  #home{background:var(--bg);}
+  .home-bg{position:absolute;inset:0;overflow:hidden;}
+  .blob{position:absolute;border-radius:50%;filter:blur(80px);animation:blobMove 8s ease-in-out infinite alternate;}
+  .blob1{width:300px;height:300px;background:rgba(255,60,172,0.25);top:-80px;left:-80px;animation-delay:0s;}
+  .blob2{width:250px;height:250px;background:rgba(43,134,197,0.2);bottom:-60px;right:-60px;animation-delay:-3s;}
+  .blob3{width:200px;height:200px;background:rgba(0,245,160,0.15);top:40%;left:30%;animation-delay:-5s;}
+  @keyframes blobMove{from{transform:scale(1) translate(0,0);}to{transform:scale(1.2) translate(20px,20px);}}
+
+  .home-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:0 20px 30px;}
+  .home-header{padding:50px 0 20px;text-align:center;}
+  .home-logo{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:4px;background:linear-gradient(135deg,var(--accent1),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+  .home-tagline{font-size:13px;color:var(--text2);margin-top:4px;letter-spacing:2px;text-transform:uppercase;}
+
+  /* LANG SELECTOR */
+  .lang-bar{display:flex;gap:8px;justify-content:center;margin:16px 0;}
+  .lang-btn{padding:6px 16px;border-radius:50px;border:1.5px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:var(--text2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
+  .lang-btn.active{border-color:var(--accent1);color:var(--accent1);background:rgba(255,60,172,0.1);}
+
+  /* MENU GRID */
+  .menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;overflow-y:auto;padding-bottom:10px;}
+  .menu-grid::-webkit-scrollbar{display:none;}
+  .menu-card{border-radius:var(--radius);padding:18px 14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.07);transition:transform .15s,box-shadow .15s;min-height:130px;justify-content:space-between;}
+  .menu-card:active{transform:scale(.96);}
+  .menu-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.06),transparent);pointer-events:none;}
+  .menu-icon{font-size:32px;line-height:1;}
+  .menu-label{font-size:14px;font-weight:800;line-height:1.3;}
+  .menu-sub{font-size:11px;opacity:.6;font-weight:600;}
+  .c1{background:linear-gradient(135deg,#1a0a14,#2d0f22);box-shadow:0 4px 20px rgba(255,60,172,0.2);}
+  .c2{background:linear-gradient(135deg,#0a0f1a,#0f1e30);box-shadow:0 4px 20px rgba(43,134,197,0.2);}
+  .c3{background:linear-gradient(135deg,#0a160f,#0f2d1a);box-shadow:0 4px 20px rgba(0,245,160,0.2);}
+  .c4{background:linear-gradient(135deg,#1a160a,#2d260f);box-shadow:0 4px 20px rgba(255,218,68,0.2);}
+  .c5{background:linear-gradient(135deg,#160a1a,#250f2d);box-shadow:0 4px 20px rgba(120,75,160,0.2);}
+  .c6{background:linear-gradient(135deg,#0a1416,#0f252d);box-shadow:0 4px 20px rgba(0,220,200,0.2);}
+  .c7{background:linear-gradient(135deg,#16100a,#2d200f);box-shadow:0 4px 20px rgba(255,140,50,0.2);}
+  .c8{background:linear-gradient(135deg,#100a16,#1e0f2d);box-shadow:0 4px 20px rgba(200,100,255,0.2);}
+
+  /* FEATURE SCREENS */
+  .feat-screen{background:var(--bg);}
+  .feat-header{padding:52px 20px 16px;display:flex;align-items:center;gap:12px;position:relative;}
+  .back-btn{width:40px;height:40px;border-radius:50%;background:var(--card);border:none;color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .feat-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;flex:1;}
+  .feat-body{flex:1;overflow-y:auto;padding:0 20px 40px;}
+  .feat-body::-webkit-scrollbar{display:none;}
+
+  /* CARD COMPONENT */
+  .card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06);}
+  .card-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--text2);margin-bottom:12px;}
+
+  /* BUTTON */
+  .btn{width:100%;padding:16px;border-radius:14px;border:none;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:.15s;letter-spacing:.5px;}
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent1),var(--accent2));color:#fff;}
+  .btn-secondary{background:linear-gradient(135deg,var(--accent3),#1a5a8a);color:#fff;}
+  .btn-green{background:linear-gradient(135deg,var(--accent5),#00a870);color:#000;}
+  .btn-yellow{background:linear-gradient(135deg,var(--accent4),#ffa500);color:#000;}
+
+  /* INPUT */
+  .inp{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.1);background:var(--card2);color:var(--text);font-family:'Nunito',sans-serif;font-size:15px;outline:none;margin-bottom:12px;transition:.2s;}
+  .inp:focus{border-color:var(--accent1);}
+  .inp::placeholder{color:rgba(255,255,255,0.3);}
+  textarea.inp{resize:none;height:100px;}
+
+  /* RESULT BOX */
+  .result-box{background:var(--card2);border-radius:14px;padding:20px;min-height:80px;font-size:15px;line-height:1.7;border-left:3px solid var(--accent1);color:var(--text);}
+  .result-box.hidden{display:none;}
+
+  /* EMOTION METER */
+  .emotion-bar{margin:8px 0;}
+  .emotion-label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:5px;}
+  .bar-track{height:10px;background:rgba(255,255,255,0.08);border-radius:50px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:50px;transition:width 1s cubic-bezier(.34,1.56,.64,1);}
+
+  /* FORTUNE CARDS */
+  .fortune-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+  .fortune-item{background:var(--card2);border-radius:14px;padding:14px;text-align:center;}
+  .fortune-icon{font-size:24px;margin-bottom:6px;}
+  .fortune-cat{font-size:11px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+  .fortune-val{font-size:15px;font-weight:800;margin-top:4px;}
+
+  /* REACTION TEST */
+  #react-area{width:100%;height:220px;border-radius:20px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;cursor:pointer;font-size:18px;font-weight:800;transition:.2s;user-select:none;}
+  .react-wait{background:var(--card2);}
+  .react-ready{background:linear-gradient(135deg,#ff3cac,#784ba0);}
+  .react-go{background:linear-gradient(135deg,var(--accent5),#00a870);}
+  .react-miss{background:linear-gradient(135deg,#ff4444,#aa0000);}
+
+  /* ROULETTE */
+  .roulette-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;padding:10px 0;}
+  .roulette-wheel{width:260px;height:260px;border-radius:50%;position:relative;border:4px solid rgba(255,255,255,0.1);overflow:hidden;transition:transform 3s cubic-bezier(.17,.67,.12,.99);}
+  .roulette-pointer{font-size:32px;line-height:1;}
+  .roulette-result-big{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;text-align:center;min-height:44px;}
+  .tag-list{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .tag{padding:6px 14px;border-radius:50px;background:var(--card2);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;}
+  .tag .del{color:var(--accent1);cursor:pointer;font-size:16px;line-height:1;}
+  .add-row{display:flex;gap:8px;}
+  .add-row .inp{flex:1;margin:0;}
+  .add-btn{padding:14px 18px;border-radius:12px;border:none;background:var(--accent1);color:#fff;font-size:20px;cursor:pointer;}
+
+  /* MBTI */
+  .mbti-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .mbti-sel{padding:12px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.1);background:var(--card2);color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;width:100%;}
+
+  /* COLOR PALETTE */
+  .q-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .q-opt{padding:14px;border-radius:14px;border:1.5px solid rgba(255,255,255,0.1);background:var(--card2);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:.15s;}
+  .q-opt:active{transform:scale(.96);}
+  .q-opt.selected{border-color:var(--accent1);background:rgba(255,60,172,0.15);}
+  .palette-display{display:flex;gap:10px;justify-content:center;margin:16px 0;}
+  .palette-swatch{flex:1;height:80px;border-radius:14px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.6);}
+  .progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:50px;overflow:hidden;margin-bottom:16px;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent1),var(--accent3));border-radius:50px;transition:width .4s;}
+  .step-count{font-size:12px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+
+  /* YEAR RECAP */
+  .recap-card{background:linear-gradient(135deg,var(--card),var(--card2));border-radius:20px;padding:24px;text-align:center;border:1px solid rgba(255,255,255,0.08);}
+  .recap-emoji{font-size:48px;margin-bottom:12px;}
+  .recap-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:8px;}
+  .recap-desc{font-size:14px;color:var(--text2);line-height:1.6;}
+  .stat-row{display:flex;justify-content:space-around;margin-top:16px;}
+  .stat-item{text-align:center;}
+  .stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;background:linear-gradient(135deg,var(--accent1),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .stat-lbl{font-size:11px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+
+  /* KAKAO STYLE */
+  .chat-bubble-wrap{display:flex;flex-direction:column;gap:12px;margin:12px 0;}
+  .bubble{max-width:80%;padding:12px 16px;border-radius:18px;font-size:14px;line-height:1.6;font-weight:600;}
+  .bubble-me{align-self:flex-end;background:#ffda44;color:#222;border-bottom-right-radius:4px;}
+  .bubble-ai{align-self:flex-start;background:var(--card2);color:var(--text);border-bottom-left-radius:4px;}
+
+  /* LOCATION */
+  .loc-badge{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border-radius:50px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--text2);margin-bottom:16px;}
+
+  /* CELEB MATCH */
+  .celeb-result{text-align:center;padding:16px 0;}
+  .celeb-pct{font-family:'Bebas Neue',sans-serif;font-size:72px;background:linear-gradient(135deg,var(--accent1),var(--accent4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+  .celeb-name{font-size:22px;font-weight:800;margin-top:4px;}
+  .celeb-sub{font-size:13px;color:var(--text2);margin-top:8px;}
+
+  /* SPINNER */
+  .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,0.1);border-top-color:var(--accent1);border-radius:50%;animation:spin .7s linear infinite;margin:20px auto;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* CAMERA */
+  #camera-preview{width:100%;border-radius:16px;background:#000;aspect-ratio:3/4;object-fit:cover;}
+  .cam-overlay{position:relative;}
+  .cam-overlay::after{content:'';position:absolute;inset:0;border-radius:16px;border:2px solid rgba(255,60,172,0.5);pointer-events:none;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,30,40,0.95);border:1px solid rgba(255,255,255,0.1);color:#fff;padding:12px 24px;border-radius:50px;font-size:14px;font-weight:700;opacity:0;transition:.3s;z-index:10000;white-space:nowrap;backdrop-filter:blur(10px);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* LOADING */
+  .loading-wrap{display:flex;flex-direction:column;align-items:center;padding:30px 0;}
+  .loading-text{font-size:14px;color:var(--text2);font-weight:700;margin-top:8px;animation:pulse 1.5s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+
+  /* MBTI COMPAT */
+  .compat-score{text-align:center;padding:20px 0;}
+  .compat-num{font-family:'Bebas Neue',sans-serif;font-size:80px;line-height:1;}
+  .heart-row{display:flex;justify-content:center;gap:4px;margin:8px 0;}
+  .heart{font-size:20px;}
+
+  /* DOG CAT */
+  .face-result{text-align:center;padding:20px 0;}
+  .face-big{font-size:80px;margin-bottom:12px;}
+  .face-pct-row{display:flex;justify-content:center;gap:24px;margin-top:16px;}
+  .face-pct-item{text-align:center;}
+  .face-pct-num{font-family:'Bebas Neue',sans-serif;font-size:40px;}
+  .face-pct-lbl{font-size:12px;color:var(--text2);font-weight:700;}
+
+  /* MENU VERDICT */
+  .verdict-display{text-align:center;padding:20px 0;}
+  .verdict-big{font-size:64px;margin-bottom:12px;}
+  .verdict-text{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;margin-bottom:8px;}
+
+  /* MUSIC */
+  .music-tags{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;}
+  .music-tag{padding:8px 14px;border-radius:50px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;transition:.15s;}
+  .music-tag.sel{background:var(--accent1);border-color:var(--accent1);color:#fff;}
+
+  .share-row{display:flex;gap:10px;margin-top:12px;}
+  .share-btn{flex:1;padding:12px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);font-size:13px;font-weight:800;cursor:pointer;transition:.15s;}
+  .share-btn:active{transform:scale(.96);}
+
+  /* HIDDEN */
+  .hidden{display:none!important;}
+
+  /* TABS */
+  .tab-row{display:flex;gap:0;background:var(--card2);border-radius:12px;padding:4px;margin-bottom:16px;}
+  .tab{flex:1;padding:10px;border-radius:9px;border:none;background:transparent;color:var(--text2);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.2s;}
+  .tab.active{background:var(--accent1);color:#fff;}
+
+  /* SEPARATOR */
+  .sep{height:1px;background:rgba(255,255,255,0.06);margin:16px 0;}
+
+  /* JOB CARD */
+  .job-card{background:var(--card2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;border-left:3px solid var(--accent3);}
+  .job-icon{font-size:32px;flex-shrink:0;}
+  .job-info{flex:1;}
+  .job-name{font-size:16px;font-weight:800;}
+  .job-desc{font-size:12px;color:var(--text2);margin-top:4px;}
+  .job-match{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent5);}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-bg">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+  <div class="home-content">
+    <div class="home-header">
+      <div class="home-logo">VibeCheck</div>
+      <div class="home-tagline" data-i18n="tagline">Your daily fun lab ✨</div>
+      <div class="lang-bar">
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('vi')">VI</button>
+        <button class="lang-btn" onclick="setLang('ko')">한국어</button>
+      </div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card c1" onclick="goTo('emotion')"><div class="menu-icon">😤</div><div><div class="menu-label" data-i18n="m_emotion">감정 분석기</div><div class="menu-sub" data-i18n="s_emotion">Face Emotion AI</div></div></div>
+      <div class="menu-card c2" onclick="goTo('celeb')"><div class="menu-icon">🌟</div><div><div class="menu-label" data-i18n="m_celeb">닮은 연예인</div><div class="menu-sub" data-i18n="s_celeb">Celebrity Match</div></div></div>
+      <div class="menu-card c3" onclick="goTo('dogcat')"><div class="menu-icon">🐾</div><div><div class="menu-label" data-i18n="m_dogcat">강아지 vs 고양이</div><div class="menu-sub" data-i18n="s_dogcat">Face Type Test</div></div></div>
+      <div class="menu-card c4" onclick="goTo('job')"><div class="menu-icon">💼</div><div><div class="menu-label" data-i18n="m_job">직업 관상</div><div class="menu-sub" data-i18n="s_job">Career Reading</div></div></div>
+      <div class="menu-card c5" onclick="goTo('fortune')"><div class="menu-icon">🔮</div><div><div class="menu-label" data-i18n="m_fortune">오늘의 운세</div><div class="menu-sub" data-i18n="s_fortune">Daily Fortune</div></div></div>
+      <div class="menu-card c6" onclick="goTo('chat')"><div class="menu-icon">💌</div><div><div class="menu-label" data-i18n="m_chat">작업멘트 생성기</div><div class="menu-sub" data-i18n="s_chat">Flirt Lines AI</div></div></div>
+      <div class="menu-card c7" onclick="goTo('menu')"><div class="menu-icon">🍕</div><div><div class="menu-label" data-i18n="m_menu">메뉴 고민 해결사</div><div class="menu-sub" data-i18n="s_menu">Food Verdict AI</div></div></div>
+      <div class="menu-card c8" onclick="goTo('mbti')"><div class="menu-icon">🧠</div><div><div class="menu-label" data-i18n="m_mbti">MBTI 궁합</div><div class="menu-sub" data-i18n="s_mbti">Compatibility</div></div></div>
+      <div class="menu-card c1" onclick="goTo('react')"><div class="menu-icon">⚡</div><div><div class="menu-label" data-i18n="m_react">반응속도 테스트</div><div class="menu-sub" data-i18n="s_react">Reaction Test</div></div></div>
+      <div class="menu-card c2" onclick="goTo('music')"><div class="menu-icon">🎵</div><div><div class="menu-label" data-i18n="m_music">음악 취향 분석</div><div class="menu-sub" data-i18n="s_music">Music Personality</div></div></div>
+      <div class="menu-card c3" onclick="goTo('location')"><div class="menu-icon">🗺️</div><div><div class="menu-label" data-i18n="m_loc">지금 여기서 뭐하지?</div><div class="menu-sub" data-i18n="s_loc">What To Do Here</div></div></div>
+      <div class="menu-card c4" onclick="goTo('roulette')"><div class="menu-icon">🎲</div><div><div class="menu-label" data-i18n="m_roul">메뉴 룰렛</div><div class="menu-sub" data-i18n="s_roul">Food Roulette</div></div></div>
+      <div class="menu-card c5" onclick="goTo('recap')"><div class="menu-icon">📊</div><div><div class="menu-label" data-i18n="m_recap">나의 결산</div><div class="menu-sub" data-i18n="s_recap">Year in Review</div></div></div>
+      <div class="menu-card c6" onclick="goTo('kakaostyle')"><div class="menu-icon">💬</div><div><div class="menu-label" data-i18n="m_kakao">말투 분석기</div><div class="menu-sub" data-i18n="s_kakao">Speech Style AI</div></div></div>
+      <div class="menu-card c7" onclick="goTo('palette')"><div class="menu-icon">🌈</div><div><div class="menu-label" data-i18n="m_palette">나의 컬러 팔레트</div><div class="menu-sub" data-i18n="s_palette">My Color Palette</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EMOTION SCREEN -->
+<div id="emotion" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_emotion">😤 감정 분석기</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_emotion">텍스트로 감정을 분석해드려요!</div>
+      <textarea class="inp" id="emotion-text" placeholder="지금 기분이 어때요? 자유롭게 써보세요..."></textarea>
+      <button class="btn btn-primary" onclick="analyzeEmotion()" data-i18n="btn_analyze">감정 분석하기 🔍</button>
+    </div>
+    <div class="card hidden" id="emotion-result">
+      <div class="card-title" data-i18n="lbl_result">분석 결과</div>
+      <div id="emotion-bars"></div>
+      <div class="sep"></div>
+      <div id="emotion-comment" class="result-box" style="border-color:var(--accent3)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CELEB SCREEN -->
+<div id="celeb" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_celeb">🌟 닮은 연예인</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_celeb">이름을 입력하면 닮은 연예인을 찾아드려요!</div>
+      <input class="inp" id="celeb-name-inp" placeholder="이름을 입력하세요 (예: 김민지)">
+      <input class="inp" id="celeb-birth" placeholder="생년월일 (예: 1999-05-12)">
+      <button class="btn btn-primary" onclick="findCeleb()" data-i18n="btn_find">찾아보기 ✨</button>
+    </div>
+    <div class="card hidden" id="celeb-result">
+      <div class="celeb-result">
+        <div class="celeb-pct" id="celeb-pct-num"></div>
+        <div class="celeb-name" id="celeb-name-result"></div>
+        <div class="celeb-sub" id="celeb-reason"></div>
+      </div>
+      <div class="result-box" id="celeb-detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DOG CAT SCREEN -->
+<div id="dogcat" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_dogcat">🐾 강아지 vs 고양이</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_dogcat">이름과 생년월일로 당신의 얼굴상을 분석해드려요!</div>
+      <input class="inp" id="dc-name" placeholder="이름">
+      <input class="inp" id="dc-birth" placeholder="생년월일 (예: 1995-03-22)">
+      <button class="btn btn-green" onclick="analyzeDogCat()" data-i18n="btn_analyze">분석하기 🐾</button>
+    </div>
+    <div class="card hidden" id="dogcat-result">
+      <div class="face-result">
+        <div class="face-big" id="dc-emoji"></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;" id="dc-type"></div>
+        <div class="face-pct-row">
+          <div class="face-pct-item"><div class="face-pct-num" id="dc-dog-pct" style="color:#ffda44"></div><div class="face-pct-lbl">🐶 강아지상</div></div>
+          <div class="face-pct-item"><div class="face-pct-num" id="dc-cat-pct" style="color:#ff3cac"></div><div class="face-pct-lbl">🐱 고양이상</div></div>
+        </div>
+      </div>
+      <div class="result-box" id="dc-detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- JOB SCREEN -->
+<div id="job" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_job">💼 직업 관상</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_job">이름과 MBTI로 어울리는 직업을 알아봐요!</div>
+      <input class="inp" id="job-name" placeholder="이름">
+      <select class="inp" id="job-mbti" style="cursor:pointer">
+        <option value="">MBTI 선택...</option>
+        <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+        <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+        <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+        <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+      </select>
+      <button class="btn btn-secondary" onclick="analyzeJob()" data-i18n="btn_analyze">직업 관상 보기 💼</button>
+    </div>
+    <div id="job-result" class="hidden"></div>
+  </div>
+</div>
+
+<!-- FORTUNE SCREEN -->
+<div id="fortune" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_fortune">🔮 오늘의 운세</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_fortune">이름과 생년월일을 입력하세요</div>
+      <input class="inp" id="fortune-name" placeholder="이름">
+      <input class="inp" id="fortune-birth" placeholder="생년월일 (예: 1990-01-01)" type="date">
+      <button class="btn btn-primary" onclick="getFortune()" data-i18n="btn_fortune">오늘의 운세 보기 🔮</button>
+    </div>
+    <div class="card hidden" id="fortune-result">
+      <div class="card-title" data-i18n="lbl_today_fortune">오늘의 운세</div>
+      <div class="result-box" id="fortune-overall" style="border-color:var(--accent4);margin-bottom:12px;"></div>
+      <div class="fortune-grid" id="fortune-cats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT (FLIRT) SCREEN -->
+<div id="chat" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_chat">💌 작업멘트</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_chat">상황을 설명해주세요</div>
+      <input class="inp" id="chat-target" placeholder="상대방 특징 (예: 커피 좋아하는 직장동료)">
+      <input class="inp" id="chat-situation" placeholder="상황 (예: 처음 카톡을 보내고 싶어)">
+      <div class="tab-row">
+        <button class="tab active" onclick="setChatStyle('cute',this)" data-i18n="style_cute">귀엽게</button>
+        <button class="tab" onclick="setChatStyle('funny',this)" data-i18n="style_funny">웃기게</button>
+        <button class="tab" onclick="setChatStyle('cool',this)" data-i18n="style_cool">쿨하게</button>
+      </div>
+      <button class="btn btn-primary" onclick="generateFlirt()" data-i18n="btn_chat">멘트 생성하기 💌</button>
+    </div>
+    <div class="card hidden" id="chat-result">
+      <div class="card-title" data-i18n="lbl_result">생성된 멘트</div>
+      <div class="chat-bubble-wrap" id="chat-bubbles"></div>
+      <button class="btn btn-secondary" onclick="generateFlirt()" data-i18n="btn_regen">다시 생성 🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- MENU VERDICT SCREEN -->
+<div id="menu" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_menu">🍕 메뉴 고민</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_menu">뭐 먹을지 고민되세요? AI한테 물어봐요!</div>
+      <input class="inp" id="menu-a" placeholder="선택지 1 (예: 치킨)">
+      <input class="inp" id="menu-b" placeholder="선택지 2 (예: 피자)">
+      <input class="inp" id="menu-reason" placeholder="지금 상황 (예: 야식, 친구들이랑)">
+      <button class="btn btn-yellow" onclick="getVerdict()" data-i18n="btn_verdict">AI 판결 받기 ⚖️</button>
+    </div>
+    <div class="card hidden" id="menu-result">
+      <div class="verdict-display">
+        <div class="verdict-big" id="verdict-emoji"></div>
+        <div class="verdict-text" id="verdict-choice"></div>
+      </div>
+      <div class="result-box" id="verdict-reason" style="border-color:var(--accent4)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MBTI SCREEN -->
+<div id="mbti" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_mbti">🧠 MBTI 궁합</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_mbti">두 MBTI의 궁합을 분석해드려요</div>
+      <div class="mbti-grid">
+        <div>
+          <div style="font-size:12px;color:var(--text2);font-weight:700;margin-bottom:6px;" data-i18n="lbl_my_mbti">나의 MBTI</div>
+          <select class="mbti-sel" id="mbti-a">
+            <option value="">선택...</option>
+            <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+            <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+            <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+            <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:12px;color:var(--text2);font-weight:700;margin-bottom:6px;" data-i18n="lbl_their_mbti">상대 MBTI</div>
+          <select class="mbti-sel" id="mbti-b">
+            <option value="">선택...</option>
+            <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+            <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+            <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+            <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="getMBTICompat()" data-i18n="btn_mbti">궁합 분석하기 💫</button>
+    </div>
+    <div class="card hidden" id="mbti-result">
+      <div class="compat-score">
+        <div class="compat-num" id="mbti-score" style="background:linear-gradient(135deg,#ff3cac,#784ba0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"></div>
+        <div class="heart-row" id="mbti-hearts"></div>
+        <div style="font-size:16px;font-weight:800;" id="mbti-verdict"></div>
+      </div>
+      <div class="result-box" id="mbti-detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REACTION TEST SCREEN -->
+<div id="react" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_react">⚡ 반응속도</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_react">신호가 바뀌면 바로 탭하세요!</div>
+      <div id="react-area" class="react-wait" onclick="reactTap()">
+        <div id="react-text" data-i18n="react_wait">준비하세요...</div>
+        <div id="react-sub" style="font-size:13px;color:rgba(255,255,255,0.5);font-weight:600;" data-i18n="react_tap">화면을 탭해서 시작</div>
+      </div>
+      <div id="react-score-wrap" class="hidden" style="margin-top:16px;">
+        <div style="text-align:center;padding:16px 0;">
+          <div style="font-size:14px;color:var(--text2);font-weight:700;" data-i18n="lbl_time">반응 시간</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:72px;color:var(--accent5);" id="react-time"></div>
+          <div style="font-size:14px;font-weight:700;" id="react-grade"></div>
+        </div>
+        <div id="react-history" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0;"></div>
+        <button class="btn btn-green" onclick="resetReact()" data-i18n="btn_retry">다시 하기 ⚡</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MUSIC SCREEN -->
+<div id="music" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_music">🎵 음악 취향</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_music">좋아하는 장르를 선택해주세요</div>
+      <div class="music-tags">
+        <button class="music-tag" onclick="toggleMusic(this,'K-Pop')">K-Pop</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Hip-Hop')">Hip-Hop</button>
+        <button class="music-tag" onclick="toggleMusic(this,'R&B')">R&amp;B</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Pop')">Pop</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Rock')">Rock</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Jazz')">Jazz</button>
+        <button class="music-tag" onclick="toggleMusic(this,'EDM')">EDM</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Indie')">Indie</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Classical')">Classical</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Lo-Fi')">Lo-Fi</button>
+        <button class="music-tag" onclick="toggleMusic(this,'OST')">OST</button>
+        <button class="music-tag" onclick="toggleMusic(this,'Ballad')">Ballad</button>
+      </div>
+      <input class="inp" id="music-artist" placeholder="좋아하는 아티스트 (선택)">
+      <button class="btn btn-primary" onclick="analyzeMusic()" data-i18n="btn_music">성격 분석하기 🎵</button>
+    </div>
+    <div class="card hidden" id="music-result">
+      <div class="result-box" id="music-analysis"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOCATION SCREEN -->
+<div id="location" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_loc">🗺️ 지금 뭐하지?</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_loc">지금 기분에 맞는 걸 추천해드려요</div>
+      <div id="loc-status" class="loc-badge">📍 <span data-i18n="loc_detecting">위치 확인 중...</span></div>
+      <div class="q-options">
+        <div class="q-opt" onclick="setMood('alone',this)" data-i18n="mood_alone">혼자</div>
+        <div class="q-opt" onclick="setMood('friends',this)" data-i18n="mood_friends">친구들이랑</div>
+        <div class="q-opt" onclick="setMood('date',this)" data-i18n="mood_date">데이트</div>
+        <div class="q-opt" onclick="setMood('family',this)" data-i18n="mood_family">가족이랑</div>
+      </div>
+      <div class="q-options">
+        <div class="q-opt" onclick="setEnergy('high',this)" data-i18n="energy_high">에너지 넘침</div>
+        <div class="q-opt" onclick="setEnergy('low',this)" data-i18n="energy_low">여유롭게</div>
+      </div>
+      <button class="btn btn-green" onclick="getLocRec()" data-i18n="btn_loc">추천받기 🗺️</button>
+    </div>
+    <div class="card hidden" id="loc-result">
+      <div class="result-box" id="loc-recs" style="border-color:var(--accent5)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROULETTE SCREEN -->
+<div id="roulette" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_roul">🎲 메뉴 룰렛</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_roul">먹고 싶은 메뉴를 추가하세요</div>
+      <div class="tag-list" id="roul-tags"></div>
+      <div class="add-row">
+        <input class="inp" id="roul-inp" placeholder="메뉴 입력 (예: 삼겹살)">
+        <button class="add-btn" onclick="addRoulItem()">+</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="roulette-wrap">
+        <div style="font-size:32px;">▼</div>
+        <canvas id="roul-canvas" width="260" height="260" style="border-radius:50%;border:4px solid rgba(255,255,255,0.1);"></canvas>
+        <div class="roulette-result-big" id="roul-result"></div>
+        <button class="btn btn-yellow" onclick="spinRoulette()" data-i18n="btn_spin">돌리기! 🎲</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECAP SCREEN -->
+<div id="recap" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_recap">📊 나의 결산</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_recap">몇 가지 질문으로 나를 결산해봐요</div>
+      <input class="inp" id="recap-name" placeholder="이름">
+      <textarea class="inp" id="recap-year" placeholder="올해 가장 기억에 남는 일은?"></textarea>
+      <textarea class="inp" id="recap-feeling" placeholder="올해 가장 많이 느낀 감정은?"></textarea>
+      <input class="inp" id="recap-goal" placeholder="올해 이루고 싶었던 목표는?">
+      <button class="btn btn-primary" onclick="generateRecap()" data-i18n="btn_recap">결산 카드 만들기 📊</button>
+    </div>
+    <div class="card hidden" id="recap-result"></div>
+  </div>
+</div>
+
+<!-- KAKAO STYLE SCREEN -->
+<div id="kakaostyle" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_kakao">💬 말투 분석기</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="card-title" data-i18n="desc_kakao">평소 카톡이나 문자 말투를 붙여넣어 보세요</div>
+      <textarea class="inp" id="kakao-text" style="height:140px;" placeholder="예: ㅎㅎ 나 오늘 진짜 피곤했는데 그냥 집에서 쉬었어 ㅜㅜ 너는 뭐했어?"></textarea>
+      <button class="btn btn-primary" onclick="analyzeKakao()" data-i18n="btn_kakao">말투 분석하기 💬</button>
+    </div>
+    <div class="card hidden" id="kakao-result">
+      <div class="result-box" id="kakao-analysis"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PALETTE SCREEN -->
+<div id="palette" class="screen feat-screen">
+  <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title" data-i18n="m_palette">🌈 나의 컬러</div></div>
+  <div class="feat-body">
+    <div class="card">
+      <div class="progress-bar"><div class="progress-fill" id="pal-progress" style="width:0%"></div></div>
+      <div class="step-count" id="pal-step-count">1 / 5</div>
+      <div id="pal-question" style="font-size:17px;font-weight:800;margin-bottom:16px;"></div>
+      <div class="q-options" id="pal-options"></div>
+      <div id="pal-result-wrap" class="hidden">
+        <div class="card-title" data-i18n="lbl_my_palette">나만의 컬러 팔레트</div>
+        <div class="palette-display" id="pal-swatches"></div>
+        <div class="result-box" id="pal-desc" style="border-color:var(--accent5)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ i18n ============
+const i18n = {
+  en: {
+    tagline:"Your daily fun lab ✨",
+    m_emotion:"Emotion Analyzer",s_emotion:"Face Emotion AI",
+    m_celeb:"Celebrity Match",s_celeb:"Look-alike Finder",
+    m_dogcat:"Dog vs Cat Face",s_dogcat:"Face Type Test",
+    m_job:"Career Reading",s_job:"Face Fortune",
+    m_fortune:"Daily Fortune",s_fortune:"Horoscope AI",
+    m_chat:"Flirt Lines",s_chat:"Chat Line AI",
+    m_menu:"Food Dilemma",s_menu:"What to Eat AI",
+    m_mbti:"MBTI Compatibility",s_mbti:"Match Score",
+    m_react:"Reaction Test",s_react:"How Fast Are You?",
+    m_music:"Music Personality",s_music:"Taste Analysis",
+    m_loc:"What To Do Here?",s_loc:"Vibe Recommender",
+    m_roul:"Food Roulette",s_roul:"Spin to Decide",
+    m_recap:"Year in Review",s_recap:"My 2025 Recap",
+    m_kakao:"Speech Style AI",s_kakao:"Talk Pattern",
+    m_palette:"My Color Palette",s_palette:"Color Identity",
+    btn_analyze:"Analyze ✨",btn_find:"Find ✨",btn_fortune:"Get Fortune 🔮",
+    btn_chat:"Generate 💌",btn_regen:"Regenerate 🔄",btn_verdict:"AI Verdict ⚖️",
+    btn_mbti:"Analyze 💫",btn_retry:"Try Again ⚡",btn_music:"Analyze 🎵",
+    btn_loc:"Get Recommendations 🗺️",btn_spin:"Spin! 🎲",btn_recap:"Make Card 📊",
+    btn_kakao:"Analyze 💬",
+    desc_emotion:"Analyze your emotions with text!",
+    desc_celeb:"Find your celebrity look-alike!",
+    desc_dogcat:"Dog or cat face? Let's find out!",
+    desc_job:"Find your ideal career by MBTI!",
+    desc_fortune:"Enter your name and birthday",
+    desc_chat:"Describe the situation",
+    desc_menu:"Can't decide? Let AI judge!",
+    desc_mbti:"Analyze two MBTI types compatibility",
+    desc_react:"Tap when the signal changes!",
+    desc_music:"Select your favorite genres",
+    desc_loc:"We recommend what to do right now",
+    desc_roul:"Add your food options",
+    desc_recap:"Recap yourself with a few questions",
+    desc_kakao:"Paste your chat messages",
+    desc_palette:"Discover your color identity",
+    lbl_result:"Result",lbl_today_fortune:"Today's Fortune",
+    lbl_my_mbti:"My MBTI",lbl_their_mbti:"Their MBTI",
+    lbl_my_palette:"My Color Palette",lbl_time:"Reaction Time",
+    react_wait:"Get Ready...",react_tap:"Tap to start",
+    style_cute:"Cute",style_funny:"Funny",style_cool:"Cool",
+    mood_alone:"Solo",mood_friends:"Friends",mood_date:"Date",mood_family:"Family",
+    energy_high:"High Energy",energy_low:"Chill",
+    loc_detecting:"Detecting location...",
+  },
+  vi: {
+    tagline:"Ứng dụng vui hằng ngày ✨",
+    m_emotion:"Phân tích cảm xúc",s_emotion:"AI Cảm xúc",
+    m_celeb:"Giống sao nào?",s_celeb:"Tìm sao giống bạn",
+    m_dogcat:"Mặt chó vs mèo",s_dogcat:"Kiểm tra khuôn mặt",
+    m_job:"Tướng số nghề nghiệp",s_job:"Đọc tướng mặt",
+    m_fortune:"Vận mệnh hôm nay",s_fortune:"Xem bói AI",
+    m_chat:"Tạo câu tán tỉnh",s_chat:"AI nhắn tin",
+    m_menu:"Ăn gì hôm nay?",s_menu:"AI chọn món",
+    m_mbti:"Hợp tính MBTI",s_mbti:"Điểm tương hợp",
+    m_react:"Test phản xạ",s_react:"Nhanh không?",
+    m_music:"Phân tích sở thích nhạc",s_music:"Tính cách qua nhạc",
+    m_loc:"Ở đây làm gì?",s_loc:"Gợi ý hoạt động",
+    m_roul:"Vòng quay chọn món",s_roul:"Quay để quyết định",
+    m_recap:"Tổng kết năm của tôi",s_recap:"My 2025 Recap",
+    m_kakao:"Phân tích cách nhắn tin",s_kakao:"Phong cách chat",
+    m_palette:"Màu sắc cá nhân",s_palette:"Màu của bạn",
+    btn_analyze:"Phân tích ✨",btn_find:"Tìm kiếm ✨",btn_fortune:"Xem vận mệnh 🔮",
+    btn_chat:"Tạo câu 💌",btn_regen:"Tạo lại 🔄",btn_verdict:"AI phán xét ⚖️",
+    btn_mbti:"Phân tích 💫",btn_retry:"Thử lại ⚡",btn_music:"Phân tích 🎵",
+    btn_loc:"Gợi ý cho tôi 🗺️",btn_spin:"Quay! 🎲",btn_recap:"Tạo card 📊",
+    btn_kakao:"Phân tích 💬",
+    desc_emotion:"Phân tích cảm xúc qua văn bản!",
+    desc_celeb:"Tìm ngôi sao giống bạn nhất!",
+    desc_dogcat:"Mặt chó hay mèo? Cùng tìm hiểu!",
+    desc_job:"Tìm nghề nghiệp phù hợp theo MBTI!",
+    desc_fortune:"Nhập tên và ngày sinh của bạn",
+    desc_chat:"Mô tả tình huống của bạn",
+    desc_menu:"Không biết ăn gì? Để AI quyết!",
+    desc_mbti:"Phân tích độ tương hợp hai MBTI",
+    desc_react:"Chạm màn hình khi tín hiệu đổi!",
+    desc_music:"Chọn thể loại nhạc yêu thích",
+    desc_loc:"Chúng tôi gợi ý bạn làm gì ngay bây giờ",
+    desc_roul:"Thêm các món ăn vào",
+    desc_recap:"Tổng kết bản thân qua vài câu hỏi",
+    desc_kakao:"Dán tin nhắn của bạn vào đây",
+    desc_palette:"Khám phá bản sắc màu sắc của bạn",
+    lbl_result:"Kết quả",lbl_today_fortune:"Vận mệnh hôm nay",
+    lbl_my_mbti:"MBTI của tôi",lbl_their_mbti:"MBTI của họ",
+    lbl_my_palette:"Bảng màu của tôi",lbl_time:"Thời gian phản xạ",
+    react_wait:"Chuẩn bị...",react_tap:"Chạm để bắt đầu",
+    style_cute:"Dễ thương",style_funny:"Hài hước",style_cool:"Cool",
+    mood_alone:"Một mình",mood_friends:"Bạn bè",mood_date:"Hẹn hò",mood_family:"Gia đình",
+    energy_high:"Năng động",energy_low:"Thư giãn",
+    loc_detecting:"Đang xác định vị trí...",
+  },
+  ko: {
+    tagline:"매일매일 즐거운 실험실 ✨",
+    m_emotion:"감정 분석기",s_emotion:"AI 감정 분석",
+    m_celeb:"닮은 연예인 찾기",s_celeb:"셀럽 매칭",
+    m_dogcat:"강아지 vs 고양이 상",s_dogcat:"얼굴상 테스트",
+    m_job:"직업 관상",s_job:"관상으로 직업 분석",
+    m_fortune:"오늘의 운세",s_fortune:"AI 운세",
+    m_chat:"작업멘트 생성기",s_chat:"카톡 멘트 AI",
+    m_menu:"메뉴 고민 해결사",s_menu:"뭐 먹을지 AI 판결",
+    m_mbti:"MBTI 궁합",s_mbti:"궁합 점수",
+    m_react:"반응속도 테스트",s_react:"얼마나 빠른가요?",
+    m_music:"음악 취향 분석",s_music:"취향으로 성격 분석",
+    m_loc:"지금 여기서 뭐하지?",s_loc:"분위기 추천",
+    m_roul:"오늘 뭐 먹지 룰렛",s_roul:"돌려서 결정",
+    m_recap:"나의 결산",s_recap:"2025 결산 카드",
+    m_kakao:"말투 분석기",s_kakao:"카톡 말투 분석",
+    m_palette:"나만의 컬러 팔레트",s_palette:"컬러 정체성",
+    btn_analyze:"분석하기 ✨",btn_find:"찾아보기 ✨",btn_fortune:"오늘의 운세 보기 🔮",
+    btn_chat:"멘트 생성하기 💌",btn_regen:"다시 생성 🔄",btn_verdict:"AI 판결 받기 ⚖️",
+    btn_mbti:"궁합 분석하기 💫",btn_retry:"다시 하기 ⚡",btn_music:"성격 분석하기 🎵",
+    btn_loc:"추천받기 🗺️",btn_spin:"돌리기! 🎲",btn_recap:"결산 카드 만들기 📊",
+    btn_kakao:"말투 분석하기 💬",
+    desc_emotion:"텍스트로 감정을 분석해드려요!",
+    desc_celeb:"이름을 입력하면 닮은 연예인을 찾아드려요!",
+    desc_dogcat:"이름과 생년월일로 당신의 얼굴상을 분석해드려요!",
+    desc_job:"이름과 MBTI로 어울리는 직업을 알아봐요!",
+    desc_fortune:"이름과 생년월일을 입력하세요",
+    desc_chat:"상황을 설명해주세요",
+    desc_menu:"뭐 먹을지 고민되세요? AI한테 물어봐요!",
+    desc_mbti:"두 MBTI의 궁합을 분석해드려요",
+    desc_react:"신호가 바뀌면 바로 탭하세요!",
+    desc_music:"좋아하는 장르를 선택해주세요",
+    desc_loc:"지금 기분에 맞는 걸 추천해드려요",
+    desc_roul:"먹고 싶은 메뉴를 추가하세요",
+    desc_recap:"몇 가지 질문으로 나를 결산해봐요",
+    desc_kakao:"평소 카톡이나 문자 말투를 붙여넣어 보세요",
+    desc_palette:"나만의 컬러 팔레트를 찾아봐요",
+    lbl_result:"분석 결과",lbl_today_fortune:"오늘의 운세",
+    lbl_my_mbti:"나의 MBTI",lbl_their_mbti:"상대 MBTI",
+    lbl_my_palette:"나만의 컬러 팔레트",lbl_time:"반응 시간",
+    react_wait:"준비하세요...",react_tap:"화면을 탭해서 시작",
+    style_cute:"귀엽게",style_funny:"웃기게",style_cool:"쿨하게",
+    mood_alone:"혼자",mood_friends:"친구들이랑",mood_date:"데이트",mood_family:"가족이랑",
+    energy_high:"에너지 넘침",energy_low:"여유롭게",
+    loc_detecting:"위치 확인 중...",
+  }
+};
+
+let lang = (navigator.language || 'en').startsWith('ko') ? 'ko'
+         : (navigator.language || 'en').startsWith('vi') ? 'vi' : 'en';
+let currentScreen = 'home';
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (i18n[lang][k]) el.textContent = i18n[lang][k];
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lang-btn').forEach(b => { if(b.textContent===l.toUpperCase()||b.textContent==='한국어'&&l==='ko') b.classList.add('active'); });
+  // fix korean button
+  document.querySelectorAll('.lang-btn').forEach(b => { if(b.onclick.toString().includes("'"+l+"'")) b.classList.add('active'); });
+  initPalette();
+}
+
+function t(k) { return i18n[lang][k] || i18n['en'][k] || k; }
+
+// init lang
+setLang(lang);
+
+// ============ NAVIGATION ============
+function goTo(id) {
+  document.getElementById(currentScreen).classList.remove('active');
+  document.getElementById(currentScreen).classList.add('exit');
+  setTimeout(()=>{ document.getElementById(currentScreen).classList.remove('exit'); }, 400);
+  currentScreen = id;
+  document.getElementById(id).classList.add('active');
+}
+function goHome() {
+  document.getElementById(currentScreen).classList.remove('active');
+  currentScreen = 'home';
+  document.getElementById('home').classList.add('active');
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+// ============ AI CALL ============
+async function callAI(prompt, systemPrompt = '') {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      system: systemPrompt || `You are a fun, trendy AI assistant. Respond in ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Be concise and entertaining. Use emojis.`,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const d = await res.json();
+  return d.content[0].text;
+}
+
+function showLoading(el) {
+  el.innerHTML = '<div class="loading-wrap"><div class="spinner"></div><div class="loading-text">AI가 분석 중... ✨</div></div>';
+  el.classList.remove('hidden');
+}
+
+// ============ EMOTION ============
+async function analyzeEmotion() {
+  const text = document.getElementById('emotion-text').value.trim();
+  if (!text) { showToast('텍스트를 입력해주세요!'); return; }
+  const wrap = document.getElementById('emotion-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Analyze the emotions in this text: "${text}". Return ONLY valid JSON like: {"emotions":{"happy":30,"sad":20,"angry":10,"surprised":25,"neutral":15},"comment":"..."} with exactly those 5 emotion keys summing to 100.`,
+    `You are an emotion analysis AI. Always respond in valid JSON. Comment in ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    const colors = {happy:'#ffda44',sad:'#2b86c5',angry:'#ff3cac',surprised:'#00f5a0',neutral:'#784ba0'};
+    const labels = {happy:'😊 행복',sad:'😢 슬픔',angry:'😤 화남',surprised:'😲 놀람',neutral:'😐 평온'};
+    const barsHtml = Object.entries(d.emotions).map(([k,v])=>`
+      <div class="emotion-bar">
+        <div class="emotion-label"><span>${labels[k]||k}</span><span>${v}%</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:0%;background:${colors[k]||'#ff3cac'}" data-w="${v}"></div></div>
+      </div>`).join('');
+    wrap.innerHTML = `<div class="card-title">${t('lbl_result')}</div>${barsHtml}<div class="sep"></div><div class="result-box" style="border-color:var(--accent3)">${d.comment}</div>`;
+    wrap.classList.remove('hidden');
+    setTimeout(()=>wrap.querySelectorAll('.bar-fill').forEach(b=>b.style.width=b.dataset.w+'%'),100);
+  } catch(e) {
+    wrap.innerHTML = `<div class="result-box">${result}</div>`;
+  }
+}
+
+// ============ CELEB ============
+const celebList = ['IU(아이유)','BTS 뷔','손흥민','아이린(Red Velvet)','차은우','김태리','공유','송혜교','박보검','전지현','정해인','수지','이종석','강호동','유재석'];
+const vCelebs = ['Sơn Tùng M-TP','Chi Pu','Jack','BLACKPINK Rosé','BTS Jungkook','Lan Ngọc','Ninh Dương Lan Ngọc','Erik','Bảo Anh'];
+const eCelebs = ['Zendaya','BTS Jimin','BLACKPINK Lisa','Park Seo-joon','Song Joong-ki','Jennie Kim','Ji Chang-wook','Son Ye-jin'];
+
+async function findCeleb() {
+  const name = document.getElementById('celeb-name-inp').value.trim();
+  const birth = document.getElementById('celeb-birth').value.trim();
+  if (!name) { showToast('이름을 입력해주세요!'); return; }
+  const wrap = document.getElementById('celeb-result');
+  showLoading(wrap);
+  const list = lang==='vi'?vCelebs:lang==='ko'?celebList:eCelebs;
+  const celebPool = list.join(', ');
+  const result = await callAI(
+    `Person: "${name}", born: "${birth || 'unknown'}". From this celebrity list: [${celebPool}], pick the best match for a fun look-alike game. Respond ONLY with JSON: {"pct":"87%","celeb":"IU(아이유)","reason":"...short reason...","detail":"...2 sentence fun description..."}`,
+    `You are a fun celebrity matching AI. Always respond in valid JSON. Be entertaining. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    wrap.innerHTML = `<div class="celeb-result">
+      <div class="celeb-pct">${d.pct}</div>
+      <div class="celeb-name">${d.celeb}</div>
+      <div class="celeb-sub">${d.reason}</div>
+    </div>
+    <div class="result-box">${d.detail}</div>`;
+    wrap.classList.remove('hidden');
+  } catch(e) {
+    wrap.innerHTML = `<div class="result-box">${result}</div>`;
+    wrap.classList.remove('hidden');
+  }
+}
+
+// ============ DOG CAT ============
+async function analyzeDogCat() {
+  const name = document.getElementById('dc-name').value.trim();
+  const birth = document.getElementById('dc-birth').value.trim();
+  if(!name){showToast('이름을 입력해주세요!');return;}
+  const wrap = document.getElementById('dogcat-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Analyze "${name}" born "${birth||'unknown'}" for a fun dog-face vs cat-face personality game. Respond ONLY with JSON: {"dogPct":40,"catPct":60,"type":"고양이상","emoji":"🐱","detail":"...fun 2-3 sentence description..."}`,
+    `You are a fun face type analyzer. dogPct+catPct must equal 100. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Always valid JSON.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    wrap.innerHTML = `<div class="face-result">
+      <div class="face-big">${d.emoji}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;">${d.type}</div>
+      <div class="face-pct-row">
+        <div class="face-pct-item"><div class="face-pct-num" style="color:#ffda44">${d.dogPct}%</div><div class="face-pct-lbl">🐶 강아지상</div></div>
+        <div class="face-pct-item"><div class="face-pct-num" style="color:#ff3cac">${d.catPct}%</div><div class="face-pct-lbl">🐱 고양이상</div></div>
+      </div>
+    </div>
+    <div class="result-box">${d.detail}</div>`;
+    wrap.classList.remove('hidden');
+  } catch(e) { wrap.innerHTML=`<div class="result-box">${result}</div>`;wrap.classList.remove('hidden'); }
+}
+
+// ============ JOB ============
+async function analyzeJob() {
+  const name = document.getElementById('job-name').value.trim();
+  const mbti = document.getElementById('job-mbti').value;
+  if(!name||!mbti){showToast('이름과 MBTI를 입력해주세요!');return;}
+  const wrap = document.getElementById('job-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Analyze "${name}" with MBTI "${mbti}" for fun career reading. Return ONLY JSON: {"jobs":[{"icon":"🎨","name":"...","match":"92%","desc":"..."},{"icon":"💻","name":"...","match":"85%","desc":"..."},{"icon":"🎤","name":"...","match":"78%","desc":"..."}]}`,
+    `You are a fun career fortune teller. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Always valid JSON.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    wrap.innerHTML = d.jobs.map(j=>`<div class="job-card"><div class="job-icon">${j.icon}</div><div class="job-info"><div class="job-name">${j.name}</div><div class="job-desc">${j.desc}</div></div><div class="job-match">${j.match}</div></div>`).join('');
+    wrap.classList.remove('hidden');
+  } catch(e) { wrap.innerHTML=`<div class="card"><div class="result-box">${result}</div></div>`;wrap.classList.remove('hidden'); }
+}
+
+// ============ FORTUNE ============
+async function getFortune() {
+  const name = document.getElementById('fortune-name').value.trim();
+  const birth = document.getElementById('fortune-birth').value;
+  if(!name){showToast('이름을 입력해주세요!');return;}
+  const wrap = document.getElementById('fortune-result');
+  showLoading(wrap);
+  const today = new Date().toLocaleDateString();
+  const result = await callAI(
+    `Give ${name} (born ${birth||'unknown'}) a fun fortune for today ${today}. Return ONLY JSON: {"overall":"...2 sentence overall fortune...","love":"⭐⭐⭐⭐","money":"⭐⭐⭐","health":"⭐⭐⭐⭐⭐","study":"⭐⭐⭐","lucky_item":"...","lucky_color":"...","lucky_number":7}`,
+    `You are a fun fortune teller AI. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Always valid JSON.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    const catLabels = {love:lang==='ko'?'💕 연애':lang==='vi'?'💕 Tình yêu':'💕 Love', money:lang==='ko'?'💰 재물':lang==='vi'?'💰 Tài lộc':'💰 Money', health:lang==='ko'?'💪 건강':lang==='vi'?'💪 Sức khỏe':'💪 Health', study:lang==='ko'?'📚 학업':lang==='vi'?'📚 Học tập':'📚 Study'};
+    wrap.innerHTML = `
+      <div class="card-title">${t('lbl_today_fortune')}</div>
+      <div class="result-box" style="border-color:var(--accent4);margin-bottom:12px;">${d.overall}</div>
+      <div class="fortune-grid">
+        ${['love','money','health','study'].map(k=>`<div class="fortune-item"><div class="fortune-icon">${catLabels[k]}</div><div class="fortune-val">${d[k]||'⭐⭐⭐'}</div></div>`).join('')}
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;">
+        <div class="tag">🎯 ${d.lucky_item}</div>
+        <div class="tag">🎨 ${d.lucky_color}</div>
+        <div class="tag">🔢 ${d.lucky_number}</div>
+      </div>`;
+    wrap.classList.remove('hidden');
+  } catch(e) { wrap.innerHTML=`<div class="result-box">${result}</div>`;wrap.classList.remove('hidden'); }
+}
+
+// ============ FLIRT CHAT ============
+let chatStyle = 'cute';
+function setChatStyle(s, el) {
+  chatStyle = s;
+  document.querySelectorAll('#chat .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+async function generateFlirt() {
+  const target = document.getElementById('chat-target').value.trim();
+  const sit = document.getElementById('chat-situation').value.trim();
+  if(!target&&!sit){showToast('상황을 입력해주세요!');return;}
+  const wrap = document.getElementById('chat-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Create 3 fun ${chatStyle} chat pickup lines for: target="${target}", situation="${sit}". Return ONLY JSON: {"lines":["line1","line2","line3"]}`,
+    `You are a fun flirt message generator. Lines should be natural, not cringe. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Always valid JSON.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    wrap.innerHTML = `<div class="card-title">${t('lbl_result')}</div>
+      <div class="chat-bubble-wrap">${d.lines.map(l=>`<div class="bubble bubble-me">${l}</div>`).join('')}</div>
+      <button class="btn btn-secondary" onclick="generateFlirt()">${t('btn_regen')}</button>`;
+    wrap.classList.remove('hidden');
+  } catch(e) { wrap.innerHTML=`<div class="result-box">${result}</div>`;wrap.classList.remove('hidden'); }
+}
+
+// ============ MENU VERDICT ============
+async function getVerdict() {
+  const a = document.getElementById('menu-a').value.trim();
+  const b = document.getElementById('menu-b').value.trim();
+  const reason = document.getElementById('menu-reason').value.trim();
+  if(!a||!b){showToast('두 가지 선택지를 입력해주세요!');return;}
+  const wrap = document.getElementById('menu-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Judge between "${a}" vs "${b}" for situation: "${reason||'normal meal'}". Return ONLY JSON: {"winner":"${a}","emoji":"🍗","reason":"...2-3 sentence funny verdict..."}`,
+    `You are a dramatic, funny food judge AI. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Always valid JSON.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    wrap.innerHTML = `<div class="verdict-display">
+      <div class="verdict-big">${d.emoji}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;">${d.winner}</div>
+    </div>
+    <div class="result-box" style="border-color:var(--accent4)">${d.reason}</div>`;
+    wrap.classList.remove('hidden');
+  } catch(e) { wrap.innerHTML=`<div class="result-box">${result}</div>`;wrap.classList.remove('hidden'); }
+}
+
+// ============ MBTI ============
+async function getMBTICompat() {
+  const a = document.getElementById('mbti-a').value;
+  const b = document.getElementById('mbti-b').value;
+  if(!a||!b){showToast('두 MBTI를 선택해주세요!');return;}
+  const wrap = document.getElementById('mbti-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Analyze MBTI compatibility between "${a}" and "${b}". Return ONLY JSON: {"score":85,"verdict":"...short verdict label...","detail":"...3-4 sentence fun analysis..."}`,
+    `You are a fun MBTI compatibility analyzer. score is 0-100. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Always valid JSON.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    const sc = parseInt(d.score)||75;
+    const hearts = Math.round(sc/20);
+    const color = sc>=80?'#ff3cac':sc>=60?'#ffda44':'#2b86c5';
+    wrap.innerHTML = `<div class="compat-score">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:80px;color:${color};">${sc}%</div>
+      <div style="display:flex;justify-content:center;gap:4px;margin:8px 0;">${'❤️'.repeat(hearts)}${'🖤'.repeat(5-hearts)}</div>
+      <div style="font-size:16px;font-weight:800;">${d.verdict}</div>
+    </div>
+    <div class="result-box">${d.detail}</div>`;
+    wrap.classList.remove('hidden');
+  } catch(e) { wrap.innerHTML=`<div class="result-box">${result}</div>`;wrap.classList.remove('hidden'); }
+}
+
+// ============ REACTION TEST ============
+let reactState = 'idle'; // idle, waiting, ready, done
+let reactStart = 0;
+let reactTimer = null;
+let reactScores = [];
+
+function reactTap() {
+  const area = document.getElementById('react-area');
+  const text = document.getElementById('react-text');
+  const sub = document.getElementById('react-sub');
+  if(reactState==='idle'||reactState==='done') {
+    reactState='waiting';
+    area.className='react-area react-wait';
+    text.textContent = lang==='ko'?'초록불 켜지면 탭!':lang==='vi'?'Chạm khi đèn xanh!':'Wait for green!';
+    sub.textContent='';
+    document.getElementById('react-score-wrap').classList.add('hidden');
+    const delay = 1500+Math.random()*3000;
+    reactTimer = setTimeout(()=>{
+      reactState='ready';
+      area.className='react-area react-go';
+      text.textContent='지금! NOW!';
+      sub.textContent='⚡ TAP! ⚡';
+      reactStart = Date.now();
+    },delay);
+  } else if(reactState==='waiting') {
+    clearTimeout(reactTimer);
+    reactState='done';
+    area.className='react-area react-miss';
+    text.textContent = lang==='ko'?'너무 빨리!':lang==='vi'?'Quá sớm!':'Too early!';
+    sub.textContent = lang==='ko'?'다시 탭해서 시작':lang==='vi'?'Chạm để thử lại':'Tap to try again';
+  } else if(reactState==='ready') {
+    const ms = Date.now()-reactStart;
+    reactState='done';
+    reactScores.push(ms);
+    area.className='react-area react-wait';
+    text.textContent='✅';
+    sub.textContent='';
+    const grade = ms<200?'⚡ 천재급!':ms<300?'🔥 빠르다!':ms<450?'👍 보통':ms<600?'🐢 조금 느림':'😴 많이 느림';
+    const wrap = document.getElementById('react-score-wrap');
+    document.getElementById('react-time').textContent = ms+'ms';
+    document.getElementById('react-grade').textContent = grade;
+    const hist = document.getElementById('react-history');
+    hist.innerHTML = reactScores.map(s=>`<div style="background:var(--card2);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:700;">${s}ms</div>`).join('');
+    wrap.classList.remove('hidden');
+  }
+}
+function resetReact() {
+  reactState='idle';
+  reactScores=[];
+  const area=document.getElementById('react-area');
+  area.className='react-area react-wait';
+  document.getElementById('react-text').textContent=t('react_wait');
+  document.getElementById('react-sub').textContent=t('react_tap');
+  document.getElementById('react-score-wrap').classList.add('hidden');
+}
+
+// ============ MUSIC ============
+let selectedMusic = [];
+function toggleMusic(el, genre) {
+  if(selectedMusic.includes(genre)) { selectedMusic=selectedMusic.filter(g=>g!==genre); el.classList.remove('sel'); }
+  else { selectedMusic.push(genre); el.classList.add('sel'); }
+}
+async function analyzeMusic() {
+  if(selectedMusic.length===0){showToast('장르를 선택해주세요!');return;}
+  const artist = document.getElementById('music-artist').value.trim();
+  const wrap = document.getElementById('music-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Analyze personality based on music taste. Genres: [${selectedMusic.join(',')}]. Favorite artist: "${artist||'not specified'}". Give a fun personality analysis in 3-4 sentences with emoji. Also add a "Music Personality Type" label.`,
+    `You are a fun music personality analyzer. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}.`
+  );
+  wrap.innerHTML=`<div class="card-title">🎵 Analysis</div><div class="result-box">${result}</div>`;
+  wrap.classList.remove('hidden');
+}
+
+// ============ LOCATION ============
+let userMood='', userEnergy='', userCity='';
+function setMood(m,el) {
+  userMood=m;
+  document.querySelectorAll('#location .q-options:first-of-type .q-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function setEnergy(e,el) {
+  userEnergy=e;
+  document.querySelectorAll('#location .q-options:last-of-type .q-opt').forEach(el2=>el2.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Try to get city
+if(navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+      const d = await r.json();
+      userCity = d.address?.city||d.address?.town||d.address?.state||'your area';
+      document.getElementById('loc-status').innerHTML = `📍 ${userCity}`;
+    } catch(e) { document.getElementById('loc-status').innerHTML = '📍 Unknown'; }
+  }, ()=>{ document.getElementById('loc-status').innerHTML = '📍 Unknown'; });
+}
+
+async function getLocRec() {
+  const wrap = document.getElementById('loc-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Suggest 5 fun activities for someone in "${userCity||'a city'}" who is ${userMood||'alone'} and feels ${userEnergy==='high'?'energetic':'relaxed'}. Format as numbered list with emojis. Be specific and fun.`,
+    `You are a local activity recommender. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}.`
+  );
+  wrap.innerHTML=`<div class="result-box" style="border-color:var(--accent5)">${result.replace(/\n/g,'<br>')}</div>`;
+  wrap.classList.remove('hidden');
+}
+
+// ============ ROULETTE ============
+let roulItems = ['치킨','피자','삼겹살','라멘','초밥'];
+function renderRoulTags() {
+  document.getElementById('roul-tags').innerHTML = roulItems.map((item,i)=>
+    `<div class="tag">${item} <span class="del" onclick="removeRoul(${i})">×</span></div>`).join('');
+  drawWheel();
+}
+function addRoulItem() {
+  const inp = document.getElementById('roul-inp');
+  if(!inp.value.trim()){showToast('메뉴를 입력해주세요!');return;}
+  roulItems.push(inp.value.trim());
+  inp.value='';
+  renderRoulTags();
+}
+function removeRoul(i) { roulItems.splice(i,1); renderRoulTags(); }
+
+function drawWheel(angle=0) {
+  const canvas = document.getElementById('roul-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const items = roulItems.length>0?roulItems:['?'];
+  const n = items.length;
+  const arc = 2*Math.PI/n;
+  const colors = ['#ff3cac','#784ba0','#2b86c5','#ffda44','#00f5a0','#ff7043','#ab47bc','#29b6f6','#66bb6a','#ffa726'];
+  ctx.clearRect(0,0,260,260);
+  for(let i=0;i<n;i++){
+    ctx.beginPath();
+    ctx.moveTo(130,130);
+    ctx.arc(130,130,126,angle+i*arc,angle+(i+1)*arc);
+    ctx.fillStyle=colors[i%colors.length];
+    ctx.fill();
+    ctx.save();
+    ctx.translate(130,130);
+    ctx.rotate(angle+(i+0.5)*arc);
+    ctx.textAlign='right';
+    ctx.fillStyle='#fff';
+    ctx.font='bold 14px Nunito';
+    ctx.fillText(items[i],110,5);
+    ctx.restore();
+  }
+}
+
+let roulSpinning=false;
+function spinRoulette() {
+  if(roulSpinning||roulItems.length===0){showToast('메뉴를 추가해주세요!');return;}
+  roulSpinning=true;
+  document.getElementById('roul-result').textContent='';
+  const totalAngle = Math.random()*2*Math.PI + 10*Math.PI + 2*Math.PI;
+  const startTime = Date.now();
+  const duration = 3000;
+  let startAngle = 0;
+  function animate(){
+    const elapsed = Date.now()-startTime;
+    const t = Math.min(elapsed/duration,1);
+    const ease = 1-Math.pow(1-t,4);
+    const currentAngle = startAngle+totalAngle*ease;
+    drawWheel(currentAngle);
+    if(t<1){requestAnimationFrame(animate);}
+    else{
+      roulSpinning=false;
+      const finalAngle = currentAngle%(2*Math.PI);
+      const n=roulItems.length;
+      const arc=2*Math.PI/n;
+      // pointer at top (angle 3*PI/2 from east = -PI/2)
+      const normalized=(((-finalAngle%(2*Math.PI))+2*Math.PI+Math.PI/2)%(2*Math.PI));
+      const idx=Math.floor(normalized/arc)%n;
+      document.getElementById('roul-result').textContent='🎉 '+roulItems[idx]+'!';
+    }
+  }
+  animate();
+}
+
+// ============ RECAP ============
+async function generateRecap() {
+  const name = document.getElementById('recap-name').value.trim();
+  const year = document.getElementById('recap-year').value.trim();
+  const feeling = document.getElementById('recap-feeling').value.trim();
+  const goal = document.getElementById('recap-goal').value.trim();
+  if(!name){showToast('이름을 입력해주세요!');return;}
+  const wrap = document.getElementById('recap-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Create a year-end recap for "${name}". Their year: "${year}". Main feeling: "${feeling}". Goal: "${goal}". Return ONLY JSON: {"emoji":"...","title":"...short title...","desc":"...2-3 sentence poetic recap...","word1":"...one word...","word2":"...one word...","word3":"...one word...","score":87}`,
+    `You are a fun year recap generator. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}. Always valid JSON.`
+  );
+  try {
+    const d = JSON.parse(result.replace(/```json|```/g,'').trim());
+    wrap.innerHTML = `<div class="recap-card">
+      <div class="recap-emoji">${d.emoji}</div>
+      <div class="recap-title">${d.title}</div>
+      <div class="recap-desc">${d.desc}</div>
+      <div class="stat-row">
+        <div class="stat-item"><div class="stat-num">${d.score}%</div><div class="stat-lbl">${lang==='ko'?'올해 점수':lang==='vi'?'Điểm năm nay':'Year Score'}</div></div>
+      </div>
+      <div class="tag-list" style="justify-content:center;margin-top:16px;">
+        <div class="tag">${d.word1}</div>
+        <div class="tag">${d.word2}</div>
+        <div class="tag">${d.word3}</div>
+      </div>
+    </div>
+    <div class="share-row">
+      <button class="share-btn" onclick="shareResult()">📤 공유하기</button>
+      <button class="share-btn" onclick="copyResult()">📋 복사하기</button>
+    </div>`;
+    wrap.classList.remove('hidden');
+  } catch(e){wrap.innerHTML=`<div class="result-box">${result}</div>`;wrap.classList.remove('hidden');}
+}
+
+function shareResult(){if(navigator.share){navigator.share({title:'VibeCheck 결산',text:'나의 2025 결산 카드!',url:window.location.href});}else showToast('공유 기능을 지원하지 않아요');}
+function copyResult(){navigator.clipboard.writeText('VibeCheck에서 나의 결산을 확인해봤어요! 🎉').then(()=>showToast('복사됐어요! 📋'));}
+
+// ============ KAKAO STYLE ============
+async function analyzeKakao() {
+  const text = document.getElementById('kakao-text').value.trim();
+  if(!text){showToast('텍스트를 붙여넣어 주세요!');return;}
+  const wrap = document.getElementById('kakao-result');
+  showLoading(wrap);
+  const result = await callAI(
+    `Analyze the chat/text style of: "${text}". Give a fun personality analysis based on how they write. Include: 1) Speech style type name, 2) Key characteristics, 3) What kind of person they seem to be. Use emojis and be entertaining.`,
+    `You are a fun chat style analyzer. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}.`
+  );
+  wrap.innerHTML=`<div class="result-box">${result.replace(/\n/g,'<br>')}</div>`;
+  wrap.classList.remove('hidden');
+}
+
+// ============ PALETTE ============
+const paletteQuestions = [
+  { q: {ko:'지금 기분을 날씨로 표현하면?',en:'Express your current mood as weather?',vi:'Tâm trạng hiện tại của bạn như thời tiết nào?'},
+    opts: [{ko:'☀️ 맑음',en:'☀️ Sunny',vi:'☀️ Nắng đẹp'},{ko:'🌧️ 비',en:'🌧️ Rainy',vi:'🌧️ Mưa'},{ko:'⛅ 흐림',en:'⛅ Cloudy',vi:'⛅ Có mây'},{ko:'⚡ 천둥',en:'⚡ Thunder',vi:'⚡ Sấm sét'}]},
+  { q: {ko:'나를 표현하는 시간대는?',en:'What time of day represents you?',vi:'Thời điểm nào đại diện cho bạn?'},
+    opts: [{ko:'🌅 새벽',en:'🌅 Dawn',vi:'🌅 Bình minh'},{ko:'☀️ 낮',en:'☀️ Noon',vi:'☀️ Giữa trưa'},{ko:'🌆 저녁',en:'🌆 Evening',vi:'🌆 Chiều tối'},{ko:'🌙 밤',en:'🌙 Night',vi:'🌙 Đêm khuya'}]},
+  { q: {ko:'좋아하는 공간 분위기는?',en:'Favorite space vibe?',vi:'Không gian yêu thích của bạn?'},
+    opts: [{ko:'🌿 자연',en:'🌿 Nature',vi:'🌿 Thiên nhiên'},{ko:'🏙️ 도시',en:'🏙️ City',vi:'🏙️ Thành phố'},{ko:'🏠 아늑함',en:'🏠 Cozy',vi:'🏠 Ấm cúng'},{ko:'🎨 예술',en:'🎨 Artistic',vi:'🎨 Nghệ thuật'}]},
+  { q: {ko:'나의 에너지는?',en:'Your energy level?',vi:'Năng lượng của bạn?'},
+    opts: [{ko:'🔥 불꽃',en:'🔥 Fire',vi:'🔥 Lửa bùng'},{ko:'🌊 파도',en:'🌊 Wave',vi:'🌊 Sóng biển'},{ko:'🌸 꽃',en:'🌸 Flower',vi:'🌸 Hoa nở'},{ko:'⭐ 별',en:'⭐ Star',vi:'⭐ Ánh sao'}]},
+  { q: {ko:'주말에 하고 싶은 것은?',en:'What do you want to do on weekends?',vi:'Bạn muốn làm gì vào cuối tuần?'},
+    opts: [{ko:'🎉 파티',en:'🎉 Party',vi:'🎉 Tiệc tùng'},{ko:'📚 독서',en:'📚 Reading',vi:'📚 Đọc sách'},{ko:'🚴 모험',en:'🚴 Adventure',vi:'🚴 Phiêu lưu'},{ko:'🛋️ 휴식',en:'🛋️ Rest',vi:'🛋️ Nghỉ ngơi'}]}
+];
+const paletteMaps = [
+  ['#FF6B6B','#FFD93D'],['#4ECDC4','#45B7D1'],['#96CEB4','#88D8B0'],
+  ['#FF9FF3','#FF6B9D'],['#C7ECEE','#778CA3']
+];
+let palStep = 0, palAnswers = [];
+
+function initPalette() {
+  palStep=0; palAnswers=[];
+  renderPalStep();
+}
+
+function renderPalStep() {
+  const q = paletteQuestions[palStep];
+  const lk = lang==='ko'?'ko':lang==='vi'?'vi':'en';
+  document.getElementById('pal-step-count').textContent = `${palStep+1} / ${paletteQuestions.length}`;
+  document.getElementById('pal-progress').style.width = ((palStep/paletteQuestions.length)*100)+'%';
+  document.getElementById('pal-question').textContent = q.q[lk];
+  document.getElementById('pal-options').innerHTML = q.opts.map((o,i)=>
+    `<div class="q-opt" onclick="palSelect(${i})">${o[lk]}</div>`).join('');
+  document.getElementById('pal-result-wrap').classList.add('hidden');
+}
+
+async function palSelect(i) {
+  palAnswers.push(i);
+  if(palStep<paletteQuestions.length-1){
+    palStep++;
+    renderPalStep();
+    document.getElementById('pal-progress').style.width = ((palStep/paletteQuestions.length)*100)+'%';
+  } else {
+    // Generate palette
+    document.getElementById('pal-progress').style.width='100%';
+    document.getElementById('pal-question').textContent='';
+    document.getElementById('pal-options').innerHTML='<div class="spinner"></div>';
+    const colors = palAnswers.map((a,s)=>paletteMaps[s]?paletteMaps[s][a%2]||paletteMaps[s][0]:'#ff3cac');
+    const swatches = `<div class="palette-display">${colors.map(c=>`<div class="palette-swatch" style="background:${c}">${c}</div>`).join('')}</div>`;
+    document.getElementById('pal-options').innerHTML='';
+    const result = await callAI(
+      `Based on these color preferences (represented as indices): ${palAnswers.join(',')}, create a 2-sentence poetic description of this person's color personality. Colors chosen: ${colors.join(', ')}.`,
+      `You are a color personality reader. Language: ${lang==='ko'?'Korean':lang==='vi'?'Vietnamese':'English'}.`
+    );
+    document.getElementById('pal-swatches').innerHTML = colors.map(c=>`<div class="palette-swatch" style="background:${c}">${c}</div>`).join('');
+    document.getElementById('pal-desc').textContent = result;
+    document.getElementById('pal-result-wrap').classList.remove('hidden');
+    document.getElementById('pal-step-count').textContent='Done! ✨';
+  }
+}
+
+// ============ INIT ============
+renderRoulTags();
+initPalette();
+setLang(lang);
+</script>
+</body>
+</html>
