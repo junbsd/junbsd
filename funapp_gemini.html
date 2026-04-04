@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>VibeCheck ✨ (Gemini Powered)</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* 기존 스타일 유지 */
+:root{
+  --bg:#0a0a0f;--card:#13131a;--card2:#1a1a24;
+  --a1:#ff3cac;--a2:#784ba0;--a3:#2b86c5;--a4:#ffda44;--a5:#00f5a0;
+  --tx:#f0f0f0;--tx2:#aaaacc;--r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Nunito',sans-serif;}
+/* ... (중략: 기존 CSS와 동일) ... */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;
+  transition:transform .4s cubic-bezier(.77,0,.18,1),opacity .4s;
+  transform:translateX(100%);opacity:0;pointer-events:none;}
+.screen.active{transform:translateX(0);opacity:1;pointer-events:all;}
+.screen.exit{transform:translateX(-100%);opacity:0;}
+#home{background:var(--bg);}
+.home-content{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:0 16px 20px;}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;overflow-y:auto;padding-bottom:8px;}
+.mc{border-radius:var(--r);padding:16px 14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;
+  position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.07);
+  transition:transform .15s;min-height:115px;justify-content:space-between;}
+.feat-screen{background:var(--bg);}
+.feat-header{padding:50px 16px 12px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.back-btn{width:38px;height:38px;border-radius:50%;background:var(--card);border:none;color:var(--tx);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.cam-wrap{position:relative;width:100%;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:3/4;}
+.cam-wrap video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:14px;border:1px solid rgba(255,255,255,.06);}
+.btn{width:100%;padding:15px;border-radius:14px;border:none;font-weight:800;cursor:pointer;transition:.15s;}
+.inp{width:100%;padding:13px 15px;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:var(--card2);color:var(--tx);margin-bottom:10px;}
+.result-box{background:var(--card2);border-radius:14px;padding:18px;font-size:14px;line-height:1.7;border-left:3px solid var(--a1);color:var(--tx);}
+.hidden{display:none!important;}
+.spinner{width:38px;height:38px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--a1);border-radius:50%;animation:spin .7s linear infinite;margin:18px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="home" class="screen active">
+  <div class="home-content">
+    <div style="text-align:center; padding:44px 0 10px;">
+        <h1 style="font-family:'Bebas Neue'; font-size:52px; background:linear-gradient(135deg,var(--a1),var(--a3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">VibeCheck</h1>
+        <p id="ht" style="color:var(--tx2); letter-spacing:2px; font-size:12px;">GEMINI AI LAB</p>
+    </div>
+    <div class="menu-grid">
+      <div class="mc" style="background:#1a0a14" onclick="goTo('emotion')"><span>😤</span><div id="mm_emotion">감정 분석</div></div>
+      <div class="mc" style="background:#0a0f1a" onclick="goTo('celeb')"><span>🌟</span><div id="mm_celeb">스타일 분석</div></div>
+      <div class="mc" style="background:#0a160f" onclick="goTo('dogcat')"><span>🐾</span><div id="mm_dogcat">강아지/고양이상</div></div>
+      <div class="mc" style="background:#1a160a" onclick="goTo('job')"><span>💼</span><div id="mm_job">직업운 분석</div></div>
+      <div class="mc" style="background:#160a1a" onclick="goTo('fortune')"><span>🔮</span><div id="mm_fortune">오늘의 관상</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="emotion" class="screen feat-screen"></div>
+<div id="celeb" class="screen feat-screen"></div>
+<div id="dogcat" class="screen feat-screen"></div>
+<div id="job" class="screen feat-screen"></div>
+<div id="fortune" class="screen feat-screen"></div>
+
+<script>
+// ══════════════════════════════════════════
+// GEMINI API 통합 설정 (핵심 수정 부분)
+// ══════════════════════════════════════════
+const GEMINI_API_KEY = 'AIzaSyAmtAWSlESP0sONcZF4eptUN2nBwAhk2kM'; // 여기에 API 키를 넣으세요
+
+async function callAI(prompt, system, base64Img = null) {
+  const MODEL = "gemini-1.5-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+
+  // 시스템 프롬프트와 사용자 프롬프트 결합
+  let userText = `${system}\n\n사용자 요청: ${prompt}`;
+  
+  const contents = [{
+    role: "user",
+    parts: [{ text: userText }]
+  }];
+
+  if (base64Img) {
+    const data = base64Img.split(',')[1];
+    const mimeType = base64Img.split(';')[0].split(':')[1];
+    contents[0].parts.push({
+      inline_data: {
+        mime_type: mimeType,
+        data: data
+      }
+    });
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents })
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error?.message || 'Gemini API 오류');
+    
+    return result.candidates[0].content.parts[0].text;
+  } catch (e) {
+    console.error("AI 호출 실패:", e);
+    throw e;
+  }
+}
+
+// ══════════════════════════════════════════
+// 화면 전환 및 카메라 로직
+// ══════════════════════════════════════════
+let currentStream = null;
+
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  
+  // 카메라가 필요한 기능일 경우 초기화
+  if(['emotion','celeb','dogcat','job','fortune'].includes(id)) {
+    initCam(id);
+  }
+}
+
+function goHome() {
+  stopCam();
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.classList.remove('exit');
+  });
+  document.getElementById('home').classList.add('active');
+}
+
+async function initCam(id) {
+  const container = document.getElementById(id);
+  container.innerHTML = `
+    <div class="feat-header"><button class="back-btn" onclick="goHome()">←</button><div class="feat-title">${id.toUpperCase()}</div></div>
+    <div class="feat-body">
+      <div class="cam-wrap" id="wrap-${id}">
+        <video id="vid-${id}" autoplay playsinline muted></video>
+        <canvas id="canv-${id}" class="hidden"></canvas>
+      </div>
+      <div id="res-${id}" class="result-box hidden" style="margin-top:15px;"></div>
+      <div class="cam-btn-row" style="margin-top:15px;">
+        <button class="btn btn-primary" onclick="captureAndAnalyze('${id}')">분석 시작 ✨</button>
+      </div>
+    </div>
+  `;
+
+  try {
+    currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    document.getElementById(`vid-${id}`).srcObject = currentStream;
+  } catch (e) {
+    alert("카메라 권한이 필요합니다.");
+  }
+}
+
+function stopCam() {
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
+  }
+}
+
+async function captureAndAnalyze(id) {
+  const video = document.getElementById(`vid-${id}`);
+  const canvas = document.getElementById(`canv-${id}`);
+  const resultDiv = document.getElementById(`res-${id}`);
+  
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const base64Img = canvas.toDataURL('image/jpeg', 0.8);
+
+  resultDiv.innerHTML = '<div class="spinner"></div> 분석 중...';
+  resultDiv.classList.remove('hidden');
+
+  let systemPrompt = "";
+  let userPrompt = "";
+
+  // 각 모드별 Gemini 최적화 프롬프트
+  switch(id) {
+    case 'emotion':
+      systemPrompt = "당신은 표정 분석 전문가입니다. 사진 속 인물의 감정 상태를 % 수치와 함께 재치 있게 설명해주세요.";
+      break;
+    case 'celeb':
+      systemPrompt = "당신은 스타일리스트입니다. 사진 속 인물의 이목구비와 분위기를 분석하여 어떤 연예인과 비슷한 느낌이 나는지, 그리고 어울리는 패션 스타일을 추천해주세요. (특정 인물 식별이 어려우면 전반적인 분위기를 설명해주세요)";
+      break;
+    case 'dogcat':
+      systemPrompt = "당신은 동물상 분석가입니다. 사진을 보고 '강아지상'인지 '고양이상'인지, 혹은 다른 동물상인지 분석하고 그 이유를 설명해주세요.";
+      break;
+    case 'job':
+      systemPrompt = "당신은 관상 전문가입니다. 얼굴에서 느껴지는 에너지를 바탕으로 가장 잘 어울릴 법한 직업 3가지를 추천해주세요.";
+      break;
+    case 'fortune':
+      systemPrompt = "당신은 신비로운 점술가입니다. 오늘 이 사람의 얼굴에서 보이는 운세(애정, 금전, 건강)를 아주 짧고 강렬하게 예언해주세요.";
+      break;
+  }
+
+  try {
+    const response = await callAI("이 사진을 분석해줘.", systemPrompt, base64Img);
+    resultDiv.innerHTML = response.replace(/\n/g, '<br>');
+  } catch (e) {
+    resultDiv.innerHTML = "❌ 분석 실패: " + e.message;
+  }
+}
+
+// 초기 로딩
+window.onload = () => {
+    console.log("VibeCheck Gemini Ready");
+};
+</script>
+</body>
+</html>
