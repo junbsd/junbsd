@@ -445,7 +445,6 @@ async function detect() {
     const x  = c.width - b.x*sx - rw;  // mirror X
     const y  = b.y * sy;
     drawBox(ctx, x, y, rw, b.height*sy, i===0 ? smoothed : Math.round(d.age), i===0);
-    if (i===0) drawLandmarks(ctx, d.landmarks, sx, sy, c.width);
   });
 }
 
