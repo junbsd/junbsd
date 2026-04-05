@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FaceLab</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+<style>
+:root{
+  --bg:#06060f;--s1:#0f0f1e;--s2:#161626;
+  --p:#ff2d78;--p2:#ff6b35;--b:#00e5ff;--g:#39ff14;--y:#ffe600;
+  --tx:#ffffff;--tx2:rgba(255,255,255,0.55);
+  --r:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-family:'Noto Sans KR',sans-serif;}
+
+/* NOISE */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");opacity:1;}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;
+  transition:transform .45s cubic-bezier(.86,0,.07,1),opacity .45s;
+  transform:translateY(60px);opacity:0;pointer-events:none;}
+.screen.active{transform:translateY(0);opacity:1;pointer-events:all;}
+.screen.exit{transform:translateY(-60px);opacity:0;}
+
+/* HOME */
+#home{background:var(--bg);overflow:hidden;}
+.home-bg{position:absolute;inset:0;}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);animation:orb 9s ease-in-out infinite alternate;}
+.o1{width:340px;height:340px;background:rgba(255,45,120,.18);top:-120px;left:-80px;}
+.o2{width:280px;height:280px;background:rgba(0,229,255,.12);bottom:-100px;right:-60px;animation-delay:-4s;}
+.o3{width:200px;height:200px;background:rgba(57,255,20,.1);top:38%;left:35%;animation-delay:-7s;}
+@keyframes orb{from{transform:scale(1)}to{transform:scale(1.25) translate(15px,15px)}}
+
+.home-inner{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:0 20px 28px;}
+.home-top{padding:52px 0 20px;text-align:center;}
+.app-name{font-family:'Black Han Sans',sans-serif;font-size:54px;letter-spacing:6px;
+  background:linear-gradient(135deg,var(--p),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+.app-sub{font-size:11px;color:var(--tx2);letter-spacing:3px;text-transform:uppercase;margin-top:5px;}
+
+/* LANG BAR */
+.lang-bar{display:flex;gap:8px;justify-content:center;margin:14px 0 4px;}
+.lb{padding:6px 18px;border-radius:50px;border:1.5px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);color:var(--tx2);font-size:12px;font-weight:700;cursor:pointer;transition:.2s;}
+.lb.on{border-color:var(--p);color:var(--p);background:rgba(255,45,120,.1);}
+
+/* FEATURE CARDS */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;overflow-y:auto;padding:8px 0 4px;}
+.feat-grid::-webkit-scrollbar{display:none;}
+.fcard{border-radius:var(--r);padding:20px 16px;cursor:pointer;position:relative;overflow:hidden;
+  border:1px solid rgba(255,255,255,.06);transition:transform .15s,box-shadow .15s;
+  display:flex;flex-direction:column;justify-content:space-between;min-height:150px;}
+.fcard:active{transform:scale(.94);}
+.fcard::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.07),transparent);}
+.fc1{background:linear-gradient(145deg,#1a0512,#2d0820);}
+.fc2{background:linear-gradient(145deg,#001a20,#00303d);}
+.fc3{background:linear-gradient(145deg,#0d1a00,#1a3000);}
+.fc4{background:linear-gradient(145deg,#1a1200,#2d2000);}
+.fcard-icon{font-size:38px;line-height:1;}
+.fcard-name{font-size:15px;font-weight:900;line-height:1.3;margin-top:12px;}
+.fcard-hint{font-size:10px;opacity:.5;font-weight:600;margin-top:3px;}
+.fcard-tag{display:inline-block;padding:3px 10px;border-radius:50px;font-size:10px;font-weight:800;margin-top:8px;letter-spacing:.5px;}
+.t-free{background:rgba(57,255,20,.15);color:var(--g);}
+
+/* FEAT SCREENS */
+.feat-screen{background:var(--bg);}
+.feat-head{padding:50px 18px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.back-btn{width:40px;height:40px;border-radius:50%;background:var(--s1);border:1px solid rgba(255,255,255,.08);
+  color:var(--tx);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.feat-title{font-family:'Black Han Sans',sans-serif;font-size:24px;letter-spacing:2px;flex:1;}
+.feat-body{flex:1;overflow-y:auto;padding:0 18px 40px;}
+.feat-body::-webkit-scrollbar{display:none;}
+
+/* CAMERA */
+.cam-container{position:relative;width:100%;border-radius:20px;overflow:hidden;background:#000;}
+.cam-container video{width:100%;display:block;transform:scaleX(-1);}
+.cam-container canvas.overlay{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1);}
+
+/* FACE FRAME ANIMATION */
+.face-frame{position:absolute;inset:0;pointer-events:none;}
+.ff-corner{position:absolute;width:28px;height:28px;border-color:var(--p);border-style:solid;}
+.ff-tl{top:12px;left:12px;border-width:3px 0 0 3px;border-radius:6px 0 0 0;}
+.ff-tr{top:12px;right:12px;border-width:3px 3px 0 0;border-radius:0 6px 0 0;}
+.ff-bl{bottom:12px;left:12px;border-width:0 0 3px 3px;border-radius:0 0 0 6px;}
+.ff-br{bottom:12px;right:12px;border-width:0 3px 3px 0;border-radius:0 0 6px 0;}
+.scan-bar{position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--p),var(--b),var(--p),transparent);
+  animation:scan 2.5s linear infinite;opacity:.7;}
+@keyframes scan{0%{top:12px}100%{top:calc(100% - 12px)}}
+.face-detected-ring{position:absolute;inset:0;border:2px solid var(--g);border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;}
+.face-detected-ring.show{opacity:1;}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:7px;background:var(--s1);
+  border-radius:50px;padding:8px 16px;font-size:12px;font-weight:700;color:var(--tx2);margin:12px 0;border:1px solid rgba(255,255,255,.07);}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#555;flex-shrink:0;transition:.3s;}
+.status-dot.green{background:var(--g);box-shadow:0 0 8px var(--g);}
+.status-dot.yellow{background:var(--y);box-shadow:0 0 8px var(--y);}
+.status-dot.red{background:var(--p);box-shadow:0 0 8px var(--p);}
+
+/* RESULT CARDS */
+.result-area{margin-top:4px;}
+.rcard{background:var(--s1);border-radius:18px;padding:18px;margin-bottom:12px;border:1px solid rgba(255,255,255,.06);}
+.rcard-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--tx2);margin-bottom:14px;}
+
+/* EMOTION BARS */
+.emo-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.emo-emoji{font-size:22px;width:30px;text-align:center;flex-shrink:0;}
+.emo-info{flex:1;}
+.emo-name{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;justify-content:space-between;}
+.emo-track{height:8px;background:rgba(255,255,255,.08);border-radius:50px;overflow:hidden;}
+.emo-fill{height:100%;border-radius:50px;transition:width .8s cubic-bezier(.34,1.56,.64,1);}
+.dominant-badge{font-family:'Black Han Sans',sans-serif;font-size:32px;letter-spacing:2px;text-align:center;padding:10px 0 4px;}
+
+/* SCORE RING */
+.score-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0;}
+.score-ring{position:relative;width:160px;height:160px;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-family:'Black Han Sans',sans-serif;font-size:46px;line-height:1;}
+.score-label{font-size:11px;color:var(--tx2);font-weight:700;letter-spacing:1px;}
+.score-grade{font-family:'Black Han Sans',sans-serif;font-size:22px;letter-spacing:2px;margin-top:8px;}
+.ratio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.ratio-item{background:var(--s2);border-radius:12px;padding:12px;text-align:center;}
+.ratio-val{font-family:'Black Han Sans',sans-serif;font-size:22px;}
+.ratio-lbl{font-size:10px;color:var(--tx2);font-weight:700;margin-top:2px;}
+
+/* DOGCAT */
+.dc-result{text-align:center;padding:10px 0;}
+.dc-big{font-size:80px;margin-bottom:8px;animation:bounce .6s ease;}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.dc-type{font-family:'Black Han Sans',sans-serif;font-size:34px;letter-spacing:2px;}
+.dc-bar-wrap{display:flex;align-items:center;gap:10px;margin:14px 0;}
+.dc-bar-track{flex:1;height:14px;background:rgba(255,255,255,.08);border-radius:50px;overflow:hidden;}
+.dc-bar-dog{height:100%;background:linear-gradient(90deg,var(--y),#ff9800);border-radius:50px;transition:width 1s cubic-bezier(.34,1.56,.64,1);}
+.dc-bar-cat{height:100%;background:linear-gradient(90deg,var(--p),#ff6bc1);border-radius:50px;transition:width 1s cubic-bezier(.34,1.56,.64,1);margin-left:auto;}
+.dc-pct{font-family:'Black Han Sans',sans-serif;font-size:20px;width:46px;}
+.trait-wrap{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:10px;}
+.trait{padding:6px 14px;border-radius:50px;background:var(--s2);font-size:12px;font-weight:700;}
+
+/* PALETTE */
+.palette-wrap{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+.skin-preview{width:100%;height:70px;border-radius:14px;border:2px solid rgba(255,255,255,.1);}
+.palette-swatches{display:flex;gap:8px;}
+.swatch{flex:1;height:70px;border-radius:14px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:7px;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7);}
+.palette-info{background:var(--s2);border-radius:14px;padding:14px;}
+.palette-type{font-family:'Black Han Sans',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:6px;}
+.palette-desc{font-size:13px;color:var(--tx2);line-height:1.6;}
+
+/* BTN */
+.btn{width:100%;padding:16px;border-radius:14px;border:none;font-family:'Noto Sans KR',sans-serif;
+  font-size:15px;font-weight:900;cursor:pointer;transition:.15s;letter-spacing:.3px;margin-top:10px;}
+.btn:active{transform:scale(.97);}
+.btn-p{background:linear-gradient(135deg,var(--p),#c4005a);color:#fff;}
+.btn-b{background:linear-gradient(135deg,var(--b),#006680);color:#000;}
+.btn-g{background:linear-gradient(135deg,var(--g),#1a8000);color:#000;}
+
+/* SPINNER */
+.spin-wrap{display:flex;flex-direction:column;align-items:center;padding:30px 0;}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:var(--p);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-txt{font-size:13px;color:var(--tx2);font-weight:700;margin-top:10px;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:rgba(20,20,30,.95);border:1px solid rgba(255,255,255,.1);color:#fff;
+  padding:11px 22px;border-radius:50px;font-size:13px;font-weight:700;
+  opacity:0;transition:.3s;z-index:10000;white-space:nowrap;backdrop-filter:blur(10px);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* LOADING OVERLAY */
+#loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:5000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.lo-logo{font-family:'Black Han Sans',sans-serif;font-size:42px;letter-spacing:5px;
+  background:linear-gradient(135deg,var(--p),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.lo-bar{width:200px;height:4px;background:rgba(255,255,255,.1);border-radius:50px;overflow:hidden;}
+.lo-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--b));border-radius:50px;width:0%;transition:width .3s;}
+.lo-txt{font-size:12px;color:var(--tx2);font-weight:700;letter-spacing:1px;}
+
+.hidden{display:none!important;}
+.sep{height:1px;background:rgba(255,255,255,.06);margin:14px 0;}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="lo-logo">FACELAB</div>
+  <div class="lo-bar"><div class="lo-fill" id="lo-fill"></div></div>
+  <div class="lo-txt" id="lo-txt">AI 모델 로딩 중...</div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="screen">
+  <div class="home-bg">
+    <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  </div>
+  <div class="home-inner">
+    <div class="home-top">
+      <div class="app-name">FACELAB</div>
+      <div class="app-sub" id="h_sub">카메라 얼굴 분석 · 무료</div>
+      <div class="lang-bar">
+        <button class="lb" onclick="setLang('ko')">한국어</button>
+        <button class="lb" onclick="setLang('vi')">Tiếng Việt</button>
+      </div>
+    </div>
+    <div class="feat-grid">
+      <div class="fcard fc1" onclick="goTo('emotion')">
+        <div class="fcard-icon">😤</div>
+        <div>
+          <div class="fcard-name" id="h_emotion"></div>
+          <div class="fcard-hint" id="h_emotion_s"></div>
+          <div class="fcard-tag t-free" id="h_free">무료</div>
+        </div>
+      </div>
+      <div class="fcard fc2" onclick="goTo('dogcat')">
+        <div class="fcard-icon">🐾</div>
+        <div>
+          <div class="fcard-name" id="h_dogcat"></div>
+          <div class="fcard-hint" id="h_dogcat_s"></div>
+          <div class="fcard-tag t-free" id="h_free2">무료</div>
+        </div>
+      </div>
+      <div class="fcard fc3" onclick="goTo('palette')">
+        <div class="fcard-icon">🎨</div>
+        <div>
+          <div class="fcard-name" id="h_palette"></div>
+          <div class="fcard-hint" id="h_palette_s"></div>
+          <div class="fcard-tag t-free" id="h_free3">무료</div>
+        </div>
+      </div>
+      <div class="fcard fc4" onclick="goTo('score')">
+        <div class="fcard-icon">📊</div>
+        <div>
+          <div class="fcard-name" id="h_score"></div>
+          <div class="fcard-hint" id="h_score_s"></div>
+          <div class="fcard-tag t-free" id="h_free4">무료</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EMOTION SCREEN -->
+<div id="emotion" class="screen feat-screen">
+  <div class="feat-head">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div class="feat-title" id="t_emotion"></div>
+  </div>
+  <div class="feat-body">
+    <div class="cam-container" id="cam-emotion-box">
+      <video id="vid-emotion" autoplay playsinline muted></video>
+      <canvas class="overlay" id="cnv-emotion"></canvas>
+      <div class="face-frame">
+        <div class="ff-corner ff-tl"></div><div class="ff-corner ff-tr"></div>
+        <div class="ff-corner ff-bl"></div><div class="ff-corner ff-br"></div>
+        <div class="scan-bar"></div>
+      </div>
+      <div class="face-detected-ring" id="fdr-emotion"></div>
+    </div>
+    <div class="status-badge"><div class="status-dot" id="sd-emotion"></div><span id="st-emotion"></span></div>
+    <div class="result-area" id="res-emotion"></div>
+  </div>
+</div>
+
+<!-- DOG CAT SCREEN -->
+<div id="dogcat" class="screen feat-screen">
+  <div class="feat-head">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div class="feat-title" id="t_dogcat"></div>
+  </div>
+  <div class="feat-body">
+    <div class="cam-container" id="cam-dogcat-box">
+      <video id="vid-dogcat" autoplay playsinline muted></video>
+      <canvas class="overlay" id="cnv-dogcat"></canvas>
+      <div class="face-frame">
+        <div class="ff-corner ff-tl"></div><div class="ff-corner ff-tr"></div>
+        <div class="ff-corner ff-bl"></div><div class="ff-corner ff-br"></div>
+        <div class="scan-bar"></div>
+      </div>
+      <div class="face-detected-ring" id="fdr-dogcat"></div>
+    </div>
+    <div class="status-badge"><div class="status-dot" id="sd-dogcat"></div><span id="st-dogcat"></span></div>
+    <button class="btn btn-p" onclick="snapAndAnalyzeDC()" id="btn-dc"></button>
+    <div class="result-area" id="res-dogcat"></div>
+  </div>
+</div>
+
+<!-- PALETTE SCREEN -->
+<div id="palette" class="screen feat-screen">
+  <div class="feat-head">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div class="feat-title" id="t_palette"></div>
+  </div>
+  <div class="feat-body">
+    <div class="cam-container" id="cam-palette-box">
+      <video id="vid-palette" autoplay playsinline muted></video>
+      <canvas class="overlay" id="cnv-palette"></canvas>
+      <div class="face-frame">
+        <div class="ff-corner ff-tl"></div><div class="ff-corner ff-tr"></div>
+        <div class="ff-corner ff-bl"></div><div class="ff-corner ff-br"></div>
+        <div class="scan-bar"></div>
+      </div>
+      <div class="face-detected-ring" id="fdr-palette"></div>
+    </div>
+    <div class="status-badge"><div class="status-dot" id="sd-palette"></div><span id="st-palette"></span></div>
+    <button class="btn btn-g" onclick="snapAndAnalyzePalette()" id="btn-pal"></button>
+    <div class="result-area" id="res-palette"></div>
+  </div>
+</div>
+
+<!-- SCORE SCREEN -->
+<div id="score" class="screen feat-screen">
+  <div class="feat-head">
+    <button class="back-btn" onclick="goHome()">←</button>
+    <div class="feat-title" id="t_score"></div>
+  </div>
+  <div class="feat-body">
+    <div class="cam-container" id="cam-score-box">
+      <video id="vid-score" autoplay playsinline muted></video>
+      <canvas class="overlay" id="cnv-score"></canvas>
+      <div class="face-frame">
+        <div class="ff-corner ff-tl"></div><div class="ff-corner ff-tr"></div>
+        <div class="ff-corner ff-bl"></div><div class="ff-corner ff-br"></div>
+        <div class="scan-bar"></div>
+      </div>
+      <div class="face-detected-ring" id="fdr-score"></div>
+    </div>
+    <div class="status-badge"><div class="status-dot" id="sd-score"></div><span id="st-score"></span></div>
+    <button class="btn btn-b" onclick="snapAndAnalyzeScore()" id="btn-score"></button>
+    <div class="result-area" id="res-score"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════
+// i18n
+// ══════════════════════════════════
+const T = {
+  ko:{
+    h_sub:"카메라 얼굴 분석 · AI 없이 완전 무료",
+    h_emotion:"표정 감정 분석",h_emotion_s:"표정으로 감정을 실시간 측정",
+    h_dogcat:"강아지상 vs 고양이상",h_dogcat_s:"얼굴 비율로 판별",
+    h_palette:"피부톤 컬러 팔레트",h_palette_s:"내 피부톤으로 어울리는 색",
+    h_score:"얼굴 황금비율 점수",h_score_s:"황금비율로 얼굴 분석",
+    h_free:"✓ 무료",
+    t_emotion:"😤 감정 분석기",t_dogcat:"🐾 강아지 vs 고양이",
+    t_palette:"🎨 컬러 팔레트",t_score:"📊 황금비율 점수",
+    loading:"face-api 모델 로딩 중...",ready:"준비 완료!",
+    face_detected:"얼굴 감지됨 ✓",face_searching:"얼굴을 화면에 비춰주세요",
+    face_good:"얼굴 인식 완료!",
+    btn_dc:"📸 찍어서 분석하기",btn_pal:"🎨 내 피부톤 분석하기",btn_score:"📊 황금비율 측정하기",
+    dominant:"지배 감정",
+    emo_names:{happy:"행복 😊",sad:"슬픔 😢",angry:"화남 😤",fearful:"두려움 😨",disgusted:"불쾌 🤢",surprised:"놀람 😲",neutral:"평온 😐"},
+    dc_dog:"강아지상 🐶",dc_cat:"고양이상 🐱",
+    dc_traits_dog:["충성스러워","털털해","친근해","귀여워","장난스러워"],
+    dc_traits_cat:["도도해","신비로워","우아해","독립적이야","섹시해"],
+    skin_types:{
+      warm:"웜톤 🍂",cool:"쿨톤 ❄️",neutral:"뉴트럴톤 🌿"
+    },
+    skin_desc:{
+      warm:"따뜻한 색감이 잘 어울려요. 골드, 오렌지, 피치 계열이 빛나요!",
+      cool:"시원한 색감이 완벽해요. 실버, 블루, 퍼플 계열로 빛내보세요!",
+      neutral:"어떤 색이든 잘 어울리는 행운아! 다양한 색을 마음껏 즐기세요."
+    },
+    score_grades:{s:"신의 비율 ✨",a:"완벽에 가까워 🔥",b:"매력적인 얼굴 👍",c:"평균 이상 😊",d:"개성있는 매력 🌟"},
+    ratio_labels:["눈 간격 비율","코 길이 비율","얼굴 가로세로","입 눈 비율"],
+    snap_analyzing:"분석 중..."
+  },
+  vi:{
+    h_sub:"Phân tích khuôn mặt · Hoàn toàn miễn phí",
+    h_emotion:"Phân tích cảm xúc",h_emotion_s:"Đo cảm xúc qua biểu cảm",
+    h_dogcat:"Mặt chó vs mặt mèo",h_dogcat_s:"Phân tích tỷ lệ khuôn mặt",
+    h_palette:"Bảng màu tông da",h_palette_s:"Màu phù hợp với tông da bạn",
+    h_score:"Điểm tỷ lệ vàng",h_score_s:"Phân tích khuôn mặt theo tỷ lệ vàng",
+    h_free:"✓ Miễn phí",
+    t_emotion:"😤 Phân tích cảm xúc",t_dogcat:"🐾 Mặt chó vs mèo",
+    t_palette:"🎨 Bảng màu da",t_score:"📊 Điểm tỷ lệ vàng",
+    loading:"Đang tải mô hình face-api...",ready:"Sẵn sàng!",
+    face_detected:"Nhận diện khuôn mặt ✓",face_searching:"Hãy hướng mặt vào camera",
+    face_good:"Nhận diện thành công!",
+    btn_dc:"📸 Chụp và phân tích",btn_pal:"🎨 Phân tích tông da",btn_score:"📊 Đo tỷ lệ vàng",
+    dominant:"Cảm xúc chủ đạo",
+    emo_names:{happy:"Vui vẻ 😊",sad:"Buồn 😢",angry:"Tức giận 😤",fearful:"Sợ hãi 😨",disgusted:"Ghê tởm 🤢",surprised:"Ngạc nhiên 😲",neutral:"Bình thản 😐"},
+    dc_dog:"Mặt chó 🐶",dc_cat:"Mặt mèo 🐱",
+    dc_traits_dog:["Trung thành","Thân thiện","Dễ mến","Đáng yêu","Vui vẻ"],
+    dc_traits_cat:["Kiêu sa","Bí ẩn","Thanh lịch","Độc lập","Quyến rũ"],
+    skin_types:{warm:"Tông ấm 🍂",cool:"Tông lạnh ❄️",neutral:"Tông trung tính 🌿"},
+    skin_desc:{
+      warm:"Màu ấm rất hợp với bạn. Vàng, cam, đào sẽ tỏa sáng!",
+      cool:"Màu lạnh hoàn hảo cho bạn. Bạc, xanh lam, tím sẽ thăng hoa!",
+      neutral:"Bạn may mắn hợp với mọi màu sắc! Hãy thoải mái thử nghiệm."
+    },
+    score_grades:{s:"Tỷ lệ thần thánh ✨",a:"Gần như hoàn hảo 🔥",b:"Khuôn mặt hấp dẫn 👍",c:"Trên trung bình 😊",d:"Nét đẹp cá tính 🌟"},
+    ratio_labels:["Tỷ lệ khoảng mắt","Tỷ lệ chiều dài mũi","Tỷ lệ mặt ngang dọc","Tỷ lệ miệng/mắt"],
+    snap_analyzing:"Đang phân tích..."
+  }
+};
+
+let lang = navigator.language?.startsWith('vi') ? 'vi' : 'ko';
+const t = k => (T[lang][k]) || k;
+
+function setLang(l) {
+  lang = l;
+  applyLang();
+  document.querySelectorAll('.lb').forEach(b => {
+    b.classList.remove('on');
+    if((l==='ko'&&b.textContent==='한국어')||(l==='vi'&&b.textContent==='Tiếng Việt')) b.classList.add('on');
+  });
+}
+function applyLang() {
+  ['h_sub','h_emotion','h_emotion_s','h_dogcat','h_dogcat_s','h_palette','h_palette_s','h_score','h_score_s',
+   't_emotion','t_dogcat','t_palette','t_score'].forEach(k=>{const el=document.getElementById(k);if(el)el.textContent=t(k);});
+  ['h_free','h_free2','h_free3','h_free4'].forEach(k=>{const el=document.getElementById(k);if(el)el.textContent=t('h_free');});
+  const bd=document.getElementById('btn-dc');if(bd)bd.textContent=t('btn_dc');
+  const bp=document.getElementById('btn-pal');if(bp)bp.textContent=t('btn_pal');
+  const bs=document.getElementById('btn-score');if(bs)bs.textContent=t('btn_score');
+}
+
+// ══════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════
+let currentScreen = 'home';
+const streams = {};
+
+function goTo(id) {
+  document.getElementById(currentScreen).classList.remove('active');
+  document.getElementById(currentScreen).classList.add('exit');
+  setTimeout(()=>document.getElementById(currentScreen).classList.remove('exit'), 450);
+  currentScreen = id;
+  document.getElementById(id).classList.add('active');
+  startCam(id);
+  if(id==='emotion') startEmotionLoop();
+}
+function goHome() {
+  stopAllCams();
+  stopEmotionLoop();
+  document.getElementById(currentScreen).classList.remove('active');
+  currentScreen = 'home';
+  document.getElementById('home').classList.add('active');
+}
+function stopAllCams() {
+  Object.keys(streams).forEach(id=>{
+    if(streams[id]){streams[id].getTracks().forEach(t=>t.stop());delete streams[id];}
+  });
+}
+async function startCam(id) {
+  const vid = document.getElementById('vid-'+id);
+  if(!vid) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}},audio:false});
+    streams[id] = stream;
+    vid.srcObject = stream;
+    vid.onloadedmetadata = () => {
+      const box = document.getElementById('cam-'+id+'-box');
+      const cnv = document.getElementById('cnv-'+id);
+      if(box && cnv) { cnv.width=vid.videoWidth; cnv.height=vid.videoHeight; }
+    };
+  } catch(e) { showToast('카메라 접근 실패 😢'); }
+}
+
+// ══════════════════════════════════
+// FACE-API MODELS
+// ══════════════════════════════════
+const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+let modelsLoaded = false;
+
+async function loadModels() {
+  const fill = document.getElementById('lo-fill');
+  const txt = document.getElementById('lo-txt');
+  try {
+    txt.textContent = lang==='vi'?'Đang tải TinyFaceDetector...':'TinyFaceDetector 로딩...';
+    fill.style.width = '20%';
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+
+    txt.textContent = lang==='vi'?'Đang tải FaceLandmark...':'FaceLandmark 로딩...';
+    fill.style.width = '50%';
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+
+    txt.textContent = lang==='vi'?'Đang tải FaceExpression...':'FaceExpression 로딩...';
+    fill.style.width = '80%';
+    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+
+    fill.style.width = '100%';
+    txt.textContent = lang==='vi'?'Sẵn sàng! ✨':'준비 완료! ✨';
+    modelsLoaded = true;
+    setTimeout(()=>{
+      document.getElementById('loading-overlay').style.display='none';
+      document.getElementById('home').classList.add('active');
+      applyLang();
+      setLang(lang);
+    }, 600);
+  } catch(e) {
+    txt.textContent = '로딩 실패: '+e.message;
+    console.error(e);
+  }
+}
+
+// ══════════════════════════════════
+// EMOTION — REALTIME LOOP
+// ══════════════════════════════════
+let emotionLoopId = null;
+let lastEmotions = null;
+
+function startEmotionLoop() {
+  if(emotionLoopId) return;
+  emotionLoopId = requestAnimationFrame(emotionLoop);
+}
+function stopEmotionLoop() {
+  if(emotionLoopId) { cancelAnimationFrame(emotionLoopId); emotionLoopId=null; }
+}
+
+async function emotionLoop() {
+  const vid = document.getElementById('vid-emotion');
+  const cnv = document.getElementById('cnv-emotion');
+  const fdr = document.getElementById('fdr-emotion');
+  const sd = document.getElementById('sd-emotion');
+  const st = document.getElementById('st-emotion');
+
+  if(vid && vid.readyState===4 && modelsLoaded) {
+    const opts = new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.4});
+    const result = await faceapi.detectSingleFace(vid,opts).withFaceLandmarks().withFaceExpressions();
+
+    if(result) {
+      fdr.classList.add('show');
+      sd.className='status-dot green';
+      st.textContent = t('face_detected');
+
+      // Draw landmarks on canvas
+      cnv.width = vid.videoWidth; cnv.height = vid.videoHeight;
+      const ctx = cnv.getContext('2d');
+      ctx.clearRect(0,0,cnv.width,cnv.height);
+      // Draw points
+      const pts = result.landmarks.positions;
+      ctx.fillStyle='rgba(0,229,255,0.6)';
+      pts.forEach(p=>{ ctx.beginPath();ctx.arc(p.x,p.y,2,0,Math.PI*2);ctx.fill(); });
+
+      lastEmotions = result.expressions;
+      renderEmotions(result.expressions);
+    } else {
+      fdr.classList.remove('show');
+      sd.className='status-dot yellow';
+      st.textContent = t('face_searching');
+    }
+  } else {
+    if(st) st.textContent = t('face_searching');
+  }
+
+  if(emotionLoopId) emotionLoopId = requestAnimationFrame(emotionLoop);
+}
+
+function renderEmotions(expressions) {
+  const wrap = document.getElementById('res-emotion');
+  const entries = Object.entries(expressions).sort((a,b)=>b[1]-a[1]);
+  const dominant = entries[0];
+  const names = t('emo_names');
+  const colors = {happy:'#ffe600',sad:'#2b86c5',angry:'#ff2d78',fearful:'#784ba0',disgusted:'#00a870',surprised:'#ff6b35',neutral:'#aaaacc'};
+
+  wrap.innerHTML = `
+    <div class="rcard">
+      <div class="rcard-title">${t('dominant')}</div>
+      <div class="dominant-badge" style="background:linear-gradient(135deg,${colors[dominant[0]]||'#fff'},${colors[dominant[0]]||'#aaa'}88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+        ${names[dominant[0]]||dominant[0]}
+      </div>
+      <div class="sep"></div>
+      ${entries.map(([k,v])=>`
+        <div class="emo-row">
+          <div class="emo-emoji">${(names[k]||k).split(' ')[1]||'😐'}</div>
+          <div class="emo-info">
+            <div class="emo-name"><span>${(names[k]||k).split(' ')[0]}</span><span>${Math.round(v*100)}%</span></div>
+            <div class="emo-track"><div class="emo-fill" style="width:${Math.round(v*100)}%;background:${colors[k]||'#fff'}"></div></div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════
+// DOG CAT
+// ══════════════════════════════════
+async function snapAndAnalyzeDC() {
+  const vid = document.getElementById('vid-dogcat');
+  const wrap = document.getElementById('res-dogcat');
+  wrap.innerHTML=`<div class="spin-wrap"><div class="spinner"></div><div class="spin-txt">${t('snap_analyzing')}</div></div>`;
+
+  const opts = new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.4});
+  const result = await faceapi.detectSingleFace(vid,opts).withFaceLandmarks();
+  if(!result){showToast(t('face_searching'));wrap.innerHTML='';return;}
+
+  const lm = result.landmarks;
+  const pts = lm.positions;
+
+  // Extract key facial measurements
+  // Left eye center, right eye center
+  const le = avg(pts.slice(36,42));
+  const re = avg(pts.slice(42,48));
+  const eyeDist = dist(le,re);
+  // Nose tip
+  const noseTip = pts[33];
+  // Mouth corners
+  const ml = pts[48]; const mr = pts[54];
+  const mouthW = dist(ml,mr);
+  // Face width (cheekbones)
+  const faceW = dist(pts[0],pts[16]);
+  // Face height (chin to forehead approx)
+  const faceH = dist(pts[8],pts[27]);
+  // Eye to mouth distance
+  const eyeMid = {x:(le.x+re.x)/2,y:(le.y+re.y)/2};
+  const eyeToMouth = dist(eyeMid,{x:(ml.x+mr.x)/2,y:(ml.y+mr.y)/2});
+
+  // Ratios for dog/cat determination
+  const eyeRatio = eyeDist / faceW;        // cats: wider set eyes relative to face
+  const mouthRatio = mouthW / faceW;       // dogs: wider mouth
+  const faceShapeRatio = faceW / faceH;    // cats: rounder (higher), dogs: longer (lower)
+  const eyeHeightRatio = eyeToMouth / faceH; // position of eyes
+
+  // Score: higher = more cat-like
+  let catScore = 0;
+  if(eyeRatio > 0.42) catScore += 25;        // wide set eyes = cat
+  if(mouthRatio < 0.38) catScore += 20;       // small mouth = cat
+  if(faceShapeRatio > 0.78) catScore += 25;   // rounder face = cat
+  if(eyeHeightRatio < 0.48) catScore += 20;   // eyes higher = cat
+  catScore += Math.random()*10;               // slight randomness
+  catScore = Math.min(95, Math.max(15, catScore));
+  const dogScore = 100 - catScore;
+
+  const isCat = catScore >= 50;
+  const traits = isCat ? t('dc_traits_cat') : t('dc_traits_dog');
+  const shuffled = traits.sort(()=>Math.random()-.5).slice(0,3);
+
+  wrap.innerHTML = `
+    <div class="rcard">
+      <div class="dc-result">
+        <div class="dc-big">${isCat?'🐱':'🐶'}</div>
+        <div class="dc-type" style="color:${isCat?'var(--p)':'var(--y)'}">${isCat?t('dc_cat'):t('dc_dog')}</div>
+      </div>
+      <div class="sep"></div>
+      <div class="dc-bar-wrap">
+        <span style="font-size:20px;">🐶</span>
+        <div class="dc-bar-track"><div class="dc-bar-dog" style="width:${dogScore}%"></div></div>
+        <div class="dc-pct" style="color:var(--y)">${Math.round(dogScore)}%</div>
+      </div>
+      <div class="dc-bar-wrap">
+        <span style="font-size:20px;">🐱</span>
+        <div class="dc-bar-track"><div style="display:flex;"><div style="flex:1"></div><div class="dc-bar-cat" style="width:${catScore}%"></div></div></div>
+        <div class="dc-pct" style="color:var(--p)">${Math.round(catScore)}%</div>
+      </div>
+      <div class="trait-wrap">${shuffled.map(tr=>`<div class="trait">${tr}</div>`).join('')}</div>
+    </div>`;
+}
+
+// ══════════════════════════════════
+// PALETTE — SKIN TONE
+// ══════════════════════════════════
+async function snapAndAnalyzePalette() {
+  const vid = document.getElementById('vid-palette');
+  const wrap = document.getElementById('res-palette');
+  wrap.innerHTML=`<div class="spin-wrap"><div class="spinner"></div><div class="spin-txt">${t('snap_analyzing')}</div></div>`;
+
+  const opts = new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.4});
+  const result = await faceapi.detectSingleFace(vid,opts).withFaceLandmarks();
+  if(!result){showToast(t('face_searching'));wrap.innerHTML='';return;}
+
+  // Sample skin pixels from cheek areas
+  const cnv = document.createElement('canvas');
+  cnv.width = vid.videoWidth; cnv.height = vid.videoHeight;
+  const ctx = cnv.getContext('2d');
+  ctx.drawImage(vid,0,0);
+
+  const lm = result.landmarks;
+  const pts = lm.positions;
+
+  // Sample points: cheeks (around pts 1-4 and 12-15)
+  const samplePts = [
+    pts[1],pts[2],pts[3],
+    pts[13],pts[14],pts[15],
+    pts[28],pts[29], // nose bridge
+  ];
+
+  let rSum=0,gSum=0,bSum=0,count=0;
+  samplePts.forEach(p=>{
+    const r=Math.floor(p.x); const c=Math.floor(p.y);
+    // mirror because video is mirrored
+    const px = ctx.getImageData(vid.videoWidth-r, c, 5, 5).data;
+    for(let i=0;i<px.length;i+=4){
+      rSum+=px[i];gSum+=px[i+1];bSum+=px[i+2];count++;
+    }
+  });
+  const rAvg=rSum/count,gAvg=gSum/count,bAvg=bSum/count;
+
+  // Determine skin tone type using ITA angle
+  // ITA = arctan((L-50)/b) * 180/PI
+  // Simplified: use R-B difference and R/G ratio
+  const warmth = (rAvg - bAvg); // positive = warm, negative = cool
+  const rg = rAvg / (gAvg||1);
+
+  let toneType;
+  if(warmth > 30 && rg > 1.1) toneType='warm';
+  else if(warmth < 10) toneType='cool';
+  else toneType='neutral';
+
+  const skinHex = rgbToHex(Math.round(rAvg),Math.round(gAvg),Math.round(bAvg));
+
+  // Palette colors based on tone
+  const palettes = {
+    warm: ['#D4A574','#C19A6B','#B8860B','#CD853F','#DEB887'],
+    cool: ['#B0C4DE','#9370DB','#6495ED','#708090','#C0C0C0'],
+    neutral: ['#C4A882','#8FBC8F','#D2B48C','#BC8F8F','#A0A0A0']
+  };
+  const suggestedColors = {
+    warm: ['#FF6B35','#FFD700','#FF8C42','#E8A87C','#F4A261'],
+    cool: ['#7B68EE','#4682B4','#9370DB','#708090','#5F9EA0'],
+    neutral: ['#8FBC8F','#D2B48C','#9B8EA0','#7EC8A0','#C8956C']
+  };
+
+  const pal = suggestedColors[toneType];
+
+  wrap.innerHTML = `
+    <div class="rcard">
+      <div class="rcard-title">${lang==='ko'?'내 피부톤':'Tông da của bạn'}</div>
+      <div class="palette-wrap">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <div style="width:60px;height:60px;border-radius:14px;background:${skinHex};border:2px solid rgba(255,255,255,.15);flex-shrink:0;"></div>
+          <div>
+            <div class="palette-type" style="color:${toneType==='warm'?'#ff9800':toneType==='cool'?'var(--b)':'var(--g)'}">${t('skin_types')[toneType]}</div>
+            <div style="font-size:12px;color:var(--tx2);font-weight:700;">${skinHex.toUpperCase()}</div>
+          </div>
+        </div>
+        <div class="sep"></div>
+        <div class="rcard-title">${lang==='ko'?'어울리는 컬러':'Màu phù hợp'}</div>
+        <div class="palette-swatches">
+          ${pal.map(c=>`<div class="swatch" style="background:${c}">${c}</div>`).join('')}
+        </div>
+        <div class="sep"></div>
+        <div class="palette-info">
+          <div class="palette-desc">${t('skin_desc')[toneType]}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════
+// GOLDEN RATIO SCORE
+// ══════════════════════════════════
+async function snapAndAnalyzeScore() {
+  const vid = document.getElementById('vid-score');
+  const wrap = document.getElementById('res-score');
+  wrap.innerHTML=`<div class="spin-wrap"><div class="spinner"></div><div class="spin-txt">${t('snap_analyzing')}</div></div>`;
+
+  const opts = new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:.4});
+  const result = await faceapi.detectSingleFace(vid,opts).withFaceLandmarks();
+  if(!result){showToast(t('face_searching'));wrap.innerHTML='';return;}
+
+  const lm = result.landmarks;
+  const pts = lm.positions;
+  const PHI = 1.618;
+
+  // Key measurements
+  const le = avg(pts.slice(36,42));
+  const re = avg(pts.slice(42,48));
+  const eyeDist = dist(le,re);
+  const faceW = dist(pts[0],pts[16]);
+  const noseTip = pts[33];
+  const noseTop = pts[27];
+  const noseH = dist(noseTop,noseTip);
+  const faceH = dist(pts[8],pts[27]);
+  const ml = pts[48]; const mr = pts[54];
+  const mouthW = dist(ml,mr);
+  const eyeMid = {x:(le.x+re.x)/2,y:(le.y+re.y)/2};
+
+  // Golden ratio checks
+  // 1. Eye width to face width
+  const r1 = (eyeDist*3) / faceW; // ideally = PHI (1.618)
+  const s1 = ratioScore(r1, PHI);
+
+  // 2. Nose to face height
+  const r2 = faceH / (noseH * PHI);
+  const s2 = ratioScore(r2, PHI);
+
+  // 3. Face width to height
+  const r3 = faceH / faceW;
+  const s3 = ratioScore(r3, PHI*0.85);
+
+  // 4. Mouth width to eye distance
+  const r4 = eyeDist / mouthW;
+  const s4 = ratioScore(r4, 1.0);
+
+  const totalScore = Math.round((s1+s2+s3+s4)/4);
+  const grades = t('score_grades');
+  let grade, gradeColor;
+  if(totalScore>=90){grade=grades.s;gradeColor='var(--y)';}
+  else if(totalScore>=80){grade=grades.a;gradeColor='var(--p)';}
+  else if(totalScore>=70){grade=grades.b;gradeColor='var(--b)';}
+  else if(totalScore>=55){grade=grades.c;gradeColor='var(--g)';}
+  else{grade=grades.d;gradeColor='#aaa';}
+
+  const scoreColor = totalScore>=80?'var(--y)':totalScore>=65?'var(--p)':'var(--b)';
+  const circumference = 2*Math.PI*65;
+  const dash = circumference*(totalScore/100);
+  const ratioLabels = t('ratio_labels');
+  const subScores = [s1,s2,s3,s4];
+
+  wrap.innerHTML = `
+    <div class="rcard">
+      <div class="score-wrap">
+        <div class="score-ring">
+          <svg width="160" height="160" viewBox="0 0 160 160">
+            <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+            <circle cx="80" cy="80" r="65" fill="none" stroke="${scoreColor}" stroke-width="10"
+              stroke-linecap="round" stroke-dasharray="${dash} ${circumference}"
+              style="transition:stroke-dasharray 1s cubic-bezier(.34,1.56,.64,1)"/>
+          </svg>
+          <div class="score-ring-num">
+            <div class="score-num" style="color:${scoreColor}">${totalScore}</div>
+            <div class="score-label">/ 100</div>
+          </div>
+        </div>
+        <div class="score-grade" style="color:${gradeColor}">${grade}</div>
+      </div>
+      <div class="sep"></div>
+      <div class="ratio-grid">
+        ${ratioLabels.map((lbl,i)=>`
+          <div class="ratio-item">
+            <div class="ratio-val" style="color:${subScores[i]>=80?'var(--g)':subScores[i]>=60?'var(--y)':'var(--p)'}">${subScores[i]}</div>
+            <div class="ratio-lbl">${lbl}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Face detection status per screen
+  ['dogcat','palette','score'].forEach(id=>{
+    const fdr = document.getElementById('fdr-'+id);
+    const sd = document.getElementById('sd-'+id);
+    const st = document.getElementById('st-'+id);
+    if(fdr && result){ fdr.classList.add('show'); if(sd)sd.className='status-dot green'; if(st)st.textContent=t('face_detected'); }
+  });
+}
+
+// ══════════════════════════════════
+// FACE DETECTION STATUS for non-emotion screens
+// ══════════════════════════════════
+async function checkFacePresence(id) {
+  const vid = document.getElementById('vid-'+id);
+  const sd = document.getElementById('sd-'+id);
+  const st = document.getElementById('st-'+id);
+  const fdr = document.getElementById('fdr-'+id);
+  if(!vid||!modelsLoaded) return;
+  if(vid.readyState!==4) { setTimeout(()=>checkFacePresence(id),500); return; }
+  const opts = new faceapi.TinyFaceDetectorOptions({inputSize:160,scoreThreshold:.4});
+  const det = await faceapi.detectSingleFace(vid,opts);
+  if(det) {
+    if(fdr)fdr.classList.add('show');
+    if(sd)sd.className='status-dot green';
+    if(st)st.textContent=t('face_detected');
+  } else {
+    if(fdr)fdr.classList.remove('show');
+    if(sd)sd.className='status-dot yellow';
+    if(st)st.textContent=t('face_searching');
+  }
+  if(streams[id]) setTimeout(()=>checkFacePresence(id), 1000);
+}
+
+// Override goTo to also start face checking
+const _origGoTo = goTo;
+window.goTo = function(id) {
+  _origGoTo(id);
+  if(id!=='emotion') setTimeout(()=>checkFacePresence(id), 1500);
+};
+
+// ══════════════════════════════════
+// HELPERS
+// ══════════════════════════════════
+function avg(pts){ const x=pts.reduce((s,p)=>s+p.x,0)/pts.length,y=pts.reduce((s,p)=>s+p.y,0)/pts.length;return{x,y}; }
+function dist(a,b){ return Math.sqrt((a.x-b.x)**2+(a.y-b.y)**2); }
+function ratioScore(actual, ideal) {
+  const diff = Math.abs(actual-ideal)/ideal;
+  return Math.round(Math.max(0, Math.min(100, 100 - diff*200)));
+}
+function rgbToHex(r,g,b){ return '#'+[r,g,b].map(x=>Math.min(255,Math.max(0,x)).toString(16).padStart(2,'0')).join(''); }
+function showToast(msg){ const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2500); }
+
+// ══════════════════════════════════
+// INIT
+// ══════════════════════════════════
+applyLang();
+setLang(lang);
+loadModels();
+</script>
+</body>
+</html>
