@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>동물 카드 🐾</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: #fff8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    padding: 12px;
+    min-height: 100vh;
+  }
+
+  .card {
+    background: white;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #e0d5c8, 0 6px 16px rgba(0,0,0,0.07);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    overflow: hidden;
+    animation: popIn 0.45s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .card[data-color="orange"]::before { background: linear-gradient(90deg,#ff6b35,#ffd166); }
+  .card[data-color="pink"]::before   { background: linear-gradient(90deg,#f77fbe,#ff9de2); }
+  .card[data-color="blue"]::before   { background: linear-gradient(90deg,#4cc9f0,#7bedff); }
+  .card[data-color="rose"]::before   { background: linear-gradient(90deg,#fb7185,#fda4af); }
+  .card[data-color="green"]::before  { background: linear-gradient(90deg,#52d68a,#b5f7c3); }
+  .card[data-color="purple"]::before { background: linear-gradient(90deg,#a78bfa,#c4b5fd); }
+  .card[data-color="amber"]::before  { background: linear-gradient(90deg,#f59e0b,#fde68a); }
+  .card[data-color="teal"]::before   { background: linear-gradient(90deg,#2dd4bf,#99f6e4); }
+  .card[data-color="indigo"]::before { background: linear-gradient(90deg,#818cf8,#c7d2fe); }
+  .card[data-color="yellow"]::before { background: linear-gradient(90deg,#fbbf24,#fde68a); }
+  .card[data-color="lime"]::before   { background: linear-gradient(90deg,#84cc16,#d9f99d); }
+  .card[data-color="red"]::before    { background: linear-gradient(90deg,#f87171,#fca5a5); }
+  .card[data-color="brown"]::before  { background: linear-gradient(90deg,#d97706,#fcd34d); }
+
+  .card:active {
+    transform: scale(0.93);
+    box-shadow: 0 2px 0 #e0d5c8;
+  }
+
+  .emoji {
+    font-size: clamp(48px, 14vw, 90px);
+    line-height: 1;
+    user-select: none;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+
+  @keyframes popIn {
+    from { opacity:0; transform:scale(0.6) translateY(20px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  /* stagger */
+  .card:nth-child(1)  { animation-delay:.03s }
+  .card:nth-child(2)  { animation-delay:.07s }
+  .card:nth-child(3)  { animation-delay:.11s }
+  .card:nth-child(4)  { animation-delay:.15s }
+  .card:nth-child(5)  { animation-delay:.19s }
+  .card:nth-child(6)  { animation-delay:.23s }
+  .card:nth-child(7)  { animation-delay:.27s }
+  .card:nth-child(8)  { animation-delay:.31s }
+  .card:nth-child(9)  { animation-delay:.35s }
+  .card:nth-child(10) { animation-delay:.39s }
+  .card:nth-child(11) { animation-delay:.43s }
+  .card:nth-child(12) { animation-delay:.47s }
+  .card:nth-child(13) { animation-delay:.51s }
+
+  /* ── FULLSCREEN OVERLAY ── */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 24px;
+    cursor: pointer;
+    animation: fadeBg 0.25s ease both;
+  }
+
+  .overlay.show {
+    display: flex;
+  }
+
+  @keyframes fadeBg {
+    from { opacity:0; }
+    to   { opacity:1; }
+  }
+
+  .overlay-bg {
+    position: absolute;
+    inset: 0;
+    background: rgba(255,248,240,0.96);
+    backdrop-filter: blur(6px);
+  }
+
+  .overlay-emoji {
+    font-size: min(72vw, 72vh);
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 16px 32px rgba(0,0,0,0.18));
+    animation: bigPop 0.4s cubic-bezier(.34,1.56,.64,1) both;
+    user-select: none;
+  }
+
+  @keyframes bigPop {
+    from { transform: scale(0.3); opacity:0; }
+    to   { transform: scale(1); opacity:1; }
+  }
+
+  .overlay-vn {
+    font-family: system-ui, sans-serif;
+    font-size: clamp(1.6rem, 6vw, 3rem);
+    font-weight: 800;
+    color: #e65100;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 1px;
+    text-align: center;
+    padding: 10px 28px;
+    background: #fff3e0;
+    border-radius: 50px;
+    animation: slideUp 0.35s cubic-bezier(.34,1.56,.64,1) 0.1s both;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity:0; }
+    to   { transform: translateY(0); opacity:1; }
+  }
+
+  .overlay-ko {
+    font-family: system-ui, sans-serif;
+    font-size: clamp(1rem, 3.5vw, 1.6rem);
+    font-weight: 700;
+    color: #888;
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.35s cubic-bezier(.34,1.56,.64,1) 0.18s both;
+  }
+
+  .close-hint {
+    font-size: 0.85rem;
+    color: #ccc;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="grid" id="grid"></div>
+
+<!-- Fullscreen overlay -->
+<div class="overlay" id="overlay" onclick="closeOverlay()">
+  <div class="overlay-bg"></div>
+  <div class="overlay-emoji" id="ov-emoji"></div>
+  <div class="overlay-vn"    id="ov-vn"></div>
+  <div class="overlay-ko"    id="ov-ko"></div>
+  <div class="close-hint">탭하면 닫혀요 ✕</div>
+</div>
+
+<script>
+const animals = [
+  { emoji:'🐶', ko:'강아지',  vn:'Con chó',       color:'orange' },
+  { emoji:'🐱', ko:'고양이',  vn:'Con mèo',       color:'pink'   },
+  { emoji:'🐮', ko:'소',      vn:'Con bò',        color:'blue'   },
+  { emoji:'🐷', ko:'돼지',    vn:'Con lợn',       color:'rose'   },
+  { emoji:'🐸', ko:'개구리',  vn:'Con ếch',       color:'green'  },
+  { emoji:'🐰', ko:'토끼',    vn:'Con thỏ',       color:'purple' },
+  { emoji:'🐻', ko:'곰',      vn:'Con gấu',       color:'amber'  },
+  { emoji:'🐼', ko:'판다',    vn:'Con gấu trúc',  color:'teal'   },
+  { emoji:'🐧', ko:'펭귄',    vn:'Chim cánh cụt', color:'indigo' },
+  { emoji:'🦁', ko:'사자',    vn:'Con sư tử',     color:'yellow' },
+  { emoji:'🐘', ko:'코끼리',  vn:'Con voi',       color:'lime'   },
+  { emoji:'🦆', ko:'오리',    vn:'Con vịt',       color:'red'    },
+  { emoji:'🐓', ko:'닭',      vn:'Con gà',        color:'brown'  },
+];
+
+const grid    = document.getElementById('grid');
+const overlay = document.getElementById('overlay');
+const ovEmoji = document.getElementById('ov-emoji');
+const ovVn    = document.getElementById('ov-vn');
+const ovKo    = document.getElementById('ov-ko');
+
+animals.forEach(a => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.dataset.color = a.color;
+  card.innerHTML = `<span class="emoji">${a.emoji}</span>`;
+  card.addEventListener('click', () => openOverlay(a));
+  grid.appendChild(card);
+});
+
+function openOverlay(a) {
+  ovEmoji.textContent = a.emoji;
+  ovVn.textContent    = a.vn;
+  ovKo.textContent    = a.ko;
+  overlay.classList.add('show');
+  speakVn(a.vn);
+}
+
+function closeOverlay() {
+  overlay.classList.remove('show');
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+// ── Vietnamese (Southern vi-VN) TTS ──────────────────────────
+function speakVn(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+
+  const go = () => {
+    const voices = window.speechSynthesis.getVoices();
+    let voice = voices.find(v => v.lang === 'vi-VN')
+             || voices.find(v => v.lang && v.lang.startsWith('vi'));
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang  = 'vi-VN';
+    u.rate  = 0.80;
+    u.pitch = 1.0;
+    if (voice) u.voice = voice;
+    window.speechSynthesis.speak(u);
+  };
+
+  if (window.speechSynthesis.getVoices().length > 0) {
+    go();
+  } else {
+    window.speechSynthesis.onvoiceschanged = go;
+  }
+}
+</script>
+</body>
+</html>
