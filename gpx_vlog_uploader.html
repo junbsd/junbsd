@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPX Vlog Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root {
+  --cream: #f5f0e8;
+  --warm: #e8ddc8;
+  --brown: #6b4f3a;
+  --gold: #c9a96e;
+  --dark: #1a1410;
+  --muted: #8a7968;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  width:1280px; height:720px; overflow:hidden;
+  background:var(--dark);
+  font-family:'DM Sans',sans-serif;
+  position:relative;
+}
+
+/* ── 업로드 화면 ── */
+#upload-screen {
+  position:absolute; inset:0; z-index:100;
+  background:var(--dark);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:0;
+}
+
+#upload-screen::before {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 50%, rgba(107,79,58,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 75% 40%, rgba(201,169,110,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.upload-eyebrow {
+  font-size:10px; letter-spacing:5px; text-transform:uppercase;
+  color:var(--gold); opacity:0.6; margin-bottom:18px;
+}
+
+.upload-title {
+  font-family:'Playfair Display', serif;
+  font-size:52px; font-weight:400; color:var(--cream);
+  line-height:1.1; text-align:center; margin-bottom:6px;
+}
+.upload-title em { font-style:italic; color:var(--gold); }
+
+.upload-subtitle {
+  font-size:12px; color:var(--muted); letter-spacing:1px;
+  margin-bottom:52px;
+}
+
+#drop-zone {
+  width:480px; border:1px solid rgba(201,169,110,0.25);
+  border-radius:4px; padding:48px 40px;
+  display:flex; flex-direction:column; align-items:center; gap:16px;
+  cursor:pointer; transition:all 0.3s; position:relative;
+  background:rgba(255,255,255,0.02);
+}
+#drop-zone:hover, #drop-zone.drag-over {
+  border-color:rgba(201,169,110,0.6);
+  background:rgba(201,169,110,0.05);
+}
+#drop-zone.drag-over { transform:scale(1.01); }
+
+.drop-icon {
+  width:48px; height:48px; border:1px solid rgba(201,169,110,0.3);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  color:var(--gold); font-size:20px; opacity:0.7;
+}
+
+.drop-main {
+  font-family:'Playfair Display', serif; font-size:18px;
+  color:var(--cream); text-align:center; line-height:1.4;
+}
+.drop-sub {
+  font-size:11px; color:var(--muted); letter-spacing:1px; text-align:center;
+}
+
+.drop-btn {
+  margin-top:4px;
+  background:none; border:1px solid rgba(201,169,110,0.4);
+  border-radius:30px; color:var(--gold);
+  font-family:'DM Sans',sans-serif; font-size:11px;
+  letter-spacing:2px; text-transform:uppercase;
+  padding:10px 28px; cursor:pointer; transition:all 0.2s;
+}
+.drop-btn:hover { background:rgba(201,169,110,0.1); border-color:var(--gold); }
+
+#file-input { display:none; }
+
+.upload-note {
+  margin-top:28px; font-size:10px; color:rgba(138,121,104,0.4);
+  letter-spacing:1px; text-align:center; line-height:1.8;
+}
+
+/* ── 에러 메시지 ── */
+#error-msg {
+  display:none; margin-top:16px;
+  font-size:11px; color:#c0765a; letter-spacing:1px; text-align:center;
+}
+
+/* ── 지도 화면 ── */
+#map-screen { position:absolute; inset:0; display:none; }
+
+#map {
+  position:absolute; inset:0;
+  filter:sepia(30%) saturate(80%) brightness(90%);
+}
+
+#grain {
+  position:absolute; inset:0; pointer-events:none; z-index:10;
+  opacity:0.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation:grain 0.5s steps(1) infinite;
+}
+@keyframes grain {
+  0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(2%,3%)}
+  30%{transform:translate(-3%,1%)} 40%{transform:translate(3%,-1%)} 50%{transform:translate(-1%,4%)}
+  60%{transform:translate(1%,-4%)} 70%{transform:translate(4%,2%)} 80%{transform:translate(-4%,-2%)}
+  90%{transform:translate(2%,1%)}
+}
+
+.letterbox {
+  position:absolute; left:0; right:0; height:70px;
+  background:var(--dark); z-index:20; pointer-events:none;
+}
+#lb-top{top:0;} #lb-bottom{bottom:0;}
+
+/* 좌측 스탯 */
+#left-panel {
+  position:absolute; left:44px; top:50%; transform:translateY(-50%);
+  z-index:30; display:flex; flex-direction:column; gap:0;
+}
+.panel-label {
+  font-weight:300; font-size:9px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--gold); opacity:0.8; margin-bottom:4px;
+}
+.panel-value {
+  font-family:'Playfair Display',serif; font-size:42px; font-weight:400;
+  color:var(--cream); line-height:1; text-shadow:0 2px 20px rgba(0,0,0,0.5);
+}
+.panel-unit {
+  font-weight:300; font-size:12px; color:var(--muted);
+  letter-spacing:1px; margin-top:2px; margin-bottom:28px;
+}
+.divider {
+  width:1px; height:30px;
+  background:linear-gradient(to bottom,transparent,var(--gold),transparent);
+  margin-bottom:28px; opacity:0.5;
+}
+
+/* 우측 제목 */
+#title-block {
+  position:absolute; right:44px; top:88px; z-index:30; text-align:right;
+}
+#title-block .eyebrow {
+  font-size:9px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--gold); opacity:0.7; margin-bottom:6px;
+}
+#title-block h1 {
+  font-family:'Playfair Display',serif; font-size:28px; font-weight:400;
+  color:var(--cream); line-height:1.2; text-shadow:0 2px 20px rgba(0,0,0,0.6);
+}
+#title-block .subtitle {
+  font-size:11px; color:var(--muted); letter-spacing:1px; margin-top:6px;
+}
+
+/* 고도 차트 */
+#elev-wrap {
+  position:absolute; bottom:82px; right:44px;
+  width:220px; height:50px; z-index:30;
+}
+#elev-canvas { width:100%; height:100%; }
+
+/* 시간 */
+#time-display {
+  position:absolute; bottom:82px; left:44px; z-index:30;
+  display:flex; align-items:baseline; gap:6px;
+}
+#time-display .elapsed {
+  font-family:'Playfair Display',serif; font-style:italic;
+  font-size:13px; color:var(--muted);
+}
+#time-display .total { font-size:10px; color:rgba(138,121,104,0.5); letter-spacing:1px; }
+
+/* 프로그레스 */
+#bottom-bar {
+  position:absolute; bottom:70px; left:0; right:0;
+  height:3px; z-index:30; background:rgba(255,255,255,0.08);
+}
+#bottom-progress {
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--brown),var(--gold));
+  transition:width 0.15s linear; position:relative;
+}
+#bottom-progress::after {
+  content:''; position:absolute; right:0; top:-3px;
+  width:9px; height:9px; background:var(--gold); border-radius:50%;
+  box-shadow:0 0 10px var(--gold);
+}
+
+/* 컨트롤 */
+#controls {
+  position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+  z-index:40; display:flex; align-items:center; gap:10px;
+  background:rgba(26,20,16,0.85); border:1px solid rgba(201,169,110,0.2);
+  border-radius:30px; padding:8px 20px; backdrop-filter:blur(10px);
+}
+.ctrl-btn {
+  background:none; border:1px solid rgba(201,169,110,0.3);
+  border-radius:20px; color:var(--gold);
+  font-size:11px; font-family:'DM Sans',sans-serif;
+  letter-spacing:1px; padding:5px 14px; cursor:pointer; transition:all 0.2s;
+}
+.ctrl-btn:hover { background:rgba(201,169,110,0.15); }
+.ctrl-btn.active { background:rgba(201,169,110,0.2); border-color:var(--gold); }
+.ctrl-sep { width:1px; height:16px; background:rgba(201,169,110,0.2); }
+
+.leaflet-control-attribution,.leaflet-control-zoom { display:none; }
+</style>
+</head>
+<body>
+
+<!-- ── 업로드 화면 ── -->
+<div id="upload-screen">
+  <div class="upload-eyebrow">GPX Vlog Map</div>
+  <h1 class="upload-title">Drop your <em>route</em><br>onto the map</h1>
+  <p class="upload-subtitle">komoot · Strava · Garmin · 어떤 GPX 파일이든</p>
+
+  <div id="drop-zone">
+    <div class="drop-icon">⌂</div>
+    <div class="drop-main">GPX 파일을 여기에 드래그하거나</div>
+    <div class="drop-sub">.gpx 파일만 지원됩니다</div>
+    <button class="drop-btn" id="browse-btn">파일 선택</button>
+    <input type="file" id="file-input" accept=".gpx">
+  </div>
+
+  <div id="error-msg">⚠ GPX 파일을 읽을 수 없습니다. 올바른 형식인지 확인해 주세요.</div>
+
+  <p class="upload-note">
+    파일은 브라우저에서만 처리됩니다 · 서버 전송 없음<br>
+    OBS 등으로 화면을 녹화해 유튜브 영상에 활용하세요
+  </p>
+</div>
+
+<!-- ── 지도 화면 ── -->
+<div id="map-screen">
+  <div id="map"></div>
+  <div id="grain"></div>
+  <div class="letterbox" id="lb-top"></div>
+  <div class="letterbox" id="lb-bottom"></div>
+
+  <div id="title-block">
+    <div class="eyebrow" id="meta-location">–</div>
+    <h1 id="meta-title">Activity</h1>
+    <div class="subtitle" id="meta-date">–</div>
+  </div>
+
+  <div id="left-panel">
+    <div class="panel-label">Distance</div>
+    <div class="panel-value" id="s-dist">0.00</div>
+    <div class="panel-unit">kilometres</div>
+    <div class="divider"></div>
+    <div class="panel-label">Elevation</div>
+    <div class="panel-value" id="s-ele">–</div>
+    <div class="panel-unit">metres asl</div>
+    <div class="divider"></div>
+    <div class="panel-label">Pace</div>
+    <div class="panel-value" id="s-speed">–</div>
+    <div class="panel-unit">km / h</div>
+  </div>
+
+  <div id="elev-wrap"><canvas id="elev-canvas"></canvas></div>
+
+  <div id="time-display">
+    <span class="elapsed" id="t-elapsed">00:00</span>
+    <span class="total" id="t-total">/ –</span>
+  </div>
+
+  <div id="bottom-bar"><div id="bottom-progress"></div></div>
+
+  <div id="controls">
+    <button class="ctrl-btn" id="btn-upload2">↑ 새 파일</button>
+    <button class="ctrl-btn" id="btn-reset">↺</button>
+    <button class="ctrl-btn" id="btn-play">▶ PLAY</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn active" data-speed="1">1×</button>
+    <button class="ctrl-btn" data-speed="4">4×</button>
+    <button class="ctrl-btn" data-speed="10">10×</button>
+    <button class="ctrl-btn" data-speed="30">30×</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" id="btn-hide">UI 숨김</button>
+  </div>
+</div>
+
+<script>
+// ── GPX 파서 ───────────────────────────────────────────────
+function parseGPX(text) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text, 'application/xml');
+  const ns = 'http://www.topografix.com/GPX/1/1';
+
+  // 이름
+  const nameEl = doc.querySelector('trk > name') || doc.querySelector('name');
+  const trackName = nameEl ? nameEl.textContent.trim() : 'Activity';
+
+  // 트랙포인트
+  const trkpts = [...doc.getElementsByTagNameNS(ns,'trkpt')];
+  if (!trkpts.length) {
+    // namespace 없이 재시도
+    const fallback = [...doc.getElementsByTagName('trkpt')];
+    if (!fallback.length) return null;
+    return buildPoints(fallback, trackName);
+  }
+  return buildPoints(trkpts, trackName);
+}
+
+function buildPoints(els, name) {
+  const points = els.map(el => {
+    const lat = parseFloat(el.getAttribute('lat'));
+    const lon = parseFloat(el.getAttribute('lon'));
+    const eleEl = el.querySelector('ele') || el.getElementsByTagName('ele')[0];
+    const timeEl = el.querySelector('time') || el.getElementsByTagName('time')[0];
+    return {
+      lat, lon,
+      ele: eleEl ? parseFloat(eleEl.textContent) : 0,
+      time: timeEl ? timeEl.textContent.trim() : null
+    };
+  }).filter(p => !isNaN(p.lat) && !isNaN(p.lon));
+  if (points.length < 2) return null;
+  return { name, points };
+}
+
+// ── 거리 계산 ──────────────────────────────────────────────
+function haversine(a, b) {
+  const R=6371, r=Math.PI/180;
+  const dLat=(b.lat-a.lat)*r, dLon=(b.lon-a.lon)*r;
+  const x=Math.sin(dLat/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function fmt(ms) {
+  const s=Math.floor(Math.abs(ms)/1000);
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+// ── 지도 초기화 ────────────────────────────────────────────
+let map=null, fullLine=null, animLine=null, posMarker=null;
+let POINTS=[], cumDist=[], t0=0, tEnd=0, msPerStep=1;
+let curIdx=0, playing=false, speed=1, rafId=null, lastTs=null, accumMs=0;
+
+function initMap() {
+  if (map) return;
+  map = L.map('map',{zoomControl:false,attributionControl:false})
+         .setView([0,0],2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+}
+
+function loadRoute(data) {
+  initMap();
+
+  // 기존 레이어 제거
+  if (fullLine) map.removeLayer(fullLine);
+  if (animLine) map.removeLayer(animLine);
+  if (posMarker) map.removeLayer(posMarker);
+
+  POINTS = data.points;
+
+  // 누적 거리
+  cumDist = [0];
+  for (let i=1;i<POINTS.length;i++) cumDist.push(cumDist[i-1]+haversine(POINTS[i-1],POINTS[i]));
+
+  // 시간
+  const hasTime = POINTS[0].time !== null;
+  t0 = hasTime ? new Date(POINTS[0].time).getTime() : 0;
+  tEnd = hasTime ? new Date(POINTS[POINTS.length-1].time).getTime() : POINTS.length*2000;
+  msPerStep = (tEnd-t0)/(POINTS.length-1) || 2000;
+
+  // 레이어
+  fullLine = L.polyline(POINTS.map(p=>[p.lat,p.lon]),{color:'#6b4f3a',weight:2.5,opacity:0.35,dashArray:'4 6'}).addTo(map);
+  animLine = L.polyline([],{color:'#c9a96e',weight:3.5,opacity:0.9}).addTo(map);
+
+  const dot=L.divIcon({className:'',html:`<div style="width:10px;height:10px;background:#f5f0e8;border:2px solid #c9a96e;border-radius:50%;box-shadow:0 0 12px rgba(201,169,110,0.8)"></div>`,iconSize:[10,10],iconAnchor:[5,5]});
+  const startDot=L.divIcon({className:'',html:`<div style="width:8px;height:8px;background:#c9a96e;border-radius:50%;opacity:0.7"></div>`,iconSize:[8,8],iconAnchor:[4,4]});
+  const endDot=L.divIcon({className:'',html:`<div style="width:8px;height:8px;background:#6b4f3a;border-radius:50%;opacity:0.7"></div>`,iconSize:[8,8],iconAnchor:[4,4]});
+  L.marker([POINTS[0].lat,POINTS[0].lon],{icon:startDot}).addTo(map);
+  L.marker([POINTS[POINTS.length-1].lat,POINTS[POINTS.length-1].lon],{icon:endDot}).addTo(map);
+  posMarker = L.marker([POINTS[0].lat,POINTS[0].lon],{icon:dot}).addTo(map);
+  map.fitBounds(fullLine.getBounds(),{padding:[100,100]});
+
+  // 메타
+  document.getElementById('meta-title').innerHTML = data.name || 'Activity';
+  const date = hasTime ? new Date(POINTS[0].time).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\. /g,'. ') : '–';
+  document.getElementById('meta-date').textContent = date;
+  document.getElementById('meta-location').textContent = '위도 '+(POINTS[0].lat).toFixed(3)+' · 경도 '+(POINTS[0].lon).toFixed(3);
+  document.getElementById('t-total').textContent = '/ '+fmt(tEnd-t0);
+
+  stopAnim();
+  goTo(0);
+
+  // 화면 전환
+  document.getElementById('upload-screen').style.display='none';
+  document.getElementById('map-screen').style.display='block';
+  setTimeout(()=>map.invalidateSize(),100);
+}
+
+// ── 고도 차트 ──────────────────────────────────────────────
+function drawElev(idx) {
+  const canvas=document.getElementById('elev-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.offsetWidth||220, H=canvas.offsetHeight||50;
+  canvas.width=W; canvas.height=H;
+  const eles=POINTS.map(p=>p.ele);
+  const mn=Math.min(...eles), mx=Math.max(...eles), rng=mx-mn||1;
+  const xf=i=>i/(POINTS.length-1)*W;
+  const yf=e=>H-((e-mn)/rng)*(H*0.8)-H*0.1;
+  ctx.beginPath(); ctx.moveTo(0,H);
+  POINTS.forEach((p,i)=>ctx.lineTo(xf(i),yf(p.ele)));
+  ctx.lineTo(W,H); ctx.closePath();
+  ctx.fillStyle='rgba(107,79,58,0.2)'; ctx.fill();
+  ctx.strokeStyle='rgba(107,79,58,0.4)'; ctx.lineWidth=1; ctx.stroke();
+  if(idx>0){
+    ctx.beginPath(); ctx.moveTo(0,H);
+    for(let i=0;i<=idx;i++) ctx.lineTo(xf(i),yf(eles[i]));
+    ctx.lineTo(xf(idx),H); ctx.closePath();
+    const g=ctx.createLinearGradient(0,0,xf(idx),0);
+    g.addColorStop(0,'rgba(107,79,58,0.5)'); g.addColorStop(1,'rgba(201,169,110,0.6)');
+    ctx.fillStyle=g; ctx.fill();
+    ctx.beginPath();
+    for(let i=0;i<=idx;i++) i===0?ctx.moveTo(xf(i),yf(eles[i])):ctx.lineTo(xf(i),yf(eles[i]));
+    ctx.strokeStyle='#c9a96e'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+}
+
+// ── UI 업데이트 ────────────────────────────────────────────
+function updateUI(idx) {
+  const p=POINTS[idx];
+  const hasTime=p.time!==null;
+  const elapsed=hasTime?new Date(p.time).getTime()-t0:idx*msPerStep;
+  document.getElementById('s-dist').textContent=cumDist[idx].toFixed(2);
+  document.getElementById('s-ele').textContent=Math.round(p.ele);
+  if(idx>0){
+    const dt=(hasTime?(new Date(p.time).getTime()-new Date(POINTS[idx-1].time).getTime()):msPerStep)/3600000;
+    const dd=haversine(POINTS[idx-1],p);
+    document.getElementById('s-speed').textContent=dt>0?(dd/dt).toFixed(1):'–';
+  }
+  document.getElementById('t-elapsed').textContent=fmt(elapsed);
+  document.getElementById('bottom-progress').style.width=(idx/(POINTS.length-1)*100)+'%';
+  drawElev(idx);
+}
+
+function goTo(idx) {
+  curIdx=Math.max(0,Math.min(POINTS.length-1,idx));
+  animLine.setLatLngs(POINTS.slice(0,curIdx+1).map(p=>[p.lat,p.lon]));
+  posMarker.setLatLng([POINTS[curIdx].lat,POINTS[curIdx].lon]);
+  updateUI(curIdx);
+}
+
+// ── 애니메이션 ─────────────────────────────────────────────
+function animate(ts) {
+  if(!playing) return;
+  if(lastTs!==null){
+    accumMs+=(ts-lastTs)*speed;
+    const steps=Math.floor(accumMs/msPerStep);
+    if(steps>0){
+      accumMs-=steps*msPerStep;
+      const next=curIdx+steps;
+      if(next>=POINTS.length-1){ goTo(POINTS.length-1); stopAnim(); return; }
+      goTo(next);
+    }
+  }
+  lastTs=ts; rafId=requestAnimationFrame(animate);
+}
+function stopAnim() {
+  playing=false; cancelAnimationFrame(rafId);
+  document.getElementById('btn-play').textContent='▶ PLAY';
+}
+
+document.getElementById('btn-play').addEventListener('click',()=>{
+  if(!POINTS.length) return;
+  if(curIdx>=POINTS.length-1) goTo(0);
+  playing=!playing;
+  document.getElementById('btn-play').textContent=playing?'⏸ PAUSE':'▶ PLAY';
+  if(playing){ lastTs=null; accumMs=0; rafId=requestAnimationFrame(animate); }
+  else cancelAnimationFrame(rafId);
+});
+document.getElementById('btn-reset').addEventListener('click',()=>{ stopAnim(); goTo(0); });
+
+document.querySelectorAll('[data-speed]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    speed=+btn.dataset.speed; accumMs=0;
+    document.querySelectorAll('[data-speed]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ── UI 숨김 (OBS 녹화용) ──────────────────────────────────
+let uiVisible=true;
+function toggleUI(){
+  uiVisible=!uiVisible;
+  const ids=['left-panel','title-block','elev-wrap','time-display','bottom-bar','lb-top','lb-bottom','grain'];
+  ids.forEach(id=>{ const el=document.getElementById(id); if(el) el.style.opacity=uiVisible?'1':'0'; });
+  document.getElementById('controls').style.opacity=uiVisible?'1':'0.12';
+}
+document.getElementById('btn-hide').addEventListener('click',toggleUI);
+document.addEventListener('keydown',e=>{ if(e.key==='h'||e.key==='H') toggleUI(); });
+
+// ── 새 파일 버튼 ───────────────────────────────────────────
+function showUpload() {
+  stopAnim();
+  document.getElementById('map-screen').style.display='none';
+  document.getElementById('upload-screen').style.display='flex';
+  document.getElementById('error-msg').style.display='none';
+  // UI 복원
+  if(!uiVisible) toggleUI();
+}
+document.getElementById('btn-upload2').addEventListener('click', showUpload);
+
+// ── 파일 처리 ──────────────────────────────────────────────
+function handleFile(file) {
+  if (!file || !file.name.toLowerCase().endsWith('.gpx')) {
+    document.getElementById('error-msg').style.display='block';
+    document.getElementById('error-msg').textContent='⚠ .gpx 파일만 지원됩니다.';
+    return;
+  }
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const data=parseGPX(e.target.result);
+    if(!data){
+      document.getElementById('error-msg').style.display='block';
+      document.getElementById('error-msg').textContent='⚠ GPX 파일을 읽을 수 없습니다. 올바른 형식인지 확인해 주세요.';
+      return;
+    }
+    loadRoute(data);
+  };
+  reader.readAsText(file);
+}
+
+// 드래그 앤 드롭
+const dropZone=document.getElementById('drop-zone');
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{
+  e.preventDefault();
+  const file=e.dataTransfer.files[0];
+  if(file) handleFile(file);
+});
+dropZone.addEventListener('dragover',e=>{ e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop',e=>{ e.preventDefault(); dropZone.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+
+// 클릭
+document.getElementById('browse-btn').addEventListener('click',()=>document.getElementById('file-input').click());
+document.getElementById('file-input').addEventListener('change',e=>handleFile(e.target.files[0]));
+dropZone.addEventListener('click',e=>{ if(e.target!==document.getElementById('browse-btn')) document.getElementById('file-input').click(); });
+</script>
+</body>
+</html>
