@@ -21,6 +21,7 @@
     --accent2: #2f6ec8;
     --mono: 'DM Mono', monospace;
     --serif: 'Fraunces', serif;
+    --sidebar-w: 320px;
   }
 
   body {
@@ -29,57 +30,100 @@
     color: var(--ink);
     height: 100vh;
     display: grid;
-    grid-template-columns: 320px 1fr;
-    grid-template-rows: 56px 1fr;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    grid-template-rows: 52px 1fr;
     overflow: hidden;
+    transition: grid-template-columns 0.3s ease;
+  }
+  body.sidebar-hidden {
+    grid-template-columns: 0px 1fr;
   }
 
-  /* ── HEADER ── */
+  /* HEADER */
   header {
     grid-column: 1 / -1;
     background: var(--ink);
     color: var(--bg);
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    gap: 12px;
+    padding: 0 16px;
+    gap: 10px;
     border-bottom: 2px solid var(--accent);
+    z-index: 100;
   }
   header h1 {
     font-family: var(--serif);
     font-weight: 600;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     letter-spacing: -0.01em;
-  }
-  header span {
-    font-size: 0.7rem;
-    color: #888;
-    margin-left: auto;
+    white-space: nowrap;
   }
 
-  /* ── SIDEBAR ── */
+  #sidebarToggle {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #f5f2ed;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  #sidebarToggle:hover { background: rgba(255,255,255,0.16); }
+
+  .lang-switcher {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+  .lang-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #ccc;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .lang-btn:hover { background: rgba(255,255,255,0.16); color: white; }
+  .lang-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* SIDEBAR */
   #sidebar {
     background: var(--panel);
     border-right: 1.5px solid var(--border);
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    width: var(--sidebar-w);
+  }
+  body.sidebar-hidden #sidebar {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
   }
   #sidebar::-webkit-scrollbar { width: 4px; }
   #sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   .section {
     border-bottom: 1.5px solid var(--border);
-    padding: 16px;
+    padding: 14px 16px;
+    flex-shrink: 0;
   }
   .section-title {
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     font-weight: 500;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ink2);
-    margin-bottom: 12px;
+    margin-bottom: 11px;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -87,39 +131,37 @@
   .section-title::before {
     content: '';
     display: inline-block;
-    width: 6px; height: 6px;
+    width: 5px; height: 5px;
     background: var(--accent);
     border-radius: 50%;
+    flex-shrink: 0;
   }
 
   /* DROP ZONE */
   #dropzone {
     border: 2px dashed var(--border);
     border-radius: 6px;
-    padding: 28px 16px;
+    padding: 22px 12px;
     text-align: center;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s;
-    background: transparent;
   }
-  #dropzone:hover, #dropzone.over {
-    border-color: var(--accent);
-    background: #fdf0ec;
-  }
-  #dropzone .icon { font-size: 2rem; margin-bottom: 8px; }
-  #dropzone p { font-size: 0.75rem; color: var(--ink2); line-height: 1.5; }
+  #dropzone:hover, #dropzone.over { border-color: var(--accent); background: #fdf0ec; }
+  #dropzone .icon { font-size: 1.8rem; margin-bottom: 6px; }
+  #dropzone p { font-size: 0.7rem; color: var(--ink2); line-height: 1.5; }
   #dropzone strong { color: var(--ink); }
   #fileInput { display: none; }
 
   #fileInfo {
     display: none;
-    margin-top: 10px;
+    margin-top: 8px;
     background: #eef6ee;
     border: 1px solid #b8dab8;
     border-radius: 4px;
-    padding: 8px 10px;
-    font-size: 0.7rem;
+    padding: 7px 9px;
+    font-size: 0.67rem;
     color: #2d6b2d;
+    line-height: 1.6;
   }
 
   /* CONTROLS */
@@ -127,410 +169,518 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    margin-bottom: 10px;
+    margin-bottom: 9px;
   }
   .ctrl-row:last-child { margin-bottom: 0; }
   .ctrl-row label {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     color: var(--ink2);
     display: flex;
     justify-content: space-between;
   }
-  .ctrl-row label span {
-    color: var(--ink);
-    font-weight: 500;
-  }
+  .ctrl-row label span { color: var(--ink); font-weight: 500; }
 
-  input[type=range] {
-    width: 100%;
-    height: 4px;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
+  input[type=range] { width: 100%; height: 4px; accent-color: var(--accent); cursor: pointer; }
   input[type=color] {
-    width: 100%;
-    height: 32px;
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 2px;
-    background: white;
+    width: 100%; height: 30px;
+    border: 1.5px solid var(--border); border-radius: 4px;
+    cursor: pointer; padding: 2px; background: white;
   }
-  select, input[type=number], input[type=text] {
-    width: 100%;
-    height: 30px;
-    border: 1.5px solid var(--border);
-    border-radius: 4px;
+  select, input[type=number] {
+    width: 100%; height: 29px;
+    border: 1.5px solid var(--border); border-radius: 4px;
     padding: 0 8px;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    background: white;
-    color: var(--ink);
-    outline: none;
+    font-family: var(--mono); font-size: 0.7rem;
+    background: white; color: var(--ink); outline: none;
   }
-  select:focus, input:focus {
-    border-color: var(--accent2);
-  }
+  select:focus, input:focus { border-color: var(--accent2); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-  .two-col {
+  /* MARKER PICKER */
+  .marker-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 2px;
   }
+  .marker-opt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 4px 6px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    background: white;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 0.55rem;
+    color: var(--ink2);
+    user-select: none;
+  }
+  .marker-opt:hover { border-color: var(--accent2); background: #f0f5ff; }
+  .marker-opt.active { border-color: var(--accent); background: #fdf0ec; color: var(--accent); font-weight: 500; }
+  .marker-opt .mk-emoji { font-size: 1.4rem; line-height: 1; }
 
   /* BUTTONS */
   .btn {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    font-weight: 500;
+    width: 100%; padding: 9px;
+    border: none; border-radius: 4px;
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 500;
     cursor: pointer;
     transition: opacity 0.15s, transform 0.1s;
     letter-spacing: 0.04em;
   }
   .btn:active { transform: scale(0.98); }
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-  .btn-secondary {
-    background: var(--ink);
-    color: var(--bg);
-  }
-  .btn-outline {
-    background: transparent;
-    color: var(--ink);
-    border: 1.5px solid var(--border);
-  }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--ink); color: var(--bg); }
+  .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+  .btn:disabled { opacity: 0.38; cursor: not-allowed; }
 
   /* PROGRESS */
-  #progressWrap {
+  #progressWrap { display: none; margin-top: 9px; }
+  #progressBar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+  #progressFill { height: 100%; background: var(--accent); width: 0%; transition: width 0.1s; }
+  #progressLabel { font-size: 0.62rem; color: var(--ink2); text-align: center; }
+
+  /* MAP AREA */
+  #mapWrap { position: relative; overflow: hidden; background: #e8e4de; }
+  #map { width: 100%; height: 100%; }
+
+  /* Float toggle when sidebar hidden */
+  #floatToggle {
+    position: absolute;
+    top: 14px; left: 14px;
+    z-index: 1000;
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    align-items: center; justify-content: center;
     display: none;
-    margin-top: 10px;
+    transition: opacity 0.2s;
   }
-  #progressBar {
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 4px;
-  }
-  #progressFill {
-    height: 100%;
-    background: var(--accent);
-    width: 0%;
-    transition: width 0.1s;
-  }
-  #progressLabel {
-    font-size: 0.65rem;
-    color: var(--ink2);
-    text-align: center;
-  }
+  body.sidebar-hidden #floatToggle { display: flex; }
 
-  /* ── MAP AREA ── */
-  #mapWrap {
-    position: relative;
-    overflow: hidden;
-    background: #e8e4de;
-  }
-  #map {
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Recording indicator */
+  /* REC */
   #recIndicator {
     display: none;
     position: absolute;
-    top: 14px;
-    right: 14px;
-    background: var(--accent);
-    color: white;
-    font-size: 0.65rem;
-    font-weight: 500;
-    padding: 4px 10px;
-    border-radius: 20px;
-    z-index: 1000;
-    letter-spacing: 0.08em;
-    animation: pulse 1s infinite;
+    top: 14px; right: 14px;
+    background: var(--accent); color: white;
+    font-size: 0.63rem; font-weight: 500;
+    padding: 4px 10px; border-radius: 20px;
+    z-index: 1000; letter-spacing: 0.08em;
+    animation: blink 1s infinite;
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
-  /* Stats overlay */
+  /* STATS OVERLAY */
   #statsOverlay {
     display: none;
     position: absolute;
-    bottom: 24px;
-    left: 14px;
-    background: rgba(26,24,20,0.82);
+    bottom: 28px; left: 14px;
+    background: rgba(18,16,12,0.88);
     color: #f5f2ed;
-    font-size: 0.68rem;
-    padding: 10px 14px;
-    border-radius: 6px;
+    font-size: 0.7rem;
+    padding: 12px 16px;
+    border-radius: 8px;
     z-index: 1000;
-    line-height: 1.8;
-    backdrop-filter: blur(4px);
+    line-height: 1;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.07);
+    min-width: 170px;
   }
-  #statsOverlay .stat-label { color: #aaa; font-size: 0.6rem; }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 18px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-label { color: #888; font-size: 0.6rem; letter-spacing: 0.06em; }
+  .stat-val { color: white; font-weight: 500; font-size: 0.72rem; }
 
-  /* toast */
+  /* TOAST */
   #toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
+    position: fixed; bottom: 24px; left: 50%;
     transform: translateX(-50%) translateY(60px);
-    background: var(--ink);
-    color: var(--bg);
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    z-index: 9999;
-    transition: transform 0.3s;
-    pointer-events: none;
+    background: var(--ink); color: var(--bg);
+    padding: 7px 17px; border-radius: 20px;
+    font-size: 0.7rem; z-index: 9999;
+    transition: transform 0.3s; pointer-events: none;
+    white-space: nowrap;
   }
   #toast.show { transform: translateX(-50%) translateY(0); }
-
-  .tag {
-    display: inline-block;
-    font-size: 0.6rem;
-    padding: 1px 6px;
-    border-radius: 10px;
-    background: var(--border);
-    color: var(--ink2);
-    margin-left: 4px;
-  }
 </style>
 </head>
 <body>
 
 <header>
+  <button id="sidebarToggle" onclick="toggleSidebar()">☰</button>
   <h1>GPX Animator</h1>
-  <span>맥북 전용 · GPX → 지도 애니메이션 영상</span>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('ko')">한국어</button>
+    <button class="lang-btn" onclick="setLang('en')">English</button>
+    <button class="lang-btn" onclick="setLang('vi')">Tiếng Việt</button>
+  </div>
 </header>
 
-<!-- SIDEBAR -->
 <aside id="sidebar">
 
-  <!-- FILE UPLOAD -->
+  <!-- FILE -->
   <div class="section">
-    <div class="section-title">GPX 파일</div>
+    <div class="section-title" data-i18n="sec_file">GPX 파일</div>
     <div id="dropzone" onclick="document.getElementById('fileInput').click()">
       <div class="icon">🗺</div>
-      <p><strong>클릭하거나 파일을 드래그</strong><br>.gpx 파일을 업로드하세요</p>
+      <p><strong data-i18n="drop_title">클릭하거나 파일을 드래그</strong><br><span data-i18n="drop_sub">.gpx 파일을 업로드하세요</span></p>
     </div>
     <input type="file" id="fileInput" accept=".gpx">
     <div id="fileInfo"></div>
   </div>
 
-  <!-- LINE STYLE -->
+  <!-- LINE -->
   <div class="section">
-    <div class="section-title">선 스타일</div>
-
+    <div class="section-title" data-i18n="sec_line">선 스타일</div>
     <div class="ctrl-row">
-      <label>선 색상</label>
+      <label><span data-i18n="lbl_lineColor">선 색상</span></label>
       <input type="color" id="lineColor" value="#e63946">
     </div>
     <div class="ctrl-row">
-      <label>선 두께 <span id="lineWeightVal">4px</span></label>
+      <label><span data-i18n="lbl_lineWeight">선 두께</span><span id="lineWeightVal">4px</span></label>
       <input type="range" id="lineWeight" min="1" max="12" value="4" step="0.5">
     </div>
     <div class="ctrl-row">
-      <label>선 투명도 <span id="lineOpacityVal">90%</span></label>
+      <label><span data-i18n="lbl_lineOpacity">선 투명도</span><span id="lineOpacityVal">90%</span></label>
       <input type="range" id="lineOpacity" min="10" max="100" value="90">
     </div>
     <div class="ctrl-row">
-      <label>선 스타일</label>
+      <label><span data-i18n="lbl_lineDash">선 스타일</span></label>
       <select id="lineDash">
-        <option value="solid">실선 (Solid)</option>
-        <option value="dashed">점선 (Dashed)</option>
-        <option value="dotted">점 (Dotted)</option>
+        <option value="solid" data-i18n="opt_solid">실선</option>
+        <option value="dashed" data-i18n="opt_dashed">점선</option>
+        <option value="dotted" data-i18n="opt_dotted">점</option>
       </select>
     </div>
+  </div>
 
-    <div class="ctrl-row" style="margin-top:12px;">
-      <label>마커 색상</label>
+  <!-- MARKER -->
+  <div class="section">
+    <div class="section-title" data-i18n="sec_marker">마커</div>
+    <div class="ctrl-row" style="margin-bottom:10px;">
+      <label><span data-i18n="lbl_markerType">마커 종류</span></label>
+      <div class="marker-grid">
+        <div class="marker-opt active" data-marker="person" onclick="selectMarker(this)">
+          <span class="mk-emoji">🚶</span><span data-i18n="mk_person">사람</span>
+        </div>
+        <div class="marker-opt" data-marker="bike" onclick="selectMarker(this)">
+          <span class="mk-emoji">🚴</span><span data-i18n="mk_bike">자전거</span>
+        </div>
+        <div class="marker-opt" data-marker="scooter" onclick="selectMarker(this)">
+          <span class="mk-emoji">🛵</span><span data-i18n="mk_scooter">스쿠터</span>
+        </div>
+        <div class="marker-opt" data-marker="car" onclick="selectMarker(this)">
+          <span class="mk-emoji">🚗</span><span data-i18n="mk_car">자동차</span>
+        </div>
+      </div>
+    </div>
+    <div class="ctrl-row">
+      <label><span data-i18n="lbl_markerColor">마커 색상</span></label>
       <input type="color" id="markerColor" value="#e63946">
     </div>
     <div class="ctrl-row">
-      <label>마커 크기 <span id="markerSizeVal">14px</span></label>
-      <input type="range" id="markerSize" min="6" max="30" value="14">
+      <label><span data-i18n="lbl_markerSize">마커 크기</span><span id="markerSizeVal">32px</span></label>
+      <input type="range" id="markerSize" min="20" max="64" value="32">
     </div>
     <div class="ctrl-row">
-      <label>마커 꼬리 표시</label>
+      <label><span data-i18n="lbl_trail">경로 표시</span></label>
       <select id="showTrail">
-        <option value="full">전체 경로 표시</option>
-        <option value="tail">꼬리만 표시 (최근 N개)</option>
-        <option value="none">마커만 표시</option>
+        <option value="full" data-i18n="opt_full">전체 경로</option>
+        <option value="tail" data-i18n="opt_tail">꼬리만</option>
+        <option value="none" data-i18n="opt_none">마커만</option>
       </select>
     </div>
     <div class="ctrl-row" id="tailLenRow" style="display:none;">
-      <label>꼬리 길이 <span id="tailLenVal">100</span>포인트</label>
+      <label><span data-i18n="lbl_tailLen">꼬리 길이</span><span id="tailLenVal">100</span></label>
       <input type="range" id="tailLen" min="10" max="500" value="100">
     </div>
   </div>
 
   <!-- ANIMATION -->
   <div class="section">
-    <div class="section-title">애니메이션</div>
-
+    <div class="section-title" data-i18n="sec_anim">애니메이션</div>
     <div class="ctrl-row">
-      <label>애니메이션 속도 <span id="speedVal">50</span>pt/frame</label>
+      <label><span data-i18n="lbl_speed">속도</span><span id="speedVal">50 pt/f</span></label>
       <input type="range" id="speed" min="1" max="200" value="50">
     </div>
     <div class="ctrl-row">
-      <label>FPS <span id="fpsVal">30</span></label>
+      <label><span>FPS</span><span id="fpsVal">30</span></label>
       <input type="range" id="fps" min="15" max="60" value="30" step="5">
     </div>
     <div class="ctrl-row">
-      <label>지도 팔로우 모드</label>
+      <label><span data-i18n="lbl_follow">팔로우 모드</span></label>
       <select id="followMode">
-        <option value="follow">마커 따라가기</option>
-        <option value="fit">전체 경로 고정</option>
+        <option value="follow" data-i18n="opt_follow">마커 따라가기</option>
+        <option value="fit" data-i18n="opt_fit">전체 경로 고정</option>
       </select>
     </div>
     <div class="ctrl-row">
-      <label>시작 대기 (초) <span id="startDelayVal">1.0s</span></label>
+      <label><span data-i18n="lbl_startDelay">시작 대기</span><span id="startDelayVal">1.0s</span></label>
       <input type="range" id="startDelay" min="0" max="5" value="1" step="0.5">
     </div>
     <div class="ctrl-row">
-      <label>종료 대기 (초) <span id="endDelayVal">2.0s</span></label>
+      <label><span data-i18n="lbl_endDelay">종료 대기</span><span id="endDelayVal">2.0s</span></label>
       <input type="range" id="endDelay" min="0" max="10" value="2" step="0.5">
     </div>
   </div>
 
-  <!-- VIDEO OUTPUT -->
+  <!-- VIDEO -->
   <div class="section">
-    <div class="section-title">영상 출력</div>
-
+    <div class="section-title" data-i18n="sec_video">영상 출력</div>
     <div class="ctrl-row">
-      <label>해상도 프리셋</label>
+      <label><span data-i18n="lbl_res">해상도</span></label>
       <select id="resPreset">
         <option value="1280x720">1280 × 720 (HD)</option>
         <option value="1920x1080" selected>1920 × 1080 (FHD)</option>
         <option value="2560x1440">2560 × 1440 (QHD)</option>
         <option value="3840x2160">3840 × 2160 (4K)</option>
-        <option value="custom">직접 입력</option>
+        <option value="custom" data-i18n="opt_custom">직접 입력</option>
       </select>
     </div>
     <div class="two-col" id="customResRow" style="display:none;">
       <div class="ctrl-row">
-        <label>너비</label>
+        <label><span data-i18n="lbl_width">너비</span></label>
         <input type="number" id="customW" value="1920" min="320" max="7680">
       </div>
       <div class="ctrl-row">
-        <label>높이</label>
+        <label><span data-i18n="lbl_height">높이</span></label>
         <input type="number" id="customH" value="1080" min="240" max="4320">
       </div>
     </div>
     <div class="ctrl-row">
-      <label>비트레이트 (Mbps) <span id="bitrateVal">8</span></label>
+      <label><span data-i18n="lbl_bitrate">비트레이트</span><span id="bitrateVal">8 Mbps</span></label>
       <input type="range" id="bitrate" min="2" max="40" value="8">
     </div>
     <div class="ctrl-row">
-      <label>통계 오버레이 표시</label>
+      <label><span data-i18n="lbl_statsShow">통계 오버레이</span></label>
       <select id="showStats">
-        <option value="yes">표시</option>
-        <option value="no">숨김</option>
+        <option value="yes" data-i18n="opt_show">표시</option>
+        <option value="no" data-i18n="opt_hide">숨김</option>
       </select>
     </div>
   </div>
 
-  <!-- ACTIONS -->
+  <!-- RUN -->
   <div class="section">
-    <div class="section-title">실행</div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="btn btn-outline" id="previewBtn" disabled onclick="startPreview()">▶ 미리보기</button>
-      <button class="btn btn-primary" id="recordBtn" disabled onclick="startRecording()">⏺ 녹화 시작</button>
-      <button class="btn btn-secondary" id="stopBtn" disabled onclick="stopRecording()">⏹ 녹화 중지 &amp; 저장</button>
+    <div class="section-title" data-i18n="sec_run">실행</div>
+    <div style="display:flex;flex-direction:column;gap:7px;">
+      <button class="btn btn-outline" id="previewBtn" disabled onclick="startPreview()">▶ <span data-i18n="btn_preview">미리보기</span></button>
+      <button class="btn btn-primary" id="recordBtn" disabled onclick="startRecording()">⏺ <span data-i18n="btn_record">녹화 시작</span></button>
+      <button class="btn btn-secondary" id="stopBtn" disabled onclick="stopRecording()">⏹ <span data-i18n="btn_stop">녹화 중지 &amp; 저장</span></button>
     </div>
     <div id="progressWrap">
       <div id="progressBar"><div id="progressFill"></div></div>
-      <div id="progressLabel">준비 중...</div>
+      <div id="progressLabel"></div>
     </div>
   </div>
 
 </aside>
 
-<!-- MAP -->
 <div id="mapWrap">
   <div id="map"></div>
+  <button id="floatToggle" onclick="toggleSidebar()">☰</button>
   <div id="recIndicator">● REC</div>
   <div id="statsOverlay">
-    <div><span class="stat-label">거리</span> <span id="statDist">—</span></div>
-    <div><span class="stat-label">포인트</span> <span id="statPt">—</span></div>
-    <div><span class="stat-label">고도</span> <span id="statAlt">—</span></div>
+    <div class="stat-row">
+      <span class="stat-label" id="lblDist">거리</span>
+      <span class="stat-val" id="statDist">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label" id="lblPt">포인트</span>
+      <span class="stat-val" id="statPt">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label" id="lblAlt">고도</span>
+      <span class="stat-val" id="statAlt">—</span>
+    </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-// ── STATE ──────────────────────────────────────────────────────────────────
+// ── I18N ──────────────────────────────────────────────────────────────────
+const i18n = {
+  ko: {
+    sec_file:'GPX 파일', sec_line:'선 스타일', sec_marker:'마커',
+    sec_anim:'애니메이션', sec_video:'영상 출력', sec_run:'실행',
+    drop_title:'클릭하거나 파일을 드래그', drop_sub:'.gpx 파일을 업로드하세요',
+    lbl_lineColor:'선 색상', lbl_lineWeight:'선 두께', lbl_lineOpacity:'선 투명도',
+    lbl_lineDash:'선 스타일', lbl_markerType:'마커 종류', lbl_markerColor:'마커 색상',
+    lbl_markerSize:'마커 크기', lbl_trail:'경로 표시', lbl_tailLen:'꼬리 길이',
+    lbl_speed:'속도', lbl_follow:'팔로우 모드', lbl_startDelay:'시작 대기',
+    lbl_endDelay:'종료 대기', lbl_res:'해상도', lbl_bitrate:'비트레이트',
+    lbl_statsShow:'통계 오버레이', lbl_width:'너비', lbl_height:'높이',
+    opt_solid:'실선', opt_dashed:'점선', opt_dotted:'점',
+    opt_full:'전체 경로', opt_tail:'꼬리만', opt_none:'마커만',
+    opt_follow:'마커 따라가기', opt_fit:'전체 경로 고정',
+    opt_show:'표시', opt_hide:'숨김', opt_custom:'직접 입력',
+    mk_person:'사람', mk_bike:'자전거', mk_scooter:'스쿠터', mk_car:'자동차',
+    btn_preview:'미리보기', btn_record:'녹화 시작', btn_stop:'녹화 중지 & 저장',
+    stat_dist:'거리', stat_pt:'포인트', stat_alt:'고도',
+    toast_loaded:'개 포인트 로드됨',
+    toast_rec:'녹화 시작! 애니메이션이 끝나면 자동 저장됩니다',
+    toast_saved:'영상 저장 완료!',
+    prog_rec:'녹화 중...', prog_saving:'파일 저장 중...', prog_done:'저장 완료!',
+  },
+  en: {
+    sec_file:'GPX File', sec_line:'Line Style', sec_marker:'Marker',
+    sec_anim:'Animation', sec_video:'Video Output', sec_run:'Run',
+    drop_title:'Click or drag file here', drop_sub:'Upload your .gpx file',
+    lbl_lineColor:'Line color', lbl_lineWeight:'Line width', lbl_lineOpacity:'Opacity',
+    lbl_lineDash:'Line style', lbl_markerType:'Marker type', lbl_markerColor:'Marker color',
+    lbl_markerSize:'Marker size', lbl_trail:'Trail display', lbl_tailLen:'Tail length',
+    lbl_speed:'Speed', lbl_follow:'Follow mode', lbl_startDelay:'Start delay',
+    lbl_endDelay:'End delay', lbl_res:'Resolution', lbl_bitrate:'Bitrate',
+    lbl_statsShow:'Stats overlay', lbl_width:'Width', lbl_height:'Height',
+    opt_solid:'Solid', opt_dashed:'Dashed', opt_dotted:'Dotted',
+    opt_full:'Full path', opt_tail:'Tail only', opt_none:'Marker only',
+    opt_follow:'Follow marker', opt_fit:'Fit full path',
+    opt_show:'Show', opt_hide:'Hide', opt_custom:'Custom',
+    mk_person:'Person', mk_bike:'Bicycle', mk_scooter:'Scooter', mk_car:'Car',
+    btn_preview:'Preview', btn_record:'Start Recording', btn_stop:'Stop & Save',
+    stat_dist:'Distance', stat_pt:'Points', stat_alt:'Altitude',
+    toast_loaded:' points loaded',
+    toast_rec:'Recording! Auto-saves when animation ends.',
+    toast_saved:'Video saved!',
+    prog_rec:'Recording...', prog_saving:'Saving file...', prog_done:'Saved!',
+  },
+  vi: {
+    sec_file:'Tệp GPX', sec_line:'Kiểu Đường', sec_marker:'Điểm Đánh Dấu',
+    sec_anim:'Hoạt Hình', sec_video:'Xuất Video', sec_run:'Chạy',
+    drop_title:'Nhấp hoặc kéo tệp vào đây', drop_sub:'Tải lên tệp .gpx của bạn',
+    lbl_lineColor:'Màu đường', lbl_lineWeight:'Độ dày', lbl_lineOpacity:'Độ trong suốt',
+    lbl_lineDash:'Kiểu đường', lbl_markerType:'Loại điểm', lbl_markerColor:'Màu điểm',
+    lbl_markerSize:'Kích thước', lbl_trail:'Hiển thị đường', lbl_tailLen:'Độ dài đuôi',
+    lbl_speed:'Tốc độ', lbl_follow:'Chế độ theo dõi', lbl_startDelay:'Trễ bắt đầu',
+    lbl_endDelay:'Trễ kết thúc', lbl_res:'Độ phân giải', lbl_bitrate:'Tốc độ bit',
+    lbl_statsShow:'Hiển thị thống kê', lbl_width:'Chiều rộng', lbl_height:'Chiều cao',
+    opt_solid:'Nét liền', opt_dashed:'Nét đứt', opt_dotted:'Chấm tròn',
+    opt_full:'Toàn bộ đường', opt_tail:'Chỉ đuôi', opt_none:'Chỉ điểm',
+    opt_follow:'Theo điểm đánh dấu', opt_fit:'Cố định toàn đường',
+    opt_show:'Hiện', opt_hide:'Ẩn', opt_custom:'Tùy chỉnh',
+    mk_person:'Người', mk_bike:'Xe đạp', mk_scooter:'Xe máy', mk_car:'Ô tô',
+    btn_preview:'Xem trước', btn_record:'Bắt đầu quay', btn_stop:'Dừng & Lưu',
+    stat_dist:'Khoảng cách', stat_pt:'Điểm', stat_alt:'Độ cao',
+    toast_loaded:' điểm đã được tải',
+    toast_rec:'Đang quay! Tự động lưu khi hoạt hình kết thúc.',
+    toast_saved:'Đã lưu video!',
+    prog_rec:'Đang quay...', prog_saving:'Đang lưu tệp...', prog_done:'Đã lưu!',
+  }
+};
+
+let currentLang = 'ko';
+
+function t(k) { return (i18n[currentLang] || i18n.ko)[k] || k; }
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  applyI18n();
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    const v = t(k);
+    if (v !== k) el.textContent = v;
+  });
+  document.getElementById('lblDist').textContent = t('stat_dist');
+  document.getElementById('lblPt').textContent   = t('stat_pt');
+  document.getElementById('lblAlt').textContent  = t('stat_alt');
+}
+
+// ── SIDEBAR TOGGLE ─────────────────────────────────────────────────────────
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-hidden');
+  setTimeout(() => map.invalidateSize(), 320);
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────
 let gpxPoints = [];
-let map, drawnPolyline, markerCircle, markerOutline;
-let animFrame = null;
-let animIndex = 0;
-let isRecording = false;
-let mediaRecorder = null;
-let recordedChunks = [];
-let offscreenCanvas, offscreenCtx;
-let offscreenMap, offscreenLeaflet;
+let map, drawnPolyline, animMarker, animPolyline;
+let animFrame = null, animIndex = 0;
+let isRecording = false, mediaRecorder = null, recordedChunks = [];
+let selectedMarkerType = 'person';
+let animPoints = [];
 
-// ── MAP INIT ───────────────────────────────────────────────────────────────
+const MARKER_EMOJI = { person:'🚶', bike:'🚴', scooter:'🛵', car:'🚗' };
+
+// ── MAP ───────────────────────────────────────────────────────────────────
 map = L.map('map', { zoomControl: true, attributionControl: true });
-
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO',
-  subdomains: 'abcd',
-  maxZoom: 19
+  attribution:'© OpenStreetMap © CARTO',
+  subdomains:'abcd', maxZoom:19
 }).addTo(map);
-
 map.setView([37.5665, 126.9780], 13);
 
-// ── RANGE LABELS ───────────────────────────────────────────────────────────
-const bindings = [
-  ['lineWeight', 'lineWeightVal', v => v + 'px'],
-  ['lineOpacity', 'lineOpacityVal', v => v + '%'],
-  ['markerSize', 'markerSizeVal', v => v + 'px'],
-  ['speed', 'speedVal', v => v + 'pt/frame'],
-  ['fps', 'fpsVal', v => v],
-  ['startDelay', 'startDelayVal', v => v + 's'],
-  ['endDelay', 'endDelayVal', v => v + 's'],
-  ['bitrate', 'bitrateVal', v => v],
-  ['tailLen', 'tailLenVal', v => v],
+// ── RANGE LABELS ─────────────────────────────────────────────────────────
+const rangeBindings = [
+  ['lineWeight','lineWeightVal', v => v+'px'],
+  ['lineOpacity','lineOpacityVal', v => v+'%'],
+  ['markerSize','markerSizeVal', v => v+'px'],
+  ['speed','speedVal', v => v+' pt/f'],
+  ['fps','fpsVal', v => v],
+  ['startDelay','startDelayVal', v => v+'s'],
+  ['endDelay','endDelayVal', v => v+'s'],
+  ['bitrate','bitrateVal', v => v+' Mbps'],
+  ['tailLen','tailLenVal', v => v],
 ];
-bindings.forEach(([id, labelId, fmt]) => {
-  const el = document.getElementById(id);
-  const label = document.getElementById(labelId);
-  el.addEventListener('input', () => { label.textContent = fmt(el.value); });
+rangeBindings.forEach(([id, lblId, fmt]) => {
+  document.getElementById(id).addEventListener('input', e => {
+    document.getElementById(lblId).textContent = fmt(e.target.value);
+  });
 });
-
-// trail mode toggle
 document.getElementById('showTrail').addEventListener('change', e => {
-  document.getElementById('tailLenRow').style.display = e.target.value === 'tail' ? 'flex' : 'none';
+  document.getElementById('tailLenRow').style.display = e.target.value==='tail' ? 'flex' : 'none';
 });
-
-// resolution preset
 document.getElementById('resPreset').addEventListener('change', e => {
-  document.getElementById('customResRow').style.display = e.target.value === 'custom' ? 'grid' : 'none';
+  document.getElementById('customResRow').style.display = e.target.value==='custom' ? 'grid' : 'none';
 });
 
-// ── FILE HANDLING ──────────────────────────────────────────────────────────
+// ── MARKER PICKER ─────────────────────────────────────────────────────────
+function selectMarker(el) {
+  document.querySelectorAll('.marker-opt').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+  selectedMarkerType = el.getAttribute('data-marker');
+}
+
+function makeEmojiMarker(lat, lon, type, size, color) {
+  const emoji = MARKER_EMOJI[type] || '🚶';
+  const sz = parseInt(size);
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="width:${sz}px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*0.72)}px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.35));background:${color}20;border:2.5px solid ${color};border-radius:50%;">${emoji}</div>`,
+    iconSize: [sz, sz],
+    iconAnchor: [sz/2, sz/2]
+  });
+  return L.marker([lat, lon], { icon, zIndexOffset: 1000 });
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────────────────
 const dropzone = document.getElementById('dropzone');
 dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('over'); });
 dropzone.addEventListener('dragleave', () => dropzone.classList.remove('over'));
 dropzone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropzone.classList.remove('over');
-  const file = e.dataTransfer.files[0];
-  if (file) loadGPX(file);
+  e.preventDefault(); dropzone.classList.remove('over');
+  if (e.dataTransfer.files[0]) loadGPX(e.dataTransfer.files[0]);
 });
 document.getElementById('fileInput').addEventListener('change', e => {
   if (e.target.files[0]) loadGPX(e.target.files[0]);
@@ -538,35 +688,28 @@ document.getElementById('fileInput').addEventListener('change', e => {
 
 function loadGPX(file) {
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = ev => {
     try {
-      gpxPoints = parseGPX(e.target.result);
-      if (!gpxPoints.length) throw new Error('포인트 없음');
+      gpxPoints = parseGPX(ev.target.result);
+      if (!gpxPoints.length) throw new Error('No trackpoints found');
       displayFileInfo(file.name, gpxPoints);
-      fitMap();
-      drawFullPath();
-      enableButtons();
-      toast('✓ ' + gpxPoints.length.toLocaleString() + '개 포인트 로드됨');
-    } catch(err) {
-      toast('⚠ GPX 파싱 실패: ' + err.message);
-    }
+      fitMap(); drawGhostPath(); enableButtons();
+      toast('✓ ' + gpxPoints.length.toLocaleString() + t('toast_loaded'));
+    } catch(err) { toast('⚠ GPX error: ' + err.message); }
   };
   reader.readAsText(file);
 }
 
 function parseGPX(xml) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(xml, 'text/xml');
+  const doc = new DOMParser().parseFromString(xml, 'text/xml');
   const pts = [];
-  const trkpts = doc.querySelectorAll('trkpt, wpt, rtept');
-  trkpts.forEach(pt => {
+  doc.querySelectorAll('trkpt,wpt,rtept').forEach(pt => {
     const lat = parseFloat(pt.getAttribute('lat'));
     const lon = parseFloat(pt.getAttribute('lon'));
-    const ele = pt.querySelector('ele');
-    const time = pt.querySelector('time');
     if (!isNaN(lat) && !isNaN(lon)) {
-      pts.push({
-        lat, lon,
+      const ele = pt.querySelector('ele');
+      const time = pt.querySelector('time');
+      pts.push({ lat, lon,
         ele: ele ? parseFloat(ele.textContent) : null,
         time: time ? new Date(time.textContent) : null
       });
@@ -576,37 +719,34 @@ function parseGPX(xml) {
 }
 
 function displayFileInfo(name, pts) {
-  const info = document.getElementById('fileInfo');
-  const totalDist = calcTotalDistance(pts);
-  const eleArr = pts.map(p => p.ele).filter(e => e !== null);
-  const eleInfo = eleArr.length ? `고도 ${Math.min(...eleArr).toFixed(0)}~${Math.max(...eleArr).toFixed(0)}m` : '';
-  info.style.display = 'block';
-  info.innerHTML = `📄 ${name}<br>📍 ${pts.length.toLocaleString()}pts · 📏 ${(totalDist/1000).toFixed(2)}km${eleInfo ? ' · ⛰ ' + eleInfo : ''}`;
+  const dist = calcDist(pts);
+  const eles = pts.map(p=>p.ele).filter(e=>e!==null);
+  const el = document.getElementById('fileInfo');
+  el.style.display = 'block';
+  el.innerHTML = `📄 ${name}<br>📍 ${pts.length.toLocaleString()} pts · 📏 ${(dist/1000).toFixed(2)} km`
+    + (eles.length ? ` · ⛰ ${Math.min(...eles).toFixed(0)}–${Math.max(...eles).toFixed(0)} m` : '');
 }
 
-function calcTotalDistance(pts) {
+function calcDist(pts) {
   let d = 0;
-  for (let i = 1; i < pts.length; i++) d += haversine(pts[i-1], pts[i]);
+  for (let i=1;i<pts.length;i++) d += haversine(pts[i-1], pts[i]);
   return d;
 }
 
-function haversine(a, b) {
-  const R = 6371000;
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLon = (b.lon - a.lon) * Math.PI / 180;
-  const x = Math.sin(dLat/2) ** 2 + Math.cos(a.lat * Math.PI/180) * Math.cos(b.lat * Math.PI/180) * Math.sin(dLon/2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+function haversine(a,b) {
+  const R=6371000, dl=(b.lat-a.lat)*Math.PI/180, dL=(b.lon-a.lon)*Math.PI/180;
+  const x = Math.sin(dl/2)**2 + Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dL/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 
 function fitMap() {
-  const bounds = L.latLngBounds(gpxPoints.map(p => [p.lat, p.lon]));
-  map.fitBounds(bounds, { padding: [40, 40] });
+  map.fitBounds(L.latLngBounds(gpxPoints.map(p=>[p.lat,p.lon])), {padding:[40,40]});
 }
 
-function drawFullPath() {
+function drawGhostPath() {
   if (drawnPolyline) map.removeLayer(drawnPolyline);
-  drawnPolyline = L.polyline(gpxPoints.map(p => [p.lat, p.lon]), {
-    color: '#ccc', weight: 2, opacity: 0.5
+  drawnPolyline = L.polyline(gpxPoints.map(p=>[p.lat,p.lon]), {
+    color:'#ccc', weight:2, opacity:0.5
   }).addTo(map);
 }
 
@@ -615,289 +755,203 @@ function enableButtons() {
   document.getElementById('recordBtn').disabled = false;
 }
 
-// ── ANIMATION CORE ─────────────────────────────────────────────────────────
-let animPolyline = null;
-let animLayer = null;
-let animPoints = [];
-
+// ── SETTINGS ─────────────────────────────────────────────────────────────
 function getSettings() {
   const preset = document.getElementById('resPreset').value;
-  let w, h;
-  if (preset === 'custom') {
+  let w,h;
+  if (preset==='custom') {
     w = parseInt(document.getElementById('customW').value);
     h = parseInt(document.getElementById('customH').value);
-  } else {
-    [w, h] = preset.split('x').map(Number);
-  }
+  } else { [w,h]=preset.split('x').map(Number); }
   return {
-    lineColor: document.getElementById('lineColor').value,
-    lineWeight: parseFloat(document.getElementById('lineWeight').value),
-    lineOpacity: parseInt(document.getElementById('lineOpacity').value) / 100,
-    lineDash: document.getElementById('lineDash').value,
-    markerColor: document.getElementById('markerColor').value,
-    markerSize: parseInt(document.getElementById('markerSize').value),
-    showTrail: document.getElementById('showTrail').value,
-    tailLen: parseInt(document.getElementById('tailLen').value),
-    speed: parseInt(document.getElementById('speed').value),
-    fps: parseInt(document.getElementById('fps').value),
-    followMode: document.getElementById('followMode').value,
-    startDelay: parseFloat(document.getElementById('startDelay').value),
-    endDelay: parseFloat(document.getElementById('endDelay').value),
-    bitrate: parseInt(document.getElementById('bitrate').value),
-    showStats: document.getElementById('showStats').value === 'yes',
-    width: w, height: h,
+    lineColor:    document.getElementById('lineColor').value,
+    lineWeight:   parseFloat(document.getElementById('lineWeight').value),
+    lineOpacity:  parseInt(document.getElementById('lineOpacity').value)/100,
+    lineDash:     document.getElementById('lineDash').value,
+    markerColor:  document.getElementById('markerColor').value,
+    markerSize:   parseInt(document.getElementById('markerSize').value),
+    markerType:   selectedMarkerType,
+    showTrail:    document.getElementById('showTrail').value,
+    tailLen:      parseInt(document.getElementById('tailLen').value),
+    speed:        parseInt(document.getElementById('speed').value),
+    fps:          parseInt(document.getElementById('fps').value),
+    followMode:   document.getElementById('followMode').value,
+    startDelay:   parseFloat(document.getElementById('startDelay').value),
+    endDelay:     parseFloat(document.getElementById('endDelay').value),
+    bitrate:      parseInt(document.getElementById('bitrate').value),
+    showStats:    document.getElementById('showStats').value==='yes',
+    width:w, height:h
   };
 }
 
-function getDashArray(style, weight) {
-  if (style === 'dashed') return [weight * 4, weight * 2];
-  if (style === 'dotted') return [1, weight * 2];
+function dashArray(style, w) {
+  if (style==='dashed') return [w*4, w*2];
+  if (style==='dotted') return [1, w*2];
   return null;
 }
 
+// ── ANIMATION ────────────────────────────────────────────────────────────
 function startPreview() {
   if (!gpxPoints.length) return;
-  stopAnimation();
+  stopAnimation(); clearAnimLayers();
+  animIndex=0; animPoints=[];
   const s = getSettings();
-  clearAnimLayers();
-  animIndex = 0;
-  animPoints = [];
 
-  // ghost full path
   if (drawnPolyline) map.removeLayer(drawnPolyline);
-  drawnPolyline = L.polyline(gpxPoints.map(p => [p.lat, p.lon]), {
-    color: '#ddd', weight: s.lineWeight, opacity: 0.4,
-    dashArray: getDashArray(s.lineDash, s.lineWeight)
+  drawnPolyline = L.polyline(gpxPoints.map(p=>[p.lat,p.lon]), {
+    color:'#ddd', weight:s.lineWeight, opacity:0.4, dashArray:dashArray(s.lineDash,s.lineWeight)
   }).addTo(map);
 
-  if (s.followMode === 'fit') fitMap();
-
-  // stats
-  if (s.showStats) {
-    document.getElementById('statsOverlay').style.display = 'block';
-  }
-
-  const delay = s.startDelay * 1000;
-  setTimeout(() => runAnimation(s, false), delay);
+  if (s.followMode==='fit') fitMap();
+  document.getElementById('statsOverlay').style.display = s.showStats ? 'block' : 'none';
+  setTimeout(()=>runAnimation(s,false), s.startDelay*1000);
 }
 
 function clearAnimLayers() {
-  if (animPolyline) { map.removeLayer(animPolyline); animPolyline = null; }
-  if (markerCircle) { map.removeLayer(markerCircle); markerCircle = null; }
-  if (markerOutline) { map.removeLayer(markerOutline); markerOutline = null; }
-  if (animLayer) { map.removeLayer(animLayer); animLayer = null; }
+  if (animPolyline) { map.removeLayer(animPolyline); animPolyline=null; }
+  if (animMarker) { map.removeLayer(animMarker); animMarker=null; }
 }
 
 function runAnimation(s, recording) {
-  const interval = 1000 / s.fps;
+  const interval = 1000/s.fps;
   let lastTime = 0;
+  function frame(ts) {
+    if (ts-lastTime < interval) { animFrame=requestAnimationFrame(frame); return; }
+    lastTime = ts;
 
-  function frame(timestamp) {
-    if (timestamp - lastTime < interval) {
-      animFrame = requestAnimationFrame(frame);
-      return;
-    }
-    lastTime = timestamp;
+    const step = Math.min(s.speed, gpxPoints.length-animIndex);
+    for (let i=0; i<step && animIndex<gpxPoints.length; i++) animPoints.push(gpxPoints[animIndex++]);
 
-    const step = Math.min(s.speed, gpxPoints.length - animIndex);
-    for (let i = 0; i < step; i++) {
-      if (animIndex >= gpxPoints.length) break;
-      animPoints.push(gpxPoints[animIndex]);
-      animIndex++;
-    }
-
-    // redraw polyline
+    // polyline
     if (animPolyline) map.removeLayer(animPolyline);
-
-    let displayPts = animPoints;
-    if (s.showTrail === 'tail') displayPts = animPoints.slice(-s.tailLen);
-    if (s.showTrail === 'none') displayPts = [];
-
-    if (displayPts.length > 1) {
-      animPolyline = L.polyline(displayPts.map(p => [p.lat, p.lon]), {
-        color: s.lineColor,
-        weight: s.lineWeight,
-        opacity: s.lineOpacity,
-        dashArray: getDashArray(s.lineDash, s.lineWeight),
-        lineCap: 'round',
-        lineJoin: 'round'
+    let dPts = animPoints;
+    if (s.showTrail==='tail') dPts = animPoints.slice(-s.tailLen);
+    if (s.showTrail==='none') dPts = [];
+    if (dPts.length > 1) {
+      animPolyline = L.polyline(dPts.map(p=>[p.lat,p.lon]), {
+        color:s.lineColor, weight:s.lineWeight, opacity:s.lineOpacity,
+        dashArray:dashArray(s.lineDash,s.lineWeight), lineCap:'round', lineJoin:'round'
       }).addTo(map);
     }
 
     // marker
-    const cur = animPoints[animPoints.length - 1];
-    if (markerOutline) map.removeLayer(markerOutline);
-    if (markerCircle) map.removeLayer(markerCircle);
-    markerOutline = L.circleMarker([cur.lat, cur.lon], {
-      radius: s.markerSize / 2 + 3,
-      color: 'white', fillColor: 'white', fillOpacity: 1, weight: 0
-    }).addTo(map);
-    markerCircle = L.circleMarker([cur.lat, cur.lon], {
-      radius: s.markerSize / 2,
-      color: s.markerColor, fillColor: s.markerColor, fillOpacity: 1, weight: 2
-    }).addTo(map);
+    const cur = animPoints[animPoints.length-1];
+    if (animMarker) map.removeLayer(animMarker);
+    animMarker = makeEmojiMarker(cur.lat, cur.lon, s.markerType, s.markerSize, s.markerColor);
+    animMarker.addTo(map);
 
-    // follow
-    if (s.followMode === 'follow') {
-      map.setView([cur.lat, cur.lon], map.getZoom(), { animate: true, duration: 0.3 });
-    }
+    if (s.followMode==='follow') map.setView([cur.lat,cur.lon], map.getZoom(), {animate:true,duration:0.3});
 
-    // stats
     if (s.showStats) {
-      const dist = calcTotalDistance(animPoints);
-      document.getElementById('statDist').textContent = (dist / 1000).toFixed(2) + ' km';
-      document.getElementById('statPt').textContent = animIndex + ' / ' + gpxPoints.length;
-      const eles = animPoints.map(p => p.ele).filter(e => e !== null);
-      document.getElementById('statAlt').textContent = eles.length ? Math.round(eles[eles.length-1]) + ' m' : '—';
+      const dist = calcDist(animPoints);
+      document.getElementById('statDist').textContent = (dist/1000).toFixed(2)+' km';
+      document.getElementById('statPt').textContent   = animIndex+' / '+gpxPoints.length;
+      const eles = animPoints.map(p=>p.ele).filter(e=>e!==null);
+      document.getElementById('statAlt').textContent  = eles.length ? Math.round(eles[eles.length-1])+' m' : '—';
     }
 
     if (animIndex < gpxPoints.length) {
       animFrame = requestAnimationFrame(frame);
     } else {
-      // end
-      setTimeout(() => {
-        if (recording) {
-          stopRecording();
-        }
-      }, s.endDelay * 1000);
+      setTimeout(()=>{ if(recording) stopRecording(); }, s.endDelay*1000);
     }
   }
-
   animFrame = requestAnimationFrame(frame);
 }
 
 function stopAnimation() {
-  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame=null; }
 }
 
-// ── RECORDING ──────────────────────────────────────────────────────────────
+// ── RECORDING ────────────────────────────────────────────────────────────
 function startRecording() {
   if (!gpxPoints.length) return;
-  stopAnimation();
-  clearAnimLayers();
-
+  stopAnimation(); clearAnimLayers();
   const s = getSettings();
+  if (!window.MediaRecorder) { toast('⚠ MediaRecorder not supported'); return; }
 
-  // Check support
-  if (!window.MediaRecorder) {
-    toast('⚠ 이 브라우저는 MediaRecorder를 지원하지 않습니다');
-    return;
-  }
+  const allCanvas = document.getElementById('map').querySelectorAll('canvas');
+  if (!allCanvas.length) { toast('⚠ Map canvas not found. Wait a moment.'); return; }
 
-  // Use map canvas
-  const mapPane = document.getElementById('map');
-  // Collect canvases inside the map
   let stream;
-  try {
-    // Try to capture the map element
-    const allCanvas = mapPane.querySelectorAll('canvas');
-    if (allCanvas.length > 0) {
-      stream = allCanvas[0].captureStream(s.fps);
-    } else {
-      toast('⚠ 지도 캔버스를 찾을 수 없습니다. 잠시 후 다시 시도하세요.');
-      return;
-    }
-  } catch(e) {
-    toast('⚠ 화면 캡처 실패: ' + e.message);
-    return;
-  }
+  try { stream = allCanvas[0].captureStream(s.fps); }
+  catch(e) { toast('⚠ Capture failed: '+e.message); return; }
 
-  const mimeTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
-  let mimeType = '';
-  for (const mt of mimeTypes) {
-    if (MediaRecorder.isTypeSupported(mt)) { mimeType = mt; break; }
-  }
-  if (!mimeType) {
-    toast('⚠ 지원하는 비디오 포맷이 없습니다');
-    return;
-  }
+  const mimes = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+  const mimeType = mimes.find(m=>MediaRecorder.isTypeSupported(m))||'';
+  if (!mimeType) { toast('⚠ No supported video format'); return; }
 
   recordedChunks = [];
   try {
-    mediaRecorder = new MediaRecorder(stream, {
-      mimeType,
-      videoBitsPerSecond: s.bitrate * 1_000_000
-    });
-  } catch(e) {
-    toast('⚠ MediaRecorder 초기화 실패');
-    return;
-  }
+    mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: s.bitrate*1_000_000 });
+  } catch(e) { toast('⚠ Recorder init failed'); return; }
 
-  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
   mediaRecorder.onstop = saveVideo;
-
   mediaRecorder.start(100);
   isRecording = true;
 
   document.getElementById('recIndicator').style.display = 'block';
   document.getElementById('recordBtn').disabled = true;
-  document.getElementById('stopBtn').disabled = false;
+  document.getElementById('stopBtn').disabled   = false;
   document.getElementById('progressWrap').style.display = 'block';
-  document.getElementById('progressLabel').textContent = '녹화 중... 애니메이션 완료시 자동 저장됩니다';
+  document.getElementById('progressLabel').textContent = t('prog_rec');
 
-  animIndex = 0;
-  animPoints = [];
+  animIndex=0; animPoints=[];
   if (drawnPolyline) map.removeLayer(drawnPolyline);
-  drawnPolyline = L.polyline(gpxPoints.map(p => [p.lat, p.lon]), {
-    color: '#ddd', weight: s.lineWeight, opacity: 0.35
+  drawnPolyline = L.polyline(gpxPoints.map(p=>[p.lat,p.lon]), {
+    color:'#ddd', weight:s.lineWeight, opacity:0.35
   }).addTo(map);
+  if (s.followMode==='fit') fitMap();
+  document.getElementById('statsOverlay').style.display = s.showStats ? 'block' : 'none';
 
-  if (s.followMode === 'fit') fitMap();
-  if (s.showStats) document.getElementById('statsOverlay').style.display = 'block';
-
-  // progress tracking via animIndex
-  const origRun = runAnimation;
-  const progressInterval = setInterval(() => {
-    const pct = gpxPoints.length ? (animIndex / gpxPoints.length * 100) : 0;
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = `녹화 중... ${pct.toFixed(0)}% (${animIndex}/${gpxPoints.length})`;
-    if (animIndex >= gpxPoints.length) clearInterval(progressInterval);
+  const pi = setInterval(()=>{
+    const pct = gpxPoints.length ? animIndex/gpxPoints.length*100 : 0;
+    document.getElementById('progressFill').style.width = pct+'%';
+    document.getElementById('progressLabel').textContent =
+      `${t('prog_rec')} ${pct.toFixed(0)}% (${animIndex}/${gpxPoints.length})`;
+    if (animIndex>=gpxPoints.length) clearInterval(pi);
   }, 200);
 
-  toast('⏺ 녹화 시작! 애니메이션이 끝나면 자동 저장됩니다');
-  setTimeout(() => runAnimation(s, true), s.startDelay * 1000);
+  toast('⏺ '+t('toast_rec'));
+  setTimeout(()=>runAnimation(s,true), s.startDelay*1000);
 }
 
 function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-    mediaRecorder.stop();
-  }
+  if (mediaRecorder && mediaRecorder.state!=='inactive') mediaRecorder.stop();
   stopAnimation();
-  isRecording = false;
-  document.getElementById('recIndicator').style.display = 'none';
-  document.getElementById('stopBtn').disabled = true;
-  document.getElementById('recordBtn').disabled = false;
-  document.getElementById('progressLabel').textContent = '파일 저장 중...';
+  isRecording=false;
+  document.getElementById('recIndicator').style.display='none';
+  document.getElementById('stopBtn').disabled=true;
+  document.getElementById('recordBtn').disabled=false;
+  document.getElementById('progressLabel').textContent=t('prog_saving');
 }
 
 function saveVideo() {
-  if (!recordedChunks.length) { toast('⚠ 저장할 데이터가 없습니다'); return; }
-  const mimeType = recordedChunks[0].type || 'video/webm';
-  const blob = new Blob(recordedChunks, { type: mimeType });
-  const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'gpx-animation-' + Date.now() + '.' + ext;
-  a.click();
-  URL.revokeObjectURL(url);
-
-  document.getElementById('progressFill').style.width = '100%';
-  document.getElementById('progressLabel').textContent = '✓ 저장 완료! (' + (blob.size / 1024 / 1024).toFixed(1) + ' MB)';
-  toast('✓ 영상 저장 완료!');
+  if (!recordedChunks.length) { toast('⚠ No data to save'); return; }
+  const mimeType = recordedChunks[0].type||'video/webm';
+  const blob = new Blob(recordedChunks,{type:mimeType});
+  const ext  = mimeType.includes('mp4')?'mp4':'webm';
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='gpx-animation-'+Date.now()+'.'+ext;
+  a.click(); URL.revokeObjectURL(url);
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('progressLabel').textContent=
+    `✓ ${t('prog_done')} (${(blob.size/1024/1024).toFixed(1)} MB)`;
+  toast('✓ '+t('toast_saved'));
 }
 
-// ── UTILS ──────────────────────────────────────────────────────────────────
+// ── UTILS ─────────────────────────────────────────────────────────────────
 function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2800);
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2800);
 }
 
-// Resize map on load
-window.addEventListener('resize', () => map.invalidateSize());
-setTimeout(() => map.invalidateSize(), 100);
+window.addEventListener('resize',()=>map.invalidateSize());
+setTimeout(()=>map.invalidateSize(),100);
+applyI18n();
 </script>
 </body>
 </html>
