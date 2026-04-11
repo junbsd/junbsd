@@ -13,204 +13,138 @@
 :root{
   --bg:#f5f2ed;--panel:#faf8f5;--border:#ddd8d0;
   --ink:#1a1814;--ink2:#6b6560;--accent:#c84b2f;--accent2:#2f6ec8;
-  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--sidebar-w:330px;
+  --mono:'DM Mono',monospace;--serif:'Fraunces',serif;--sw:330px;
 }
 body{
   font-family:var(--mono);background:var(--bg);color:var(--ink);
   height:100vh;display:grid;
-  grid-template-columns:var(--sidebar-w) 1fr;
+  grid-template-columns:var(--sw) 1fr;
   grid-template-rows:52px 1fr;
-  overflow:hidden;transition:grid-template-columns 0.32s ease;
+  overflow:hidden;transition:grid-template-columns .32s ease;
 }
-body.sb-hidden{grid-template-columns:0px 1fr}
-
-/* HEADER */
+body.sbh{grid-template-columns:0px 1fr}
 header{
   grid-column:1/-1;background:var(--ink);color:var(--bg);
   display:flex;align-items:center;padding:0 16px;gap:10px;
   border-bottom:2px solid var(--accent);z-index:200;
 }
 header h1{font-family:var(--serif);font-weight:600;font-size:1.08rem;letter-spacing:-.01em;white-space:nowrap}
-#sbToggle{
+#sbt{
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
   color:#f5f2ed;width:32px;height:32px;border-radius:6px;cursor:pointer;
-  font-size:1rem;display:flex;align-items:center;justify-content:center;
-  transition:background .15s;flex-shrink:0
+  font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
-#sbToggle:hover{background:rgba(255,255,255,.18)}
+#sbt:hover{background:rgba(255,255,255,.18)}
 .langs{display:flex;gap:4px;margin-left:auto}
-.lb{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
-  color:#ccc;padding:3px 9px;border-radius:4px;font-family:var(--mono);
-  font-size:.64rem;cursor:pointer;transition:all .15s;letter-spacing:.04em
-}
+.lb{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#ccc;
+  padding:3px 9px;border-radius:4px;font-family:var(--mono);font-size:.63rem;cursor:pointer;transition:all .15s}
 .lb:hover{background:rgba(255,255,255,.18);color:#fff}
 .lb.on{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* SIDEBAR */
 #sidebar{
   background:var(--panel);border-right:1.5px solid var(--border);
   overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;
-  transition:transform .32s ease,opacity .32s ease;width:var(--sidebar-w);
+  transition:transform .32s ease,opacity .32s ease;width:var(--sw);
 }
-body.sb-hidden #sidebar{transform:translateX(-100%);opacity:0;pointer-events:none}
+body.sbh #sidebar{transform:translateX(-100%);opacity:0;pointer-events:none}
 #sidebar::-webkit-scrollbar{width:4px}
 #sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
 .sec{border-bottom:1.5px solid var(--border);padding:13px 15px;flex-shrink:0}
-.sec-title{
-  font-size:.59rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--ink2);margin-bottom:10px;display:flex;align-items:center;gap:6px
-}
-.sec-title::before{
-  content:'';display:inline-block;width:5px;height:5px;
-  background:var(--accent);border-radius:50%;flex-shrink:0
-}
+.stit{font-size:.58rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.stit::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;flex-shrink:0}
 
-/* DROP */
-#dropzone{
-  border:2px dashed var(--border);border-radius:6px;padding:20px 10px;
-  text-align:center;cursor:pointer;transition:border-color .2s,background .2s
-}
+#dropzone{border:2px dashed var(--border);border-radius:6px;padding:20px 10px;
+  text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
 #dropzone:hover,#dropzone.over{border-color:var(--accent);background:#fdf0ec}
-#dropzone .icon{font-size:1.7rem;margin-bottom:5px}
-#dropzone p{font-size:.69rem;color:var(--ink2);line-height:1.5}
+#dropzone .dzi{font-size:1.7rem;margin-bottom:5px}
+#dropzone p{font-size:.68rem;color:var(--ink2);line-height:1.5}
 #dropzone strong{color:var(--ink)}
-#fileInput{display:none}
-#fileInfo{
-  display:none;margin-top:7px;background:#eef6ee;border:1px solid #b8dab8;
-  border-radius:4px;padding:6px 8px;font-size:.65rem;color:#2d6b2d;line-height:1.65
-}
+#fi2{display:none}
+#fileInfo{display:none;margin-top:7px;background:#eef6ee;border:1px solid #b8dab8;
+  border-radius:4px;padding:6px 8px;font-size:.64rem;color:#2d6b2d;line-height:1.65}
 
-/* CONTROLS */
 .cr{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
 .cr:last-child{margin-bottom:0}
-.cr label{font-size:.64rem;color:var(--ink2);display:flex;justify-content:space-between}
+.cr label{font-size:.63rem;color:var(--ink2);display:flex;justify-content:space-between}
 .cr label span{color:var(--ink);font-weight:500}
 input[type=range]{width:100%;height:4px;accent-color:var(--accent);cursor:pointer}
-input[type=color]{
-  width:100%;height:29px;border:1.5px solid var(--border);border-radius:4px;
-  cursor:pointer;padding:2px;background:#fff
-}
-select,input[type=number]{
-  width:100%;height:28px;border:1.5px solid var(--border);border-radius:4px;
-  padding:0 8px;font-family:var(--mono);font-size:.69rem;background:#fff;color:var(--ink);outline:none
-}
+input[type=color]{width:100%;height:29px;border:1.5px solid var(--border);border-radius:4px;cursor:pointer;padding:2px;background:#fff}
+select,input[type=number]{width:100%;height:28px;border:1.5px solid var(--border);border-radius:4px;
+  padding:0 8px;font-family:var(--mono);font-size:.69rem;background:#fff;color:var(--ink);outline:none}
 select:focus,input:focus{border-color:var(--accent2)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 
-/* MARKER PICKER */
 .mk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:2px}
-.mk-opt{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:7px 3px 5px;border:1.5px solid var(--border);border-radius:6px;
-  cursor:pointer;background:#fff;transition:border-color .15s,background .15s;
-  font-size:.52rem;color:var(--ink2);user-select:none
-}
-.mk-opt:hover{border-color:var(--accent2);background:#f0f5ff}
-.mk-opt.on{border-color:var(--accent);background:#fdf0ec;color:var(--accent);font-weight:500}
-.mk-opt .mke{font-size:1.35rem;line-height:1}
+.mko{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 3px 5px;
+  border:1.5px solid var(--border);border-radius:6px;cursor:pointer;background:#fff;
+  transition:border-color .15s,background .15s;font-size:.52rem;color:var(--ink2);user-select:none}
+.mko:hover{border-color:var(--accent2);background:#f0f5ff}
+.mko.on{border-color:var(--accent);background:#fdf0ec;color:var(--accent);font-weight:500}
+.mko .mke{font-size:1.3rem;line-height:1}
 
-/* STATS TOGGLES */
-.st-toggle-grid{display:flex;flex-direction:column;gap:4px}
-.st-tog{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:5px 8px;border:1.5px solid var(--border);border-radius:5px;
-  background:#fff;cursor:pointer;transition:border-color .15s,background .15s;
-  font-size:.64rem;color:var(--ink2)
-}
-.st-tog:hover{border-color:var(--accent2);background:#f5f8ff}
-.st-tog.on{border-color:var(--accent);background:#fdf0ec;color:var(--ink)}
-.st-tog .st-icon{font-size:.85rem;width:20px;text-align:center}
-.st-tog .st-name{flex:1;margin-left:5px}
-.tog-pill{
-  width:28px;height:14px;border-radius:7px;background:var(--border);
-  position:relative;transition:background .2s;flex-shrink:0
-}
-.tog-pill::after{
-  content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;
-  border-radius:50%;background:#fff;transition:transform .2s
-}
-.st-tog.on .tog-pill{background:var(--accent)}
-.st-tog.on .tog-pill::after{transform:translateX(14px)}
+.stg{display:flex;flex-direction:column;gap:4px}
+.sto{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;
+  border:1.5px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;
+  transition:border-color .15s,background .15s;font-size:.63rem;color:var(--ink2)}
+.sto:hover{border-color:var(--accent2);background:#f5f8ff}
+.sto.on{border-color:var(--accent);background:#fdf0ec;color:var(--ink)}
+.sto .si{font-size:.85rem;width:20px;text-align:center}
+.sto .sn{flex:1;margin-left:5px}
+.pill{width:28px;height:14px;border-radius:7px;background:var(--border);position:relative;transition:background .2s;flex-shrink:0}
+.pill::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;transition:transform .2s}
+.sto.on .pill{background:var(--accent)}
+.sto.on .pill::after{transform:translateX(14px)}
 
-/* BUTTONS */
-.btn{
-  width:100%;padding:8px;border:none;border-radius:4px;
-  font-family:var(--mono);font-size:.69rem;font-weight:500;cursor:pointer;
-  transition:opacity .15s,transform .1s;letter-spacing:.04em
-}
+.btn{width:100%;padding:8px;border:none;border-radius:4px;font-family:var(--mono);
+  font-size:.69rem;font-weight:500;cursor:pointer;transition:opacity .15s,transform .1s;letter-spacing:.04em}
 .btn:active{transform:scale(.98)}
-.btn-p{background:var(--accent);color:#fff}
-.btn-s{background:var(--ink);color:var(--bg)}
-.btn-o{background:transparent;color:var(--ink);border:1.5px solid var(--border)}
+.bp{background:var(--accent);color:#fff}
+.bs{background:var(--ink);color:var(--bg)}
+.bo{background:transparent;color:var(--ink);border:1.5px solid var(--border)}
 .btn:disabled{opacity:.38;cursor:not-allowed}
 
-/* PROGRESS */
-#pgWrap{display:none;margin-top:8px}
-#pgBar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px}
-#pgFill{height:100%;background:var(--accent);width:0%;transition:width .1s}
-#pgLabel{font-size:.61rem;color:var(--ink2);text-align:center}
+#pgW{display:none;margin-top:8px}
+#pgB{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px}
+#pgF{height:100%;background:var(--accent);width:0%;transition:width .1s}
+#pgL{font-size:.6rem;color:var(--ink2);text-align:center}
 
-/* MAP */
 #mapWrap{position:relative;overflow:hidden;background:#e8e4de}
 #map{width:100%;height:100%}
 
-/* recording canvas overlay */
-#recCanvas{
-  position:absolute;top:0;left:0;width:100%;height:100%;
-  pointer-events:none;z-index:5;display:none
-}
+/* The offscreen recording canvas sits OVER the map, shown only while recording */
+#recCvs{position:absolute;top:0;left:0;width:100%;height:100%;display:none;z-index:10;pointer-events:none}
 
-#floatBtn{
-  position:absolute;top:14px;left:14px;z-index:1000;
-  background:var(--ink);color:var(--bg);border:none;
-  width:36px;height:36px;border-radius:8px;font-size:1rem;cursor:pointer;
-  box-shadow:0 2px 8px rgba(0,0,0,.3);display:none;
-  align-items:center;justify-content:center
-}
-body.sb-hidden #floatBtn{display:flex}
+#fbt{position:absolute;top:14px;left:14px;z-index:1000;background:var(--ink);color:var(--bg);
+  border:none;width:36px;height:36px;border-radius:8px;font-size:1rem;cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);display:none;align-items:center;justify-content:center}
+body.sbh #fbt{display:flex}
 
-#recBadge{
-  display:none;position:absolute;top:14px;right:14px;
-  background:var(--accent);color:#fff;font-size:.62rem;font-weight:500;
-  padding:4px 10px;border-radius:20px;z-index:1000;letter-spacing:.08em;
-  animation:blink 1s infinite
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+#recB{display:none;position:absolute;top:14px;right:14px;background:var(--accent);color:#fff;
+  font-size:.62rem;font-weight:500;padding:4px 10px;border-radius:20px;z-index:1000;
+  letter-spacing:.08em;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* STATS OVERLAY */
-#statsOverlay{
-  display:none;position:absolute;bottom:28px;left:14px;
-  background:rgba(14,12,10,.87);color:#f5f2ed;
-  font-size:.68rem;padding:12px 16px;border-radius:10px;
-  z-index:1000;backdrop-filter:blur(8px);
-  border:1px solid rgba(255,255,255,.07);min-width:190px;
-  pointer-events:none
-}
-.so-row{
-  display:flex;justify-content:space-between;align-items:baseline;
-  gap:18px;padding:3.5px 0;border-bottom:1px solid rgba(255,255,255,.06)
-}
-.so-row:last-child{border-bottom:none}
-.so-lbl{color:#888;font-size:.58rem;letter-spacing:.06em;white-space:nowrap}
-.so-val{color:#fff;font-weight:500;font-size:.7rem;text-align:right}
+#stOvl{display:none;position:absolute;bottom:28px;left:14px;
+  background:rgba(12,10,8,.88);color:#f5f2ed;font-size:.68rem;
+  padding:12px 16px;border-radius:10px;z-index:1000;backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.07);min-width:190px;pointer-events:none}
+.sor{display:flex;justify-content:space-between;align-items:baseline;gap:18px;
+  padding:3.5px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.sor:last-child{border-bottom:none}
+.sol{color:#888;font-size:.57rem;letter-spacing:.06em;white-space:nowrap}
+.sov{color:#fff;font-weight:500;font-size:.69rem;text-align:right}
 
-/* TOAST */
-#toast{
-  position:fixed;bottom:24px;left:50%;
-  transform:translateX(-50%) translateY(60px);
-  background:var(--ink);color:var(--bg);padding:7px 17px;
-  border-radius:20px;font-size:.69rem;z-index:9999;
-  transition:transform .3s;pointer-events:none;white-space:nowrap
-}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:var(--ink);color:var(--bg);padding:7px 17px;border-radius:20px;
+  font-size:.69rem;z-index:9999;transition:transform .3s;pointer-events:none;white-space:nowrap}
 #toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-
 <header>
-  <button id="sbToggle" onclick="toggleSB()">☰</button>
+  <button id="sbt" onclick="toggleSB()">☰</button>
   <h1>GPX Animator</h1>
   <div class="langs">
     <button class="lb on" onclick="setLang('ko')">한국어</button>
@@ -220,198 +154,184 @@ body.sb-hidden #floatBtn{display:flex}
 </header>
 
 <aside id="sidebar">
-
   <!-- FILE -->
   <div class="sec">
-    <div class="sec-title" data-i="sec_file">GPX 파일</div>
-    <div id="dropzone" onclick="document.getElementById('fileInput').click()">
-      <div class="icon">🗺</div>
-      <p><strong data-i="drop_t">클릭하거나 파일을 드래그</strong><br><span data-i="drop_s">.gpx 파일을 업로드하세요</span></p>
+    <div class="stit" data-i="sec_file">GPX 파일</div>
+    <div id="dropzone" onclick="document.getElementById('fi2').click()">
+      <div class="dzi">🗺</div>
+      <p><strong data-i="dt">클릭하거나 파일을 드래그</strong><br><span data-i="ds">.gpx 파일을 업로드하세요</span></p>
     </div>
-    <input type="file" id="fileInput" accept=".gpx">
+    <input type="file" id="fi2" accept=".gpx">
     <div id="fileInfo"></div>
   </div>
 
   <!-- LINE -->
   <div class="sec">
-    <div class="sec-title" data-i="sec_line">선 스타일</div>
-    <div class="cr"><label><span data-i="lbl_lc">선 색상</span></label><input type="color" id="lineColor" value="#e63946"></div>
-    <div class="cr"><label><span data-i="lbl_lw">선 두께</span><span id="lwV">4px</span></label><input type="range" id="lineWeight" min="1" max="12" value="4" step="0.5"></div>
-    <div class="cr"><label><span data-i="lbl_lo">투명도</span><span id="loV">90%</span></label><input type="range" id="lineOpacity" min="10" max="100" value="90"></div>
-    <div class="cr"><label><span data-i="lbl_ld">선 스타일</span></label>
-      <select id="lineDash">
-        <option value="solid" data-i="opt_solid">실선</option>
-        <option value="dashed" data-i="opt_dashed">점선</option>
-        <option value="dotted" data-i="opt_dotted">점</option>
-      </select>
+    <div class="stit" data-i="sec_line">선 스타일</div>
+    <div class="cr"><label><span data-i="lc">선 색상</span></label><input type="color" id="lineColor" value="#e63946"></div>
+    <div class="cr"><label><span data-i="lw">선 두께</span><span id="lwV">4px</span></label><input type="range" id="lineWeight" min="1" max="12" value="4" step="0.5"></div>
+    <div class="cr"><label><span data-i="lo">투명도</span><span id="loV">90%</span></label><input type="range" id="lineOpacity" min="10" max="100" value="90"></div>
+    <div class="cr"><label><span data-i="ld">선 스타일</span></label>
+      <select id="lineDash"><option value="solid" data-i="os">실선</option><option value="dashed" data-i="od">점선</option><option value="dotted" data-i="oo">점</option></select>
     </div>
   </div>
 
   <!-- MARKER -->
   <div class="sec">
-    <div class="sec-title" data-i="sec_mk">마커</div>
+    <div class="stit" data-i="sec_mk">마커</div>
     <div class="cr" style="margin-bottom:9px">
-      <label><span data-i="lbl_mkt">마커 종류</span></label>
+      <label><span data-i="mkt">마커 종류</span></label>
       <div class="mk-grid">
-        <div class="mk-opt on" data-m="person" onclick="pickMarker(this)"><span class="mke">🚶</span><span data-i="mk_p">사람</span></div>
-        <div class="mk-opt" data-m="bike" onclick="pickMarker(this)"><span class="mke">🚴</span><span data-i="mk_b">자전거</span></div>
-        <div class="mk-opt" data-m="scooter" onclick="pickMarker(this)"><span class="mke">🛵</span><span data-i="mk_s">스쿠터</span></div>
-        <div class="mk-opt" data-m="car" onclick="pickMarker(this)"><span class="mke">🚗</span><span data-i="mk_c">자동차</span></div>
+        <div class="mko on" data-m="person" onclick="pickM(this)"><span class="mke">🚶</span><span data-i="mp">사람</span></div>
+        <div class="mko" data-m="bike" onclick="pickM(this)"><span class="mke">🚴</span><span data-i="mb">자전거</span></div>
+        <div class="mko" data-m="scooter" onclick="pickM(this)"><span class="mke">🛵</span><span data-i="ms2">스쿠터</span></div>
+        <div class="mko" data-m="car" onclick="pickM(this)"><span class="mke">🚗</span><span data-i="mc">자동차</span></div>
       </div>
     </div>
-    <div class="cr"><label><span data-i="lbl_mc">마커 색상</span></label><input type="color" id="markerColor" value="#e63946"></div>
-    <div class="cr"><label><span data-i="lbl_ms">마커 크기</span><span id="msV">32px</span></label><input type="range" id="markerSize" min="20" max="64" value="32"></div>
-    <div class="cr">
-      <label><span data-i="lbl_tr">경로 표시</span></label>
-      <select id="showTrail">
-        <option value="full" data-i="opt_full">전체 경로</option>
-        <option value="tail" data-i="opt_tail">꼬리만</option>
-        <option value="none" data-i="opt_none">마커만</option>
-      </select>
+    <div class="cr"><label><span data-i="mkc">마커 색상</span></label><input type="color" id="markerColor" value="#e63946"></div>
+    <div class="cr"><label><span data-i="mks">마커 크기</span><span id="msV">32px</span></label><input type="range" id="markerSize" min="20" max="64" value="32"></div>
+    <div class="cr"><label><span data-i="tr">경로 표시</span></label>
+      <select id="showTrail"><option value="full" data-i="of">전체 경로</option><option value="tail" data-i="ot">꼬리만</option><option value="none" data-i="on2">마커만</option></select>
     </div>
     <div class="cr" id="tailRow" style="display:none">
-      <label><span data-i="lbl_tl">꼬리 길이</span><span id="tlV">100</span></label>
+      <label><span data-i="tl">꼬리 길이</span><span id="tlV">100</span></label>
       <input type="range" id="tailLen" min="10" max="500" value="100">
     </div>
   </div>
 
   <!-- STATS TOGGLES -->
   <div class="sec">
-    <div class="sec-title" data-i="sec_st">통계 오버레이 항목</div>
-    <div class="st-toggle-grid" id="statToggles">
-      <!-- populated by JS -->
-    </div>
+    <div class="stit" data-i="sec_st">통계 오버레이 항목</div>
+    <div class="stg" id="stToggles"></div>
   </div>
 
   <!-- ANIMATION -->
   <div class="sec">
-    <div class="sec-title" data-i="sec_anim">애니메이션</div>
-    <div class="cr"><label><span data-i="lbl_sp">속도</span><span id="spV">50 pt/f</span></label><input type="range" id="speed" min="1" max="200" value="50"></div>
+    <div class="stit" data-i="sec_anim">애니메이션</div>
+    <div class="cr"><label><span data-i="sp">속도</span><span id="spV">50 pt/f</span></label><input type="range" id="speed" min="1" max="200" value="50"></div>
     <div class="cr"><label><span>FPS</span><span id="fpsV">30</span></label><input type="range" id="fps" min="15" max="60" value="30" step="5"></div>
-    <div class="cr"><label><span data-i="lbl_fm">팔로우 모드</span></label>
-      <select id="followMode">
-        <option value="follow" data-i="opt_fw">마커 따라가기</option>
-        <option value="fit" data-i="opt_ft">전체 경로 고정</option>
-      </select>
+    <div class="cr"><label><span data-i="fm">팔로우 모드</span></label>
+      <select id="followMode"><option value="follow" data-i="ofw">마커 따라가기</option><option value="fit" data-i="oft">전체 경로 고정</option></select>
     </div>
-    <div class="cr"><label><span data-i="lbl_sd">시작 대기</span><span id="sdV">1.0s</span></label><input type="range" id="startDelay" min="0" max="5" value="1" step="0.5"></div>
-    <div class="cr"><label><span data-i="lbl_ed">종료 대기</span><span id="edV">2.0s</span></label><input type="range" id="endDelay" min="0" max="10" value="2" step="0.5"></div>
+    <div class="cr"><label><span data-i="sd">시작 대기</span><span id="sdV">1.0s</span></label><input type="range" id="startDelay" min="0" max="5" value="1" step="0.5"></div>
+    <div class="cr"><label><span data-i="ed">종료 대기</span><span id="edV">2.0s</span></label><input type="range" id="endDelay" min="0" max="10" value="2" step="0.5"></div>
   </div>
 
   <!-- VIDEO -->
   <div class="sec">
-    <div class="sec-title" data-i="sec_vid">영상 출력</div>
-    <div class="cr"><label><span data-i="lbl_res">해상도</span></label>
+    <div class="stit" data-i="sec_vid">영상 출력</div>
+    <div class="cr"><label><span data-i="res">해상도</span></label>
       <select id="resPreset">
         <option value="1280x720">1280 × 720 (HD)</option>
         <option value="1920x1080" selected>1920 × 1080 (FHD)</option>
         <option value="2560x1440">2560 × 1440 (QHD)</option>
         <option value="3840x2160">3840 × 2160 (4K)</option>
-        <option value="custom" data-i="opt_cus">직접 입력</option>
+        <option value="custom" data-i="ocu">직접 입력</option>
       </select>
     </div>
     <div class="two-col" id="cusRes" style="display:none">
-      <div class="cr"><label><span data-i="lbl_w">너비</span></label><input type="number" id="cusW" value="1920" min="320" max="7680"></div>
-      <div class="cr"><label><span data-i="lbl_h">높이</span></label><input type="number" id="cusH" value="1080" min="240" max="4320"></div>
+      <div class="cr"><label><span data-i="rw">너비</span></label><input type="number" id="cusW" value="1920" min="320" max="7680"></div>
+      <div class="cr"><label><span data-i="rh">높이</span></label><input type="number" id="cusH" value="1080" min="240" max="4320"></div>
     </div>
-    <div class="cr"><label><span data-i="lbl_br">비트레이트</span><span id="brV">8 Mbps</span></label><input type="range" id="bitrate" min="2" max="40" value="8"></div>
+    <div class="cr"><label><span data-i="br">비트레이트</span><span id="brV">8 Mbps</span></label><input type="range" id="bitrate" min="2" max="40" value="8"></div>
   </div>
 
   <!-- RUN -->
   <div class="sec">
-    <div class="sec-title" data-i="sec_run">실행</div>
+    <div class="stit" data-i="sec_run">실행</div>
     <div style="display:flex;flex-direction:column;gap:6px">
-      <button class="btn btn-o" id="previewBtn" disabled onclick="startPreview()">▶ <span data-i="btn_prev">미리보기</span></button>
-      <button class="btn btn-p" id="recordBtn" disabled onclick="startRecording()">⏺ <span data-i="btn_rec">녹화 시작</span></button>
-      <button class="btn btn-s" id="stopBtn" disabled onclick="stopRecording()">⏹ <span data-i="btn_stp">녹화 중지 &amp; 저장</span></button>
+      <button class="btn bo" id="previewBtn" disabled onclick="startPreview()">▶ <span data-i="bprev">미리보기</span></button>
+      <button class="btn bp" id="recordBtn" disabled onclick="startRecording()">⏺ <span data-i="brec">녹화 시작</span></button>
+      <button class="btn bs" id="stopBtn" disabled onclick="stopRecording()">⏹ <span data-i="bstp">녹화 중지 &amp; 저장</span></button>
     </div>
-    <div id="pgWrap"><div id="pgBar"><div id="pgFill"></div></div><div id="pgLabel"></div></div>
+    <div id="pgW"><div id="pgB"><div id="pgF"></div></div><div id="pgL"></div></div>
+    <div id="recNote" style="display:none;margin-top:8px;font-size:.6rem;color:var(--ink2);line-height:1.5;padding:6px 8px;background:#fff8e6;border:1px solid #e6d49a;border-radius:4px" data-i="recNote">
+      녹화 중 별도 캔버스에 지도를 직접 렌더링합니다. 타일 로딩에 따라 품질이 달라질 수 있습니다.
+    </div>
   </div>
-
 </aside>
 
 <div id="mapWrap">
   <div id="map"></div>
-  <!-- recording canvas drawn on top of map -->
-  <canvas id="recCanvas"></canvas>
-  <button id="floatBtn" onclick="toggleSB()">☰</button>
-  <div id="recBadge">● REC</div>
-  <div id="statsOverlay" id="statsOverlay"></div>
+  <canvas id="recCvs"></canvas>
+  <button id="fbt" onclick="toggleSB()">☰</button>
+  <div id="recB">● REC</div>
+  <div id="stOvl"></div>
 </div>
 <div id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // I18N
-// ══════════════════════════════════════════════════
-const TR = {
+// ════════════════════════════════════════════════════
+const TR={
   ko:{
     sec_file:'GPX 파일',sec_line:'선 스타일',sec_mk:'마커',
     sec_st:'통계 오버레이 항목',sec_anim:'애니메이션',sec_vid:'영상 출력',sec_run:'실행',
-    drop_t:'클릭하거나 파일을 드래그',drop_s:'.gpx 파일을 업로드하세요',
-    lbl_lc:'선 색상',lbl_lw:'선 두께',lbl_lo:'투명도',lbl_ld:'선 스타일',
-    lbl_mkt:'마커 종류',lbl_mc:'마커 색상',lbl_ms:'마커 크기',
-    lbl_tr:'경로 표시',lbl_tl:'꼬리 길이',
-    lbl_sp:'속도',lbl_fm:'팔로우 모드',lbl_sd:'시작 대기',lbl_ed:'종료 대기',
-    lbl_res:'해상도',lbl_br:'비트레이트',lbl_w:'너비',lbl_h:'높이',
-    opt_solid:'실선',opt_dashed:'점선',opt_dotted:'점',
-    opt_full:'전체 경로',opt_tail:'꼬리만',opt_none:'마커만',
-    opt_fw:'마커 따라가기',opt_ft:'전체 경로 고정',opt_cus:'직접 입력',
-    mk_p:'사람',mk_b:'자전거',mk_s:'스쿠터',mk_c:'자동차',
-    btn_prev:'미리보기',btn_rec:'녹화 시작',btn_stp:'녹화 중지 & 저장',
-    // stat labels
-    st_dist:'거리',st_pt:'포인트',st_alt:'현재 고도',
-    st_altmax:'최고 고도',st_altmin:'최저 고도',st_altgain:'누적 상승',
-    st_speed:'현재 속도',st_avgspeed:'평균 속도',st_maxspeed:'최고 속도',
-    st_time:'경과 시간',st_remain:'남은 거리',st_pct:'진행률',
-    st_lat:'현재 위도',st_lon:'현재 경도',st_bearing:'방향',
-    // misc
-    toast_load:'개 포인트 로드됨',toast_rec:'녹화 시작! 완료 후 자동 저장',toast_saved:'영상 저장 완료!',
-    prog_rec:'녹화 중...',prog_save:'파일 저장 중...',prog_done:'저장 완료!',
+    dt:'클릭하거나 파일을 드래그',ds:'.gpx 파일을 업로드하세요',
+    lc:'선 색상',lw:'선 두께',lo:'투명도',ld:'선 스타일',
+    mkt:'마커 종류',mkc:'마커 색상',mks:'마커 크기',tr:'경로 표시',tl:'꼬리 길이',
+    sp:'속도',fm:'팔로우 모드',sd:'시작 대기',ed:'종료 대기',
+    res:'해상도',br:'비트레이트',rw:'너비',rh:'높이',
+    os:'실선',od:'점선',oo:'점',of:'전체 경로',ot:'꼬리만',on2:'마커만',
+    ofw:'마커 따라가기',oft:'전체 경로 고정',ocu:'직접 입력',
+    mp:'사람',mb:'자전거',ms2:'스쿠터',mc:'자동차',
+    bprev:'미리보기',brec:'녹화 시작',bstp:'녹화 중지 & 저장',
+    recNote:'녹화 중 지도를 별도 캔버스에 합성 렌더링합니다.',
+    // stats
+    st_dist:'거리',st_pct:'진행률',st_pt:'포인트',
+    st_spd:'현재 속도',st_aspd:'평균 속도',st_mspd:'최고 속도',
+    st_time:'경과 시간',st_gtime:'GPS 경과 시간',st_rem:'남은 거리',
+    st_alt:'현재 고도',st_amax:'최고 고도',st_amin:'최저 고도',st_again:'누적 상승',
+    st_lat:'현재 위도',st_lon:'현재 경도',st_bear:'방향',
+    // toasts
+    tl2:'개 포인트 로드됨',trec:'녹화 시작! 완료 후 자동 저장',tsaved:'영상 저장 완료!',
+    prec:'녹화 중...',psave:'파일 저장 중...',pdone:'저장 완료!',
+    notime:'⚠ 이 GPX에 timestamp가 없어 GPS기반 시간/속도 통계는 애니메이션 기준으로 표시됩니다',
   },
   en:{
     sec_file:'GPX File',sec_line:'Line Style',sec_mk:'Marker',
     sec_st:'Stats Overlay Items',sec_anim:'Animation',sec_vid:'Video Output',sec_run:'Run',
-    drop_t:'Click or drag file here',drop_s:'Upload your .gpx file',
-    lbl_lc:'Line color',lbl_lw:'Line width',lbl_lo:'Opacity',lbl_ld:'Line style',
-    lbl_mkt:'Marker type',lbl_mc:'Marker color',lbl_ms:'Marker size',
-    lbl_tr:'Trail display',lbl_tl:'Tail length',
-    lbl_sp:'Speed',lbl_fm:'Follow mode',lbl_sd:'Start delay',lbl_ed:'End delay',
-    lbl_res:'Resolution',lbl_br:'Bitrate',lbl_w:'Width',lbl_h:'Height',
-    opt_solid:'Solid',opt_dashed:'Dashed',opt_dotted:'Dotted',
-    opt_full:'Full path',opt_tail:'Tail only',opt_none:'Marker only',
-    opt_fw:'Follow marker',opt_ft:'Fit full path',opt_cus:'Custom',
-    mk_p:'Person',mk_b:'Bicycle',mk_s:'Scooter',mk_c:'Car',
-    btn_prev:'Preview',btn_rec:'Start Recording',btn_stp:'Stop & Save',
-    st_dist:'Distance',st_pt:'Points',st_alt:'Altitude',
-    st_altmax:'Max Altitude',st_altmin:'Min Altitude',st_altgain:'Elevation Gain',
-    st_speed:'Speed',st_avgspeed:'Avg Speed',st_maxspeed:'Max Speed',
-    st_time:'Elapsed Time',st_remain:'Remaining',st_pct:'Progress',
-    st_lat:'Latitude',st_lon:'Longitude',st_bearing:'Bearing',
-    toast_load:' points loaded',toast_rec:'Recording! Auto-saves when done.',toast_saved:'Video saved!',
-    prog_rec:'Recording...',prog_save:'Saving file...',prog_done:'Saved!',
+    dt:'Click or drag file here',ds:'Upload your .gpx file',
+    lc:'Line color',lw:'Line width',lo:'Opacity',ld:'Line style',
+    mkt:'Marker type',mkc:'Marker color',mks:'Marker size',tr:'Trail display',tl:'Tail length',
+    sp:'Speed',fm:'Follow mode',sd:'Start delay',ed:'End delay',
+    res:'Resolution',br:'Bitrate',rw:'Width',rh:'Height',
+    os:'Solid',od:'Dashed',oo:'Dotted',of:'Full path',ot:'Tail only',on2:'Marker only',
+    ofw:'Follow marker',oft:'Fit full path',ocu:'Custom',
+    mp:'Person',mb:'Bicycle',ms2:'Scooter',mc:'Car',
+    bprev:'Preview',brec:'Start Recording',bstp:'Stop & Save',
+    recNote:'Map is composited onto a separate canvas during recording.',
+    st_dist:'Distance',st_pct:'Progress',st_pt:'Points',
+    st_spd:'Speed',st_aspd:'Avg Speed',st_mspd:'Max Speed',
+    st_time:'Anim. Elapsed',st_gtime:'GPS Elapsed',st_rem:'Remaining',
+    st_alt:'Altitude',st_amax:'Max Altitude',st_amin:'Min Altitude',st_again:'Elev. Gain',
+    st_lat:'Latitude',st_lon:'Longitude',st_bear:'Bearing',
+    tl2:' points loaded',trec:'Recording! Auto-saves when done.',tsaved:'Video saved!',
+    prec:'Recording...',psave:'Saving...',pdone:'Saved!',
+    notime:'⚠ No timestamps in GPX. Speed/time stats use animation timing.',
   },
   vi:{
     sec_file:'Tệp GPX',sec_line:'Kiểu Đường',sec_mk:'Điểm Đánh Dấu',
     sec_st:'Mục Thống Kê',sec_anim:'Hoạt Hình',sec_vid:'Xuất Video',sec_run:'Chạy',
-    drop_t:'Nhấp hoặc kéo tệp vào đây',drop_s:'Tải lên tệp .gpx của bạn',
-    lbl_lc:'Màu đường',lbl_lw:'Độ dày',lbl_lo:'Độ trong suốt',lbl_ld:'Kiểu đường',
-    lbl_mkt:'Loại điểm',lbl_mc:'Màu điểm',lbl_ms:'Kích thước',
-    lbl_tr:'Hiển thị đường',lbl_tl:'Độ dài đuôi',
-    lbl_sp:'Tốc độ',lbl_fm:'Chế độ theo dõi',lbl_sd:'Trễ bắt đầu',lbl_ed:'Trễ kết thúc',
-    lbl_res:'Độ phân giải',lbl_br:'Tốc độ bit',lbl_w:'Chiều rộng',lbl_h:'Chiều cao',
-    opt_solid:'Nét liền',opt_dashed:'Nét đứt',opt_dotted:'Chấm tròn',
-    opt_full:'Toàn bộ đường',opt_tail:'Chỉ đuôi',opt_none:'Chỉ điểm',
-    opt_fw:'Theo điểm đánh dấu',opt_ft:'Cố định toàn đường',opt_cus:'Tùy chỉnh',
-    mk_p:'Người',mk_b:'Xe đạp',mk_s:'Xe máy',mk_c:'Ô tô',
-    btn_prev:'Xem trước',btn_rec:'Bắt đầu quay',btn_stp:'Dừng & Lưu',
-    st_dist:'Khoảng cách',st_pt:'Điểm',st_alt:'Độ cao hiện tại',
-    st_altmax:'Độ cao tối đa',st_altmin:'Độ cao tối thiểu',st_altgain:'Tổng lên dốc',
-    st_speed:'Tốc độ hiện tại',st_avgspeed:'Tốc độ TB',st_maxspeed:'Tốc độ tối đa',
-    st_time:'Thời gian trôi qua',st_remain:'Còn lại',st_pct:'Tiến độ',
-    st_lat:'Vĩ độ',st_lon:'Kinh độ',st_bearing:'Hướng',
-    toast_load:' điểm đã tải',toast_rec:'Đang quay! Tự động lưu khi xong.',toast_saved:'Đã lưu video!',
-    prog_rec:'Đang quay...',prog_save:'Đang lưu...',prog_done:'Đã lưu!',
+    dt:'Nhấp hoặc kéo tệp vào đây',ds:'Tải lên tệp .gpx của bạn',
+    lc:'Màu đường',lw:'Độ dày',lo:'Độ trong suốt',ld:'Kiểu đường',
+    mkt:'Loại điểm',mkc:'Màu điểm',mks:'Kích thước',tr:'Hiển thị đường',tl:'Độ dài đuôi',
+    sp:'Tốc độ',fm:'Chế độ theo dõi',sd:'Trễ bắt đầu',ed:'Trễ kết thúc',
+    res:'Độ phân giải',br:'Tốc độ bit',rw:'Chiều rộng',rh:'Chiều cao',
+    os:'Nét liền',od:'Nét đứt',oo:'Chấm',of:'Toàn bộ đường',ot:'Chỉ đuôi',on2:'Chỉ điểm',
+    ofw:'Theo điểm',oft:'Cố định',ocu:'Tùy chỉnh',
+    mp:'Người',mb:'Xe đạp',ms2:'Xe máy',mc:'Ô tô',
+    bprev:'Xem trước',brec:'Bắt đầu quay',bstp:'Dừng & Lưu',
+    recNote:'Bản đồ được kết xuất vào canvas riêng trong khi quay.',
+    st_dist:'Khoảng cách',st_pct:'Tiến độ',st_pt:'Điểm',
+    st_spd:'Tốc độ hiện tại',st_aspd:'Tốc độ TB',st_mspd:'Tốc độ tối đa',
+    st_time:'TG hoạt hình',st_gtime:'TG GPS',st_rem:'Còn lại',
+    st_alt:'Độ cao',st_amax:'Độ cao tối đa',st_amin:'Độ cao tối thiểu',st_again:'Tổng lên dốc',
+    st_lat:'Vĩ độ',st_lon:'Kinh độ',st_bear:'Hướng',
+    tl2:' điểm đã tải',trec:'Đang quay! Tự động lưu.',tsaved:'Đã lưu video!',
+    prec:'Đang quay...',psave:'Đang lưu...',pdone:'Đã lưu!',
+    notime:'⚠ GPX không có timestamp. Thống kê dùng thời gian hoạt hình.',
   }
 };
 let lang='ko';
@@ -420,112 +340,98 @@ function setLang(l){
   lang=l;
   document.querySelectorAll('.lb').forEach(b=>b.classList.remove('on'));
   document.querySelector(`.lb[onclick="setLang('${l}')"]`).classList.add('on');
-  applyI18n(); buildStatToggles(); renderStatsOverlay();
+  applyI18n(); buildToggles(); rebuildOverlay();
 }
 function applyI18n(){
   document.querySelectorAll('[data-i]').forEach(el=>{
-    const v=t(el.getAttribute('data-i')); if(v) el.textContent=v;
+    const v=t(el.getAttribute('data-i'));if(v)el.textContent=v;
   });
 }
 
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // STAT DEFINITIONS
-// ══════════════════════════════════════════════════
-const STAT_DEFS = [
-  {id:'dist',   icon:'📏', key:'st_dist',    defaultOn:true},
-  {id:'pct',    icon:'📊', key:'st_pct',     defaultOn:true},
-  {id:'pt',     icon:'📍', key:'st_pt',      defaultOn:true},
-  {id:'speed',  icon:'⚡', key:'st_speed',   defaultOn:true},
-  {id:'avgspd', icon:'📈', key:'st_avgspeed',defaultOn:true},
-  {id:'maxspd', icon:'🏁', key:'st_maxspeed',defaultOn:false},
-  {id:'time',   icon:'⏱', key:'st_time',    defaultOn:true},
-  {id:'remain', icon:'🔜', key:'st_remain',  defaultOn:false},
-  {id:'alt',    icon:'⛰', key:'st_alt',     defaultOn:true},
-  {id:'altmax', icon:'🔺', key:'st_altmax',  defaultOn:false},
-  {id:'altmin', icon:'🔻', key:'st_altmin',  defaultOn:false},
-  {id:'altgain',icon:'📶', key:'st_altgain', defaultOn:false},
-  {id:'lat',    icon:'🌐', key:'st_lat',     defaultOn:false},
-  {id:'lon',    icon:'🌍', key:'st_lon',     defaultOn:false},
-  {id:'bear',   icon:'🧭', key:'st_bearing', defaultOn:false},
+// ════════════════════════════════════════════════════
+const SDEFS=[
+  {id:'dist', icon:'📏',key:'st_dist', on:true},
+  {id:'pct',  icon:'📊',key:'st_pct',  on:true},
+  {id:'pt',   icon:'📍',key:'st_pt',   on:true},
+  {id:'spd',  icon:'⚡',key:'st_spd',  on:true},
+  {id:'aspd', icon:'📈',key:'st_aspd', on:true},
+  {id:'mspd', icon:'🏁',key:'st_mspd', on:false},
+  {id:'gtime',icon:'🕐',key:'st_gtime',on:true},
+  {id:'time', icon:'⏱',key:'st_time', on:false},
+  {id:'rem',  icon:'🔜',key:'st_rem',  on:false},
+  {id:'alt',  icon:'⛰',key:'st_alt',  on:true},
+  {id:'amax', icon:'🔺',key:'st_amax', on:false},
+  {id:'amin', icon:'🔻',key:'st_amin', on:false},
+  {id:'again',icon:'📶',key:'st_again',on:false},
+  {id:'lat',  icon:'🌐',key:'st_lat',  on:false},
+  {id:'lon',  icon:'🌍',key:'st_lon',  on:false},
+  {id:'bear', icon:'🧭',key:'st_bear', on:false},
 ];
-let statEnabled = {};
-STAT_DEFS.forEach(d=>{ statEnabled[d.id]=d.defaultOn; });
+let stOn={};
+SDEFS.forEach(d=>{stOn[d.id]=d.on});
 
-function buildStatToggles(){
-  const container=document.getElementById('statToggles');
-  container.innerHTML='';
-  STAT_DEFS.forEach(d=>{
-    const on=statEnabled[d.id];
+function buildToggles(){
+  const c=document.getElementById('stToggles'); c.innerHTML='';
+  SDEFS.forEach(d=>{
     const el=document.createElement('div');
-    el.className='st-tog'+(on?' on':'');
-    el.innerHTML=`<span class="st-icon">${d.icon}</span><span class="st-name">${t(d.key)}</span><div class="tog-pill"></div>`;
-    el.onclick=()=>{ statEnabled[d.id]=!statEnabled[d.id]; el.classList.toggle('on'); renderStatsOverlay(); };
-    container.appendChild(el);
+    el.className='sto'+(stOn[d.id]?' on':'');
+    el.innerHTML=`<span class="si">${d.icon}</span><span class="sn">${t(d.key)}</span><div class="pill"></div>`;
+    el.onclick=()=>{stOn[d.id]=!stOn[d.id];el.classList.toggle('on');rebuildOverlay();};
+    c.appendChild(el);
   });
 }
 
-function renderStatsOverlay(){
-  const overlay=document.getElementById('statsOverlay');
-  overlay.innerHTML='';
-  STAT_DEFS.filter(d=>statEnabled[d.id]).forEach(d=>{
-    const row=document.createElement('div');
-    row.className='so-row';
-    row.innerHTML=`<span class="so-lbl">${d.icon} ${t(d.key)}</span><span class="so-val" id="sv_${d.id}">—</span>`;
-    overlay.appendChild(row);
+function rebuildOverlay(){
+  const ov=document.getElementById('stOvl'); ov.innerHTML='';
+  SDEFS.filter(d=>stOn[d.id]).forEach(d=>{
+    const r=document.createElement('div'); r.className='sor';
+    r.innerHTML=`<span class="sol">${d.icon} ${t(d.key)}</span><span class="sov" id="sv_${d.id}">—</span>`;
+    ov.appendChild(r);
   });
+  const anyOn=SDEFS.some(d=>stOn[d.id]);
+  if(animPoints.length>0) ov.style.display=anyOn?'block':'none';
 }
 
-// ══════════════════════════════════════════════════
-// SIDEBAR TOGGLE
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════════
 function toggleSB(){
-  document.body.classList.toggle('sb-hidden');
+  document.body.classList.toggle('sbh');
   setTimeout(()=>map.invalidateSize(),340);
 }
 
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // STATE
-// ══════════════════════════════════════════════════
-let gpxPoints=[], gpxTotalDist=0;
+// ════════════════════════════════════════════════════
+let gpxPoints=[], gpxTotalDist=0, gpxHasTime=false;
 let map, drawnPolyline, animMarker, animPolyline;
 let animFrame=null, animIndex=0, animPoints=[];
 let isRecording=false, mediaRecorder=null, recordedChunks=[];
-let selectedMarker='person';
-let maxSpeedSeen=0, totalElapsed=0, lastTimestamp=null, elapsedAtPause=0;
-const MK_EMOJI={person:'🚶',bike:'🚴',scooter:'🛵',car:'🚗'};
+let selMk='person', maxSpd=0, animStartTs=null;
+const MKE={person:'🚶',bike:'🚴',scooter:'🛵',car:'🚗'};
 
-// ══════════════════════════════════════════════════
-// MAP INIT — force Canvas renderer so captureStream works
-// ══════════════════════════════════════════════════
-map = L.map('map', {
-  zoomControl:true,
-  attributionControl:true,
-  preferCanvas:true,          // ← key fix: use canvas renderer
-  renderer: L.canvas()
-});
+// ════════════════════════════════════════════════════
+// MAP — standard SVG renderer (tiles render properly for preview)
+// Recording uses a separate composited canvas approach
+// ════════════════════════════════════════════════════
+map=L.map('map',{zoomControl:true,attributionControl:true});
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
-  attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19
+  attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:19,crossOrigin:true
 }).addTo(map);
 map.setView([37.5665,126.9780],13);
 
-// ══════════════════════════════════════════════════
-// RANGE LIVE LABELS
-// ══════════════════════════════════════════════════
-[
-  ['lineWeight','lwV',v=>v+'px'],
-  ['lineOpacity','loV',v=>v+'%'],
-  ['markerSize','msV',v=>v+'px'],
-  ['speed','spV',v=>v+' pt/f'],
-  ['fps','fpsV',v=>v],
-  ['startDelay','sdV',v=>v+'s'],
-  ['endDelay','edV',v=>v+'s'],
-  ['bitrate','brV',v=>v+' Mbps'],
-  ['tailLen','tlV',v=>v],
-].forEach(([id,lid,fmt])=>{
-  document.getElementById(id).addEventListener('input',e=>{
-    document.getElementById(lid).textContent=fmt(e.target.value);
-  });
-});
+// ════════════════════════════════════════════════════
+// RANGE LABELS
+// ════════════════════════════════════════════════════
+[['lineWeight','lwV',v=>v+'px'],['lineOpacity','loV',v=>v+'%'],
+ ['markerSize','msV',v=>v+'px'],['speed','spV',v=>v+' pt/f'],
+ ['fps','fpsV',v=>v],['startDelay','sdV',v=>v+'s'],['endDelay','edV',v=>v+'s'],
+ ['bitrate','brV',v=>v+' Mbps'],['tailLen','tlV',v=>v]
+].forEach(([id,lid,f])=>document.getElementById(id).addEventListener('input',e=>{
+  document.getElementById(lid).textContent=f(e.target.value);
+}));
 document.getElementById('showTrail').addEventListener('change',e=>{
   document.getElementById('tailRow').style.display=e.target.value==='tail'?'flex':'none';
 });
@@ -533,106 +439,67 @@ document.getElementById('resPreset').addEventListener('change',e=>{
   document.getElementById('cusRes').style.display=e.target.value==='custom'?'grid':'none';
 });
 
-// ══════════════════════════════════════════════════
-// MARKER PICKER
-// ══════════════════════════════════════════════════
-function pickMarker(el){
-  document.querySelectorAll('.mk-opt').forEach(o=>o.classList.remove('on'));
-  el.classList.add('on');
-  selectedMarker=el.getAttribute('data-m');
+// ════════════════════════════════════════════════════
+// MARKER
+// ════════════════════════════════════════════════════
+function pickM(el){
+  document.querySelectorAll('.mko').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on'); selMk=el.getAttribute('data-m');
 }
-
-function makeMarker(lat,lon,type,size,color){
-  const emoji=MK_EMOJI[type]||'🚶';
-  const sz=parseInt(size);
-  return L.marker([lat,lon],{
-    icon:L.divIcon({
-      className:'',
-      html:`<div style="width:${sz}px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.72)}px;line-height:1;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4));background:${color}22;border:2.5px solid ${color};border-radius:50%">${emoji}</div>`,
-      iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
-    }),
-    zIndexOffset:1000
+function mkIcon(type,size,color){
+  const e=MKE[type]||'🚶', sz=parseInt(size);
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:${sz}px;height:${sz}px;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.72)}px;line-height:1;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4));background:${color}22;border:2.5px solid ${color};border-radius:50%">${e}</div>`,
+    iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
   });
 }
 
-// ══════════════════════════════════════════════════
-// FILE HANDLING
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// FILE
+// ════════════════════════════════════════════════════
 const dz=document.getElementById('dropzone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over')});
 dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])loadGPX(e.dataTransfer.files[0])});
-document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])loadGPX(e.target.files[0])});
+document.getElementById('fi2').addEventListener('change',e=>{if(e.target.files[0])loadGPX(e.target.files[0])});
 
 function loadGPX(file){
   const r=new FileReader();
   r.onload=ev=>{
     try{
       gpxPoints=parseGPX(ev.target.result);
-      if(!gpxPoints.length) throw new Error('No trackpoints found');
+      if(!gpxPoints.length)throw new Error('No trackpoints');
       gpxTotalDist=calcDist(gpxPoints);
-      showFileInfo(file.name);
+      gpxHasTime=gpxPoints.some(p=>p.time);
+      if(!gpxHasTime) toast(t('notime'));
+      showInfo(file.name);
       fitMap(); drawGhost(); enableBtns();
-      toast('✓ '+gpxPoints.length.toLocaleString()+t('toast_load'));
+      toast('✓ '+gpxPoints.length.toLocaleString()+t('tl2'));
     }catch(e){toast('⚠ GPX error: '+e.message)}
   };
   r.readAsText(file);
 }
-
 function parseGPX(xml){
   const doc=new DOMParser().parseFromString(xml,'text/xml');
-  const pts=[];
-  doc.querySelectorAll('trkpt,wpt,rtept').forEach(pt=>{
-    const lat=parseFloat(pt.getAttribute('lat'));
-    const lon=parseFloat(pt.getAttribute('lon'));
-    if(!isNaN(lat)&&!isNaN(lon)){
-      const ele=pt.querySelector('ele');
-      const time=pt.querySelector('time');
-      pts.push({lat,lon,
-        ele:ele?parseFloat(ele.textContent):null,
-        time:time?new Date(time.textContent):null
-      });
-    }
-  });
-  return pts;
+  return [...doc.querySelectorAll('trkpt,wpt,rtept')].map(pt=>{
+    const lat=parseFloat(pt.getAttribute('lat')),lon=parseFloat(pt.getAttribute('lon'));
+    if(isNaN(lat)||isNaN(lon))return null;
+    const ele=pt.querySelector('ele'),time=pt.querySelector('time');
+    return{lat,lon,ele:ele?parseFloat(ele.textContent):null,time:time?new Date(time.textContent):null};
+  }).filter(Boolean);
 }
-
-function showFileInfo(name){
+function showInfo(name){
   const eles=gpxPoints.map(p=>p.ele).filter(e=>e!==null);
   const el=document.getElementById('fileInfo');
   el.style.display='block';
   el.innerHTML=`📄 ${name}<br>📍 ${gpxPoints.length.toLocaleString()} pts · 📏 ${(gpxTotalDist/1000).toFixed(2)} km`
-    +(eles.length?` · ⛰ ${Math.min(...eles).toFixed(0)}–${Math.max(...eles).toFixed(0)} m`:'');
+    +(eles.length?` · ⛰ ${Math.min(...eles).toFixed(0)}–${Math.max(...eles).toFixed(0)} m`:'')
+    +(gpxHasTime?' · 🕐 GPS time':'');
 }
-
-function calcDist(pts){
-  let d=0; for(let i=1;i<pts.length;i++) d+=haversine(pts[i-1],pts[i]); return d;
-}
-function haversine(a,b){
-  const R=6371000,dl=(b.lat-a.lat)*Math.PI/180,dL=(b.lon-a.lon)*Math.PI/180;
-  const x=Math.sin(dl/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dL/2)**2;
-  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
-}
-function calcBearing(a,b){
-  const dL=(b.lon-a.lon)*Math.PI/180;
-  const la=a.lat*Math.PI/180,lb=b.lat*Math.PI/180;
-  const y=Math.sin(dL)*Math.cos(lb);
-  const x=Math.cos(la)*Math.sin(lb)-Math.sin(la)*Math.cos(lb)*Math.cos(dL);
-  const deg=(Math.atan2(y,x)*180/Math.PI+360)%360;
-  const dirs=['N','NE','E','SE','S','SW','W','NW'];
-  return Math.round(deg)+'° '+dirs[Math.round(deg/45)%8];
-}
-function fmtTime(ms){
-  const s=Math.floor(ms/1000);
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;
-  return h?`${h}h ${m}m ${ss}s`:`${m}m ${ss}s`;
-}
-
-function fitMap(){
-  map.fitBounds(L.latLngBounds(gpxPoints.map(p=>[p.lat,p.lon])),{padding:[40,40]});
-}
+function fitMap(){map.fitBounds(L.latLngBounds(gpxPoints.map(p=>[p.lat,p.lon])),{padding:[40,40]})}
 function drawGhost(){
-  if(drawnPolyline) map.removeLayer(drawnPolyline);
+  if(drawnPolyline)map.removeLayer(drawnPolyline);
   drawnPolyline=L.polyline(gpxPoints.map(p=>[p.lat,p.lon]),{color:'#ccc',weight:2,opacity:.5}).addTo(map);
 }
 function enableBtns(){
@@ -640,283 +507,541 @@ function enableBtns(){
   document.getElementById('recordBtn').disabled=false;
 }
 
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// MATH HELPERS
+// ════════════════════════════════════════════════════
+function calcDist(pts){let d=0;for(let i=1;i<pts.length;i++)d+=hav(pts[i-1],pts[i]);return d}
+function hav(a,b){
+  const R=6371000,dl=(b.lat-a.lat)*Math.PI/180,dL=(b.lon-a.lon)*Math.PI/180;
+  const x=Math.sin(dl/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dL/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+function bearing(a,b){
+  const dL=(b.lon-a.lon)*Math.PI/180,la=a.lat*Math.PI/180,lb=b.lat*Math.PI/180;
+  const y=Math.sin(dL)*Math.cos(lb),x=Math.cos(la)*Math.sin(lb)-Math.sin(la)*Math.cos(lb)*Math.cos(dL);
+  const deg=(Math.atan2(y,x)*180/Math.PI+360)%360;
+  return Math.round(deg)+'° '+['N','NE','E','SE','S','SW','W','NW'][Math.round(deg/45)%8];
+}
+function fmtMs(ms){
+  const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;
+  return h?`${h}h ${m}m ${ss}s`:`${m}m ${ss}s`;
+}
+
+// ════════════════════════════════════════════════════
 // SETTINGS
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 function getS(){
-  const preset=document.getElementById('resPreset').value;
+  const p=document.getElementById('resPreset').value;
   let w,h;
-  if(preset==='custom'){w=parseInt(document.getElementById('cusW').value);h=parseInt(document.getElementById('cusH').value);}
-  else{[w,h]=preset.split('x').map(Number);}
+  if(p==='custom'){w=+document.getElementById('cusW').value;h=+document.getElementById('cusH').value;}
+  else[w,h]=p.split('x').map(Number);
   return{
     lineColor:document.getElementById('lineColor').value,
-    lineWeight:parseFloat(document.getElementById('lineWeight').value),
-    lineOpacity:parseInt(document.getElementById('lineOpacity').value)/100,
+    lineWeight:+document.getElementById('lineWeight').value,
+    lineOpacity:+document.getElementById('lineOpacity').value/100,
     lineDash:document.getElementById('lineDash').value,
     markerColor:document.getElementById('markerColor').value,
-    markerSize:parseInt(document.getElementById('markerSize').value),
-    markerType:selectedMarker,
+    markerSize:+document.getElementById('markerSize').value,
+    markerType:selMk,
     showTrail:document.getElementById('showTrail').value,
-    tailLen:parseInt(document.getElementById('tailLen').value),
-    speed:parseInt(document.getElementById('speed').value),
-    fps:parseInt(document.getElementById('fps').value),
+    tailLen:+document.getElementById('tailLen').value,
+    speed:+document.getElementById('speed').value,
+    fps:+document.getElementById('fps').value,
     followMode:document.getElementById('followMode').value,
-    startDelay:parseFloat(document.getElementById('startDelay').value),
-    endDelay:parseFloat(document.getElementById('endDelay').value),
-    bitrate:parseInt(document.getElementById('bitrate').value),
-    width:w,height:h
+    startDelay:+document.getElementById('startDelay').value,
+    endDelay:+document.getElementById('endDelay').value,
+    bitrate:+document.getElementById('bitrate').value,
+    w,h
   };
 }
 function da(style,w){
-  if(style==='dashed') return [w*4,w*2];
-  if(style==='dotted') return [1,w*2];
+  if(style==='dashed')return[w*4,w*2];
+  if(style==='dotted')return[1,w*2];
   return null;
 }
 
-// ══════════════════════════════════════════════════
-// STATS UPDATE
-// ══════════════════════════════════════════════════
-function updateStats(pts, idx, elapsed){
-  if(!STAT_DEFS.some(d=>statEnabled[d.id])) return;
+// ════════════════════════════════════════════════════
+// STATS — using GPX timestamps when available
+// ════════════════════════════════════════════════════
+function updateStats(pts,idx,animElapsedMs){
+  if(!SDEFS.some(d=>stOn[d.id]))return;
   const cur=pts[pts.length-1];
   const distSoFar=calcDist(pts);
-
-  // speed: use last 2 pts if have time, else estimate
-  let speedKmh=0;
-  if(pts.length>=2){
-    const prev=pts[pts.length-2];
-    const d=haversine(prev,cur);
-    if(cur.time&&prev.time){
-      const dt=(cur.time-prev.time)/1000;
-      speedKmh=dt>0?(d/dt)*3.6:0;
-    } else {
-      // estimate from animation: assume 1 frame gap
-      const s=getS();
-      const dtEstMs=1000/s.fps;
-      speedKmh=(d/(dtEstMs/1000))*3.6;
-    }
-  }
-  if(speedKmh>maxSpeedSeen) maxSpeedSeen=speedKmh;
-
-  const avgSpeedKmh=elapsed>0?(distSoFar/(elapsed/3600000)):0;
-  const pct=gpxPoints.length>0?((idx/gpxPoints.length)*100):0;
+  const eles=pts.map(p=>p.ele).filter(e=>e!==null);
+  const pct=gpxPoints.length>0?idx/gpxPoints.length*100:0;
   const remain=gpxTotalDist-distSoFar;
 
-  const eles=pts.map(p=>p.ele).filter(e=>e!==null);
-  let altGain=0;
-  for(let i=1;i<eles.length;i++) if(eles[i]>eles[i-1]) altGain+=eles[i]-eles[i-1];
+  // elevation gain
+  let again=0;
+  for(let i=1;i<eles.length;i++)if(eles[i]>eles[i-1])again+=eles[i]-eles[i-1];
 
-  const sv=id=>{
-    const el=document.getElementById('sv_'+id);
-    if(!el) return;
-    switch(id){
-      case 'dist':   el.textContent=(distSoFar/1000).toFixed(2)+' km'; break;
-      case 'pct':    el.textContent=pct.toFixed(1)+'%'; break;
-      case 'pt':     el.textContent=idx+' / '+gpxPoints.length; break;
-      case 'speed':  el.textContent=speedKmh.toFixed(1)+' km/h'; break;
-      case 'avgspd': el.textContent=avgSpeedKmh.toFixed(1)+' km/h'; break;
-      case 'maxspd': el.textContent=maxSpeedSeen.toFixed(1)+' km/h'; break;
-      case 'time':   el.textContent=fmtTime(elapsed); break;
-      case 'remain': el.textContent=(remain/1000).toFixed(2)+' km'; break;
-      case 'alt':    el.textContent=eles.length?Math.round(eles[eles.length-1])+' m':'—'; break;
-      case 'altmax': el.textContent=eles.length?Math.round(Math.max(...eles))+' m':'—'; break;
-      case 'altmin': el.textContent=eles.length?Math.round(Math.min(...eles))+' m':'—'; break;
-      case 'altgain':el.textContent=eles.length?Math.round(altGain)+' m':'—'; break;
-      case 'lat':    el.textContent=cur.lat.toFixed(5)+'°'; break;
-      case 'lon':    el.textContent=cur.lon.toFixed(5)+'°'; break;
-      case 'bear':   el.textContent=pts.length>=2?calcBearing(pts[pts.length-2],cur):'—'; break;
+  // ── SPEED: use GPX timestamps if available, else animation timing ──
+  let spdKmh=0;
+  if(pts.length>=2){
+    const prev=pts[pts.length-2],d=hav(prev,cur);
+    if(gpxHasTime&&cur.time&&prev.time){
+      const dtS=(cur.time-prev.time)/1000;
+      spdKmh=dtS>0?(d/dtS)*3.6:0;
+    } else {
+      // fallback: use animation frame interval
+      const s=getS();
+      spdKmh=(d/(1000/s.fps/1000))*3.6;
     }
-  };
-  STAT_DEFS.filter(d=>statEnabled[d.id]).forEach(d=>sv(d.id));
+  }
+  if(spdKmh>maxSpd)maxSpd=spdKmh;
+
+  // ── GPS ELAPSED TIME: first to last point with timestamp ──
+  let gpxElapsedMs=0;
+  if(gpxHasTime&&pts.length>=2){
+    const t0=pts.find(p=>p.time);
+    const tN=[...pts].reverse().find(p=>p.time);
+    if(t0&&tN)gpxElapsedMs=tN.time-t0.time;
+  }
+
+  // ── AVG SPEED: based on GPS elapsed time if available ──
+  let aspdKmh=0;
+  if(gpxHasTime&&gpxElapsedMs>0){
+    aspdKmh=(distSoFar/(gpxElapsedMs/3600000));
+  } else if(animElapsedMs>0){
+    aspdKmh=(distSoFar/(animElapsedMs/3600000));
+  }
+
+  const set=(id,v)=>{const el=document.getElementById('sv_'+id);if(el)el.textContent=v};
+  if(stOn.dist)  set('dist',(distSoFar/1000).toFixed(2)+' km');
+  if(stOn.pct)   set('pct',pct.toFixed(1)+'%');
+  if(stOn.pt)    set('pt',idx+' / '+gpxPoints.length);
+  if(stOn.spd)   set('spd',spdKmh.toFixed(1)+' km/h');
+  if(stOn.aspd)  set('aspd',aspdKmh.toFixed(1)+' km/h');
+  if(stOn.mspd)  set('mspd',maxSpd.toFixed(1)+' km/h');
+  if(stOn.gtime) set('gtime',gpxHasTime?fmtMs(gpxElapsedMs):'—');
+  if(stOn.time)  set('time',fmtMs(animElapsedMs));
+  if(stOn.rem)   set('rem',(remain/1000).toFixed(2)+' km');
+  if(stOn.alt)   set('alt',eles.length?Math.round(eles[eles.length-1])+' m':'—');
+  if(stOn.amax)  set('amax',eles.length?Math.round(Math.max(...eles))+' m':'—');
+  if(stOn.amin)  set('amin',eles.length?Math.round(Math.min(...eles))+' m':'—');
+  if(stOn.again) set('again',Math.round(again)+' m');
+  if(stOn.lat)   set('lat',cur.lat.toFixed(5)+'°');
+  if(stOn.lon)   set('lon',cur.lon.toFixed(5)+'°');
+  if(stOn.bear)  set('bear',pts.length>=2?bearing(pts[pts.length-2],cur):'—');
 }
 
-// ══════════════════════════════════════════════════
-// ANIMATION
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// ANIMATION (preview on Leaflet map)
+// ════════════════════════════════════════════════════
 function clearLayers(){
-  if(animPolyline){map.removeLayer(animPolyline);animPolyline=null;}
-  if(animMarker){map.removeLayer(animMarker);animMarker=null;}
+  if(animPolyline){map.removeLayer(animPolyline);animPolyline=null}
+  if(animMarker){map.removeLayer(animMarker);animMarker=null}
 }
-
 function startPreview(){
-  if(!gpxPoints.length) return;
-  stopAnim(); clearLayers();
-  animIndex=0; animPoints=[]; maxSpeedSeen=0; totalElapsed=0; lastTimestamp=null;
+  if(!gpxPoints.length)return;
+  stopAnim();clearLayers();
+  animIndex=0;animPoints=[];maxSpd=0;animStartTs=null;
   const s=getS();
-  if(drawnPolyline) map.removeLayer(drawnPolyline);
-  drawnPolyline=L.polyline(gpxPoints.map(p=>[p.lat,p.lon]),{
-    color:'#ddd',weight:s.lineWeight,opacity:.4,dashArray:da(s.lineDash,s.lineWeight)
-  }).addTo(map);
-  if(s.followMode==='fit') fitMap();
-  const anyOn=STAT_DEFS.some(d=>statEnabled[d.id]);
-  document.getElementById('statsOverlay').style.display=anyOn?'block':'none';
-  renderStatsOverlay();
+  if(drawnPolyline)map.removeLayer(drawnPolyline);
+  drawnPolyline=L.polyline(gpxPoints.map(p=>[p.lat,p.lon]),
+    {color:'#ddd',weight:s.lineWeight,opacity:.4,dashArray:da(s.lineDash,s.lineWeight)}).addTo(map);
+  if(s.followMode==='fit')fitMap();
+  rebuildOverlay();
+  const anyOn=SDEFS.some(d=>stOn[d.id]);
+  document.getElementById('stOvl').style.display=anyOn&&animPoints.length?'block':'none';
   setTimeout(()=>runAnim(s,false),s.startDelay*1000);
 }
-
 function runAnim(s,recording){
-  const interval=1000/s.fps;
-  let lastFrameTime=0;
-  let animStartTime=null;
-
+  const interval=1000/s.fps; let lastT=0;
   function frame(ts){
-    if(!animStartTime) animStartTime=ts;
-    if(ts-lastFrameTime<interval){animFrame=requestAnimationFrame(frame);return;}
-    lastFrameTime=ts;
-    totalElapsed=ts-animStartTime;
-
+    if(!animStartTs)animStartTs=ts;
+    if(ts-lastT<interval){animFrame=requestAnimationFrame(frame);return}
+    lastT=ts;
     const step=Math.min(s.speed,gpxPoints.length-animIndex);
-    for(let i=0;i<step&&animIndex<gpxPoints.length;i++) animPoints.push(gpxPoints[animIndex++]);
-
+    for(let i=0;i<step&&animIndex<gpxPoints.length;i++)animPoints.push(gpxPoints[animIndex++]);
     // polyline
-    if(animPolyline) map.removeLayer(animPolyline);
+    if(animPolyline)map.removeLayer(animPolyline);
     let dPts=animPoints;
-    if(s.showTrail==='tail') dPts=animPoints.slice(-s.tailLen);
-    if(s.showTrail==='none') dPts=[];
-    if(dPts.length>1){
-      animPolyline=L.polyline(dPts.map(p=>[p.lat,p.lon]),{
-        color:s.lineColor,weight:s.lineWeight,opacity:s.lineOpacity,
-        dashArray:da(s.lineDash,s.lineWeight),lineCap:'round',lineJoin:'round'
-      }).addTo(map);
-    }
-
+    if(s.showTrail==='tail')dPts=animPoints.slice(-s.tailLen);
+    if(s.showTrail==='none')dPts=[];
+    if(dPts.length>1)animPolyline=L.polyline(dPts.map(p=>[p.lat,p.lon]),
+      {color:s.lineColor,weight:s.lineWeight,opacity:s.lineOpacity,
+       dashArray:da(s.lineDash,s.lineWeight),lineCap:'round',lineJoin:'round'}).addTo(map);
     // marker
     const cur=animPoints[animPoints.length-1];
-    if(animMarker) map.removeLayer(animMarker);
-    animMarker=makeMarker(cur.lat,cur.lon,s.markerType,s.markerSize,s.markerColor);
-    animMarker.addTo(map);
-
-    if(s.followMode==='follow') map.setView([cur.lat,cur.lon],map.getZoom(),{animate:true,duration:.3});
-
+    if(animMarker)map.removeLayer(animMarker);
+    animMarker=L.marker([cur.lat,cur.lon],{icon:mkIcon(s.markerType,s.markerSize,s.markerColor),zIndexOffset:1000}).addTo(map);
+    if(s.followMode==='follow')map.setView([cur.lat,cur.lon],map.getZoom(),{animate:true,duration:.3});
     // stats
-    const anyOn=STAT_DEFS.some(d=>statEnabled[d.id]);
-    document.getElementById('statsOverlay').style.display=anyOn?'block':'none';
-    if(anyOn) updateStats(animPoints,animIndex,totalElapsed);
-
-    if(animIndex<gpxPoints.length){
-      animFrame=requestAnimationFrame(frame);
-    } else {
-      setTimeout(()=>{if(recording) stopRecording();},s.endDelay*1000);
-    }
+    const anyOn=SDEFS.some(d=>stOn[d.id]);
+    document.getElementById('stOvl').style.display=anyOn?'block':'none';
+    if(anyOn)updateStats(animPoints,animIndex,ts-animStartTs);
+    if(animIndex<gpxPoints.length){animFrame=requestAnimationFrame(frame);}
+    else{setTimeout(()=>{if(recording)stopRecording();},s.endDelay*1000);}
   }
   animFrame=requestAnimationFrame(frame);
 }
+function stopAnim(){if(animFrame){cancelAnimationFrame(animFrame);animFrame=null}}
 
-function stopAnim(){
-  if(animFrame){cancelAnimationFrame(animFrame);animFrame=null;}
+// ════════════════════════════════════════════════════
+// RECORDING — composited canvas approach
+// We draw: 1) map tiles (fetched as images) 2) route 3) marker 4) stats text
+// onto an offscreen canvas, then captureStream from that canvas.
+// ════════════════════════════════════════════════════
+let recCvs=null, recCtx=null, recStream=null;
+let tileCache={};   // url -> HTMLImageElement (loaded)
+const TILE_SIZE=256;
+
+// Convert lat/lon to tile coordinates at a given zoom
+function latLonToTile(lat,lon,zoom){
+  const n=Math.pow(2,zoom);
+  const x=(lon+180)/360*n;
+  const latRad=lat*Math.PI/180;
+  const y=(1-Math.log(Math.tan(latRad)+1/Math.cos(latRad))/Math.PI)/2*n;
+  return{x,y};
+}
+// Convert tile coords to lat/lon (top-left corner of tile)
+function tileToLatLon(tx,ty,zoom){
+  const n=Math.pow(2,zoom);
+  const lon=tx/n*360-180;
+  const latRad=Math.atan(Math.sinh(Math.PI*(1-2*ty/n)));
+  return{lat:latRad*180/Math.PI,lon};
 }
 
-// ══════════════════════════════════════════════════
-// RECORDING — captures map container via html-to-canvas approach
-// Uses the Leaflet canvas layer + a screenshot canvas
-// ══════════════════════════════════════════════════
+// Project a lat/lon to canvas pixel given map bounds
+function project(lat,lon,bounds,cw,ch){
+  const minLat=bounds.getSouth(),maxLat=bounds.getNorth();
+  const minLon=bounds.getWest(),maxLon=bounds.getEast();
+  const x=(lon-minLon)/(maxLon-minLon)*cw;
+  const y=(maxLat-lat)/(maxLat-minLat)*ch;
+  return{x,y};
+}
+
+async function loadTile(url){
+  if(tileCache[url])return tileCache[url];
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.crossOrigin='anonymous';
+    img.onload=()=>{tileCache[url]=img;resolve(img)};
+    img.onerror=()=>resolve(null);
+    img.src=url;
+  });
+}
+
+async function drawTilesOnCanvas(ctx,cw,ch,bounds,zoom){
+  const subdomains=['a','b','c','d'];
+  // get tile range
+  const nw=latLonToTile(bounds.getNorth(),bounds.getWest(),zoom);
+  const se=latLonToTile(bounds.getSouth(),bounds.getEast(),zoom);
+  const txMin=Math.floor(nw.x), txMax=Math.floor(se.x);
+  const tyMin=Math.floor(nw.y), tyMax=Math.floor(se.y);
+
+  const promises=[];
+  for(let ty=tyMin;ty<=tyMax;ty++){
+    for(let tx=txMin;tx<=txMax;tx++){
+      const sd=subdomains[(tx+ty)%subdomains.length];
+      const url=`https://${sd}.basemaps.cartocdn.com/rastertiles/voyager/${zoom}/${tx}/${ty}.png`;
+      // compute pixel position of this tile's top-left on canvas
+      const tileTopLeft=tileToLatLon(tx,ty,zoom);
+      const tileBottomRight=tileToLatLon(tx+1,ty+1,zoom);
+      const p1=project(tileTopLeft.lat,tileTopLeft.lon,bounds,cw,ch);
+      const p2=project(tileBottomRight.lat,tileBottomRight.lon,bounds,cw,ch);
+      const tw=p2.x-p1.x, th=p2.y-p1.y;
+      promises.push(loadTile(url).then(img=>{
+        if(img)ctx.drawImage(img,p1.x,p1.y,tw,th);
+      }));
+    }
+  }
+  await Promise.all(promises);
+}
+
+function drawRouteOnCanvas(ctx,pts,s,bounds,cw,ch){
+  if(pts.length<2)return;
+  ctx.save();
+  ctx.strokeStyle=s.lineColor;
+  ctx.lineWidth=s.lineWeight;
+  ctx.globalAlpha=s.lineOpacity;
+  ctx.lineCap='round';ctx.lineJoin='round';
+  if(s.lineDash==='dashed')ctx.setLineDash([s.lineWeight*4,s.lineWeight*2]);
+  else if(s.lineDash==='dotted')ctx.setLineDash([1,s.lineWeight*2]);
+  else ctx.setLineDash([]);
+  ctx.beginPath();
+  pts.forEach((p,i)=>{
+    const{x,y}=project(p.lat,p.lon,bounds,cw,ch);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawMarkerOnCanvas(ctx,pt,s,bounds,cw,ch){
+  const{x,y}=project(pt.lat,pt.lon,bounds,cw,ch);
+  const sz=s.markerSize;
+  const r=sz/2+3;
+  ctx.save();
+  // circle bg
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=s.markerColor+'33';
+  ctx.fill();
+  // border
+  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.strokeStyle=s.markerColor;ctx.lineWidth=2.5;
+  ctx.stroke();
+  // emoji
+  ctx.font=`${Math.round(sz*.72)}px serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(MKE[s.markerType]||'🚶',x,y);
+  ctx.restore();
+}
+
+function drawGhostOnCanvas(ctx,bounds,cw,ch){
+  if(!gpxPoints.length)return;
+  ctx.save();
+  ctx.strokeStyle='#cccccc';ctx.lineWidth=2;ctx.globalAlpha=.4;ctx.setLineDash([]);
+  ctx.beginPath();
+  gpxPoints.forEach((p,i)=>{
+    const{x,y}=project(p.lat,p.lon,bounds,cw,ch);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();ctx.restore();
+}
+
+function drawStatsOnCanvas(ctx,pts,idx,animElapsed,cw,ch){
+  if(!SDEFS.some(d=>stOn[d.id]))return;
+  // same calculation as updateStats
+  const cur=pts[pts.length-1];
+  const distSoFar=calcDist(pts);
+  const eles=pts.map(p=>p.ele).filter(e=>e!==null);
+  const pct=gpxPoints.length>0?idx/gpxPoints.length*100:0;
+  const remain=gpxTotalDist-distSoFar;
+  let again=0;for(let i=1;i<eles.length;i++)if(eles[i]>eles[i-1])again+=eles[i]-eles[i-1];
+  let spdKmh=0;
+  if(pts.length>=2){
+    const prev=pts[pts.length-2],d=hav(prev,cur);
+    if(gpxHasTime&&cur.time&&prev.time){const dt=(cur.time-prev.time)/1000;spdKmh=dt>0?(d/dt)*3.6:0;}
+    else{const s=getS();spdKmh=(d/(1000/s.fps/1000))*3.6;}
+  }
+  let gpxElapsedMs=0;
+  if(gpxHasTime&&pts.length>=2){
+    const t0=pts.find(p=>p.time),tN=[...pts].reverse().find(p=>p.time);
+    if(t0&&tN)gpxElapsedMs=tN.time-t0.time;
+  }
+  const s2=getS();
+  let aspdKmh=gpxHasTime&&gpxElapsedMs>0?(distSoFar/(gpxElapsedMs/3600000)):
+    animElapsed>0?(distSoFar/(animElapsed/3600000)):0;
+
+  const vals={
+    dist:(distSoFar/1000).toFixed(2)+' km',pct:pct.toFixed(1)+'%',
+    pt:idx+' / '+gpxPoints.length,
+    spd:spdKmh.toFixed(1)+' km/h',aspd:aspdKmh.toFixed(1)+' km/h',mspd:maxSpd.toFixed(1)+' km/h',
+    gtime:gpxHasTime?fmtMs(gpxElapsedMs):'—',time:fmtMs(animElapsed),
+    rem:(remain/1000).toFixed(2)+' km',
+    alt:eles.length?Math.round(eles[eles.length-1])+' m':'—',
+    amax:eles.length?Math.round(Math.max(...eles))+' m':'—',
+    amin:eles.length?Math.round(Math.min(...eles))+' m':'—',
+    again:Math.round(again)+' m',
+    lat:cur.lat.toFixed(5)+'°',lon:cur.lon.toFixed(5)+'°',
+    bear:pts.length>=2?bearing(pts[pts.length-2],cur):'—'
+  };
+
+  const active=SDEFS.filter(d=>stOn[d.id]);
+  if(!active.length)return;
+
+  const lineH=22, pad=14, labelW=100;
+  const boxW=240, boxH=active.length*lineH+pad*2;
+  const bx=14,by=ch-boxH-28;
+
+  ctx.save();
+  // box
+  ctx.fillStyle='rgba(12,10,8,.88)';
+  roundRect(ctx,bx,by,boxW,boxH,10);ctx.fill();
+  // text
+  ctx.font='bold 11px monospace';
+  active.forEach((d,i)=>{
+    const y=by+pad+(i+.72)*lineH;
+    ctx.fillStyle='#888';
+    ctx.textAlign='left';
+    ctx.fillText(d.icon+' '+t(d.key),bx+10,y);
+    ctx.fillStyle='#fff';
+    ctx.textAlign='right';
+    ctx.fillText(vals[d.id]||'—',bx+boxW-10,y);
+  });
+  ctx.restore();
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
+}
+
+function getRecZoom(){
+  // Use a zoom level slightly lower than current for tile coverage comfort
+  return Math.min(map.getZoom(),16);
+}
+
+async function renderRecFrame(s,bounds,cw,ch,pts,idx,animElapsed){
+  const zoom=getRecZoom();
+  recCtx.clearRect(0,0,cw,ch);
+  // 1. tiles
+  await drawTilesOnCanvas(recCtx,cw,ch,bounds,zoom);
+  // 2. ghost
+  drawGhostOnCanvas(recCtx,bounds,cw,ch);
+  // 3. route
+  let dPts=pts;
+  if(s.showTrail==='tail')dPts=pts.slice(-s.tailLen);
+  if(s.showTrail==='none')dPts=[];
+  drawRouteOnCanvas(recCtx,dPts,s,bounds,cw,ch);
+  // 4. marker
+  if(pts.length)drawMarkerOnCanvas(recCtx,pts[pts.length-1],s,bounds,cw,ch);
+  // 5. stats
+  drawStatsOnCanvas(recCtx,pts,idx,animElapsed,cw,ch);
+}
+
 function startRecording(){
-  if(!gpxPoints.length) return;
-  stopAnim(); clearLayers();
+  if(!gpxPoints.length)return;
+  stopAnim();clearLayers();
   const s=getS();
   if(!window.MediaRecorder){toast('⚠ MediaRecorder not supported');return;}
 
-  // With preferCanvas:true, Leaflet draws to a <canvas> inside the map pane
-  // We try map pane canvas first, then fall back to mapWrap canvas
-  const mapEl=document.getElementById('map');
-  const mapWrapEl=document.getElementById('mapWrap');
+  // Setup recording canvas
+  recCvs=document.getElementById('recCvs');
+  recCvs.width=s.w; recCvs.height=s.h;
+  recCvs.style.display='block';
+  recCtx=recCvs.getContext('2d');
 
-  // Force map to re-render into canvas
-  map.invalidateSize();
-
-  // Find any canvas — could be inside .leaflet-canvas-pane or direct child
-  let srcCanvas = mapEl.querySelector('canvas')
-    || mapWrapEl.querySelector('canvas');
-
-  if(!srcCanvas){
-    // Last resort: create our own recording canvas and draw map tiles manually
-    toast('⚠ Canvas 없음: 미리보기를 먼저 실행하거나 잠시 후 다시 시도하세요');
-    return;
+  // Determine map bounds for projection
+  // Use current map bounds, or fit to GPX
+  let bounds;
+  if(s.followMode==='fit'){
+    bounds=L.latLngBounds(gpxPoints.map(p=>[p.lat,p.lon])).pad(0.05);
+  } else {
+    // start with full bounds; will update per-frame in follow mode
+    bounds=L.latLngBounds(gpxPoints.map(p=>[p.lat,p.lon])).pad(0.05);
   }
-
-  let stream;
-  try{ stream=srcCanvas.captureStream(s.fps); }
-  catch(e){ toast('⚠ captureStream 실패: '+e.message); return; }
 
   const mimes=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
   const mimeType=mimes.find(m=>MediaRecorder.isTypeSupported(m))||'';
-  if(!mimeType){toast('⚠ 지원하는 비디오 포맷 없음');return;}
+  if(!mimeType){toast('⚠ No supported video format');return;}
 
   recordedChunks=[];
-  try{ mediaRecorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:s.bitrate*1_000_000}); }
-  catch(e){toast('⚠ MediaRecorder 초기화 실패');return;}
+  let stream;
+  try{stream=recCvs.captureStream(s.fps);}
+  catch(e){toast('⚠ captureStream failed: '+e.message);return;}
+  try{mediaRecorder=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:s.bitrate*1_000_000});}
+  catch(e){toast('⚠ MediaRecorder init failed');return;}
 
-  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data)};
   mediaRecorder.onstop=saveVideo;
   mediaRecorder.start(100);
   isRecording=true;
 
-  document.getElementById('recBadge').style.display='block';
+  document.getElementById('recB').style.display='block';
   document.getElementById('recordBtn').disabled=true;
   document.getElementById('stopBtn').disabled=false;
-  document.getElementById('pgWrap').style.display='block';
-  document.getElementById('pgLabel').textContent=t('prog_rec');
+  document.getElementById('pgW').style.display='block';
+  document.getElementById('recNote').style.display='block';
+  document.getElementById('pgL').textContent=t('prec');
 
-  animIndex=0; animPoints=[]; maxSpeedSeen=0; totalElapsed=0;
-  if(drawnPolyline) map.removeLayer(drawnPolyline);
-  drawnPolyline=L.polyline(gpxPoints.map(p=>[p.lat,p.lon]),{
-    color:'#ddd',weight:s.lineWeight,opacity:.35
-  }).addTo(map);
-  if(s.followMode==='fit') fitMap();
-  const anyOn=STAT_DEFS.some(d=>statEnabled[d.id]);
-  document.getElementById('statsOverlay').style.display=anyOn?'block':'none';
-  renderStatsOverlay();
+  // Hide the regular stats overlay (we draw it on canvas)
+  document.getElementById('stOvl').style.display='none';
+
+  animIndex=0; animPoints=[]; maxSpd=0; animStartTs=null;
+  tileCache={};  // clear tile cache for fresh load
 
   const pi=setInterval(()=>{
     const pct=gpxPoints.length?animIndex/gpxPoints.length*100:0;
-    document.getElementById('pgFill').style.width=pct+'%';
-    document.getElementById('pgLabel').textContent=`${t('prog_rec')} ${pct.toFixed(0)}% (${animIndex}/${gpxPoints.length})`;
-    if(animIndex>=gpxPoints.length) clearInterval(pi);
+    document.getElementById('pgF').style.width=pct+'%';
+    document.getElementById('pgL').textContent=`${t('prec')} ${pct.toFixed(0)}% (${animIndex}/${gpxPoints.length})`;
+    if(animIndex>=gpxPoints.length)clearInterval(pi);
   },200);
 
-  toast('⏺ '+t('toast_rec'));
-  setTimeout(()=>runAnim(s,true),s.startDelay*1000);
+  toast('⏺ '+t('trec'));
+  setTimeout(()=>runRecAnim(s,bounds),s.startDelay*1000);
+}
+
+function runRecAnim(s,initialBounds){
+  let bounds=initialBounds;
+  const cw=recCvs.width, ch=recCvs.height;
+  const interval=1000/s.fps; let lastT=0;
+
+  async function frame(ts){
+    if(!animStartTs)animStartTs=ts;
+    if(ts-lastT<interval){animFrame=requestAnimationFrame(frame);return}
+    lastT=ts;
+    const animElapsed=ts-animStartTs;
+
+    const step=Math.min(s.speed,gpxPoints.length-animIndex);
+    for(let i=0;i<step&&animIndex<gpxPoints.length;i++)animPoints.push(gpxPoints[animIndex++]);
+
+    // update bounds in follow mode
+    if(s.followMode==='follow'&&animPoints.length){
+      const cur=animPoints[animPoints.length-1];
+      // Create a view-sized bounding box around current position
+      // Use map's current zoom to estimate degree span
+      const spanLat=0.02, spanLon=0.03;
+      bounds=L.latLngBounds(
+        [cur.lat-spanLat,cur.lon-spanLon],
+        [cur.lat+spanLat,cur.lon+spanLon]
+      );
+    }
+
+    if(spdKmhForCanvas!==undefined&&animPoints.length>0){
+      const cur2=animPoints[animPoints.length-1];
+      if(animPoints.length>=2){
+        const prev2=animPoints[animPoints.length-2],d2=hav(prev2,cur2);
+        if(gpxHasTime&&cur2.time&&prev2.time){const dt=(cur2.time-prev2.time)/1000;spdKmhForCanvas=dt>0?(d2/dt)*3.6:0;}
+        else{spdKmhForCanvas=(d2/(1000/s.fps/1000))*3.6;}
+        if(spdKmhForCanvas>maxSpd)maxSpd=spdKmhForCanvas;
+      }
+    }
+
+    await renderRecFrame(s,bounds,cw,ch,animPoints,animIndex,animElapsed);
+
+    if(animIndex<gpxPoints.length){animFrame=requestAnimationFrame(frame);}
+    else{setTimeout(()=>stopRecording(),s.endDelay*1000);}
+  }
+  let spdKmhForCanvas=0;
+  animFrame=requestAnimationFrame(frame);
 }
 
 function stopRecording(){
-  if(mediaRecorder&&mediaRecorder.state!=='inactive') mediaRecorder.stop();
+  if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
   stopAnim(); isRecording=false;
-  document.getElementById('recBadge').style.display='none';
+  document.getElementById('recB').style.display='none';
+  document.getElementById('recCvs').style.display='none';
   document.getElementById('stopBtn').disabled=true;
   document.getElementById('recordBtn').disabled=false;
-  document.getElementById('pgLabel').textContent=t('prog_save');
+  document.getElementById('pgL').textContent=t('psave');
+  // restore stats overlay
+  const anyOn=SDEFS.some(d=>stOn[d.id]);
+  if(animPoints.length&&anyOn)document.getElementById('stOvl').style.display='block';
 }
-
 function saveVideo(){
-  if(!recordedChunks.length){toast('⚠ 저장할 데이터 없음');return;}
+  if(!recordedChunks.length){toast('⚠ No data to save');return;}
   const mimeType=recordedChunks[0].type||'video/webm';
   const blob=new Blob(recordedChunks,{type:mimeType});
   const ext=mimeType.includes('mp4')?'mp4':'webm';
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url; a.download='gpx-animation-'+Date.now()+'.'+ext;
-  a.click(); URL.revokeObjectURL(url);
-  document.getElementById('pgFill').style.width='100%';
-  document.getElementById('pgLabel').textContent=`✓ ${t('prog_done')} (${(blob.size/1024/1024).toFixed(1)} MB)`;
-  toast('✓ '+t('toast_saved'));
+  a.href=url;a.download='gpx-animation-'+Date.now()+'.'+ext;
+  a.click();URL.revokeObjectURL(url);
+  document.getElementById('pgF').style.width='100%';
+  document.getElementById('pgL').textContent=`✓ ${t('pdone')} (${(blob.size/1024/1024).toFixed(1)} MB)`;
+  toast('✓ '+t('tsaved'));
 }
 
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 // UTILS
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
 function toast(msg){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  setTimeout(()=>el.classList.remove('show'),3000);
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3200);
 }
-
-// ══════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════
 window.addEventListener('resize',()=>map.invalidateSize());
 setTimeout(()=>map.invalidateSize(),100);
-buildStatToggles();
-renderStatsOverlay();
+
+// INIT
+buildToggles();
+rebuildOverlay();
 applyI18n();
 </script>
 </body>
